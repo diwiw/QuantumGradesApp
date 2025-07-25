@@ -1,0 +1,26 @@
+# Binary Files
+*.o
+*.out
+*.exe
+
+# Build Catalog
+/build/
+/bin/
+/obj/
+/cmake-build-*/
+
+# Tests
+/Tests/build/
+
+# Documentation
+/docs/
+*.dox
+
+# Doxygen output HTML
+/html/
+
+# Backups and other
+*~
+*.swp
+*.bak
+.DS_Store
