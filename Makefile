@@ -1,29 +1,35 @@
 CXX = g++
-CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude
+CXXFLAGS = -Wall -Wextra -std=c++20 -Iinclude -Iexternal
 
-SRC = $(wildcard src/*.cpp)
-OBJ = $(SRC:.cpp=.o)
-EXEC = build/app
-TESTS = $(wildcard tests/*.cpp)
-TEST_BIN = build/test_runner
+SRC = src/Grades.cpp src/Logger.cpp src/main.cpp
+SRC_OBJ = build/Grades.o build/Logger.o build/main.o
 
-$(shell mkdir -p build)
 
-all: $(EXEC)
+TEST_SRC = $(wildcard tests/test_*.cpp)
+TESTS_OBJ = $(patsubst tests/%.cpp, build/tests/%.o, $(TEST_SRC))
+TEST_BIN = build/tests_run
 
-$(EXEC): $(OBJ)
-	$(CXX) $(CXXFLAGS) $^ -o $@ 
+all: app
+
+APP = build/app
+
+app: $(SRC_OBJ)
+	$(CXX) $(CXXFLAGS) -o $(APP) $(SRC_OBJ)
 
 build/%.o: src/%.cpp
+	@mkdir -p build
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-tests: $(TESTS) src/Grades.cpp
-	$(CXX) $(CXXFLAGS) -o $(TEST_BIN) $(TESTS) src/Grades.cpp
-	
-.PHONY: tests run_tests clean
+build/tests/%.o: tests/%.cpp
+	@mkdir -p build/tests
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+tests: $(SRC_OBJ) $(TESTS_OBJ)
+	$(CXX) $(CXXFLAGS) -o $(TEST_BIN) $(SRC_OBJ) $(TESTS_OBJ)
 
 run_tests: tests
 	./$(TEST_BIN)
 
+.PHONY: clean
 clean:
-	rm -rf build/*
+	rm -rf build/ logs/ bin/

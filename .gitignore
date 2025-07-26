@@ -4,13 +4,13 @@
 *.exe
 
 # Build Catalog
-/build/
-/bin/
-/obj/
-/cmake-build-*/
+build/
+bin/
+obj/
+cmake-build-*/
 
 # Tests
-/Tests/build/
+build/tests/
 
 # Documentation
 /docs/
