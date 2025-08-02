@@ -9,6 +9,9 @@ bin/
 obj/
 cmake-build-*/
 
+# Version file
+include/version.h
+
 # Tests
 build/tests/
 
