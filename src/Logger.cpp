@@ -2,8 +2,11 @@
 #include <iostream>
 #include <stdexcept>
 #include <ctime>
+#include <filesystem>
 
 Logger::Logger() : currentLevel(LogLevel::INFO) {
+	if(!std::filesystem::exists("logs"))
+		std::filesystem::create_directory("logs");
 	logfile.open("logs/app.log", std::ios::app);
 	if(!logfile){
 		throw std::runtime_error("Can't open log file.");
@@ -23,6 +26,14 @@ Logger& Logger::getInstance(){
 
 void Logger::setLogLevel(LogLevel level){
 	currentLevel = level;
+}
+
+void Logger::setLogFile(const std::string& filename) {
+	if (logfile.is_open()) logfile.close();
+	logfile.open(filename, std::ios::app);
+	if(!logfile.is_open()) {
+		throw std::runtime_error("Logger: cannot open log file: " + filename);
+	}
 }
 
 void Logger::log(LogLevel level, const std::string& message) {
