@@ -51,7 +51,7 @@ void Logger::log(LogLevel level, const std::string& message) {
 
 	std::time_t now = std::time(nullptr);
 	char timeBuf[100];
-	std::strftime(timeBuf, sizeof(timeBuf), "%Y-%m-%d %H:%M:%S", std::localtime(&now));
+	std::strftime(timeBuf, sizeof(timeBuf), "[%Y-%m-%d %H:%M:%S]", std::localtime(&now));
 
 	logfile << timeBuf << " " << levelStr << " " << message << std::endl;
 }
