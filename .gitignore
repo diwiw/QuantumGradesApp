@@ -9,6 +9,9 @@ bin/
 obj/
 cmake-build-*/
 
+# Log Catalog
+logs/
+
 # Version file
 include/version.h
 
