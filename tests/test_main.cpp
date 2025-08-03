@@ -2,6 +2,7 @@
 #include "doctest.h"
 #include "Logger.h"
 #include <filesystem>
+#include "version.h"
 
 struct LogInit {
 	LogInit() {
@@ -12,3 +13,15 @@ struct LogInit {
 };
 
 LogInit log_init; 	// global object, it executed before tests
+	
+struct VersionPrinter {
+	VersionPrinter() {
+		std::cout << "=========================\n";
+		std::cout << " QuantumGradesApp Tests\n";
+		std::cout << " Version: " << APP_VERSION << "\n";
+		std::cout << " Build date: " << APP_BUILD_DATE << "\n";
+		std::cout << "=========================\n\n";
+	}
+};
+
+static VersionPrinter versionPrinter;
