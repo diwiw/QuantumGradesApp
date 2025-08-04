@@ -2,37 +2,77 @@
 #include "Logger.h"
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 
-double Statistics::calculateMean(const std::vector<int>& data) const {
-	if(data.empty()) return 0.0;
+std::optional<double> Statistics::calculateMean(const std::vector<int>& values)  {
+	if(values.empty()) {
+		Logger::getInstance().log(LogLevel::ERROR, "[Statistics] Cannot calculate mean: data is empty");
+		return std::nullopt;
+	}
+
 	double sum = 0;
-	for(int value : data) sum += value;
-	double mean = sum /data.size();
-	Logger::getInstance().log(LogLevel::INFO, "Meancalculated: " + std::to_string(mean));
+	for(int v : values) sum += v;
+	double mean = sum /values.size();
+	
+	Logger::getInstance().log(LogLevel::INFO, "[Statistics] Mean calculated: " + std::to_string(mean));
 	return mean;
 }
 
-std::optional<int> Statistics::calculateMin(const std::vector<int>& data) const{
-	if (data.empty()) return std::nullopt;
-	int minVal = *std::min_element(data.begin(), data.end());
-	Logger::getInstance().log(LogLevel::INFO, "Min calculate: " + std::to_string(minVal));
+std::optional<int> Statistics::calculateMin(const std::vector<int>& values) {
+	if (values.empty()) {
+		Logger::getInstance().log(LogLevel::ERROR, "[Statistics] Cannot calculate min value: data is empty");
+		return std::nullopt;
+	}
+	int minVal = *std::min_element(values.begin(), values.end());
+	Logger::getInstance().log(LogLevel::INFO, "[Statistics] Min calculate: " + std::to_string(minVal));
 	return minVal;
 }
 
-std::optional<int> Statistics::calculateMax(const std::vector<int>& data) const {
-	if (data.empty()) return std::nullopt;
-	int maxVal = *std::max_element(data.begin(), data.end());
-	Logger::getInstance().log(LogLevel::INFO, "Max calculated: " + std::to_string(maxVal));
+std::optional<int> Statistics::calculateMax(const std::vector<int>& values) {
+	if (values.empty()) {
+		Logger::getInstance().log(LogLevel::ERROR, "[Statistics] Cannot calculate max value: data ist empty");
+		return std::nullopt;
+	}
+	int maxVal = *std::max_element(values.begin(), values.end());
+	Logger::getInstance().log(LogLevel::INFO, "[Statistics] Max calculated: " + std::to_string(maxVal));
 	return maxVal;
 }
 
-double Statistics::calculateStdDev(const std::vector<int>& data) const{
-	if (data.empty()) return 0.0;
-	double mean = calculateMean(data);
-	double sumSq = 0;
-	for (int value : data) sumSq += (value -mean) * (value - mean);
-	double stdDev = std::sqrt(sumSq /data.size());
-	Logger::getInstance().log(LogLevel::INFO, "StdDev calculated: " + std::to_string(stdDev));
+std::optional<double> Statistics::calculateMedian(const std::vector<int>& values) {
+	if(values.empty()){
+		Logger::getInstance().log(LogLevel::ERROR, "[Statistics] Cannot calculate median: data is empty");
+		return std::nullopt;
+	}
+
+	std::vector<int> sortedData = values;
+	std::sort(sortedData.begin(), sortedData.end());
+
+	double median;
+	if(sortedData.size() % 2 == 0) {
+		median = (sortedData[sortedData.size()/2 -1] + sortedData[sortedData.size()/2]) / 2.0;
+	} else {
+		median = sortedData[sortedData.size()/2];
+	}
+
+	Logger::getInstance().log(LogLevel::INFO, "[Statistics] Median calculated: " + std::to_string(median));
+	return median;
+}
+
+std::optional<double> Statistics::calculateStdDev(const std::vector<int>& values) {
+	if (values.size() < 2 ) {
+		Logger::getInstance().log(LogLevel::ERROR, "[Statistics] Cannot calculate stddev: not enough values.");
+	       	return std::nullopt;
+	}
+
+	auto meanOpt = calculateMean(values);
+	if(!meanOpt.has_value()) return std::nullopt;
+
+	double mean = meanOpt.value();
+	double sumSq = 0.0;
+
+	for (int v : values) sumSq += (v -mean) * (v - mean);
+	double stdDev = std::sqrt(sumSq / values.size());
+	Logger::getInstance().log(LogLevel::INFO, "[Statistics] StdDev calculated: " + std::to_string(stdDev));
 	return stdDev;
 }
 
