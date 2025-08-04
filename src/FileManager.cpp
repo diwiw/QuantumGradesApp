@@ -1,54 +1,73 @@
 #include "FileManager.h"
 #include "Logger.h"
 #include <fstream>
-#include <sstream>
+#include <filesystem>
 
-std::optional<std::vector<std::vector<std::string>>> FileManager::readCSV(const std::string& filename) {
-	std::ifstream file(filename);
-	if(!file.is_open()){
-		Logger::getInstance().log(LogLevel::ERROR, "Cannot open file for reading: " + filename);
+std::optional<std::vector<std::string>> FileManager::readAllLines(const std::string& filePath) {
+	if(!exists(filePath)){
+		Logger::getInstance().log(LogLevel::ERROR, "File not found: " + filePath);
 		return std::nullopt;
 	}
 
-	Logger::getInstance().log(LogLevel::INFO, "Reading CSV file: " + filename);
-
-	std::vector<std::vector<std::string>> rows;
-	std::string line;
-
-	while(std::getline(file, line)){
-		std::vector<std::string> row;
-		std::stringstream ss(line);
-		std::string cell;
-		while(std::getline(ss, cell, ',')) {
-			row.push_back(cell);
-		}
-		rows.push_back(row);
-
+	std::ifstream file(filePath);
+	if(!file.is_open()){
+		Logger::getInstance().log(LogLevel::ERROR, "Cannot open file for reading: " + filePath);
+		return std::nullopt;
 	}
 
-	file.close();
-	return rows;
+	std::vector<std::string> lines;
+	std::string line;
+	while(std::getline(file, line)){
+		lines.push_back(line);
+	}
+	Logger::getInstance().log(LogLevel::INFO, "Read " + std::to_string(lines.size()) + " lines from: " + filePath);
+	
+	return lines;
 }
 
-bool FileManager::writeCSV(const std::string& filename, const std::vector<std::vector<std::string>>& data){
-	std::ofstream file(filename);
+bool FileManager::writeAllLines(const std::string& filePath, const std::vector<std::string>& lines){
+	std::ofstream file(filePath, std::ios::trunc);
 	if(!file.is_open()){
-		Logger::getInstance().log(LogLevel::ERROR, "Cannot open file for writing: " + filename);
+		Logger::getInstance().log(LogLevel::ERROR, "Cannot open file for writing: " + filePath);
 		return false;
 	}
 
-	Logger::getInstance().log(LogLevel::INFO, "Writing CSV file: " + filename);
-
-	for (const auto& row : data) {
-		for(size_t i=0; i < row.size() ; i++) {
-			file << row[i];
-			if (i < row.size() -1) {
-				file << ",";
-			}
-		}
-		file << "\n";
+	for (const auto& line : lines) {
+		file << line << "\n";
 	}
 
-	file.close();
+	Logger::getInstance().log(LogLevel::INFO, "Wrote " + std::to_string(lines.size()) + " lines to the file: " + filePath);
+	
 	return true;
+}
+
+bool FileManager::appendLine(const std::string& filePath, const std::string& line) {
+	std::ofstream file(filePath, std::ios::app);
+	if(!file.is_open()){
+		Logger::getInstance().log(LogLevel::ERROR, "Failed to append to file: " + filePath);
+		return false;
+	}
+
+	file << line << "\n";
+	Logger::getInstance().log(LogLevel::INFO, "Appended line to: " + filePath);
+	return true;
+}
+
+bool FileManager::exists(const std::string& filePath) {
+	return std::filesystem::exists(filePath);
+}
+
+bool FileManager::removeFile(const std::string& filePath) {
+	if(!exists(filePath)){
+		Logger::getInstance().log(LogLevel::WARNING, "File does not exist: " + filePath);
+		return false;
+	}
+
+	if(std::filesystem::remove(filePath)){
+		Logger::getInstance().log(LogLevel::INFO, "Deleted file: " + filePath);
+		return true;
+	} else {
+		Logger::getInstance().log(LogLevel::ERROR, "Failed to delete file: " + filePath);
+		return false;
+	}
 }
