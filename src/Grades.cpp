@@ -6,7 +6,7 @@
 
 void Grades::add(int grade) {
 	notes.push_back(grade);
-	Logger::getInstance().log(LogLevel::INFO, "Added Grade: " + std::to_string(grade));
+	Logger::getInstance().log(LogLevel::INFO, "[Grades] Added Grade: " + std::to_string(grade));
 }
 
 float Grades::getMean() const{

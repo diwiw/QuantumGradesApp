@@ -9,7 +9,7 @@ Logger::Logger() : currentLevel(LogLevel::INFO) {
 		std::filesystem::create_directory("logs");
 	logfile.open("logs/app.log", std::ios::app);
 	if(!logfile){
-		throw std::runtime_error("Can't open log file.");
+		throw std::runtime_error("[Logger] Can't open log file.");
 	}
 }
 
@@ -32,7 +32,7 @@ void Logger::setLogFile(const std::string& filename) {
 	if (logfile.is_open()) logfile.close();
 	logfile.open(filename, std::ios::app);
 	if(!logfile.is_open()) {
-		throw std::runtime_error("Logger: cannot open log file: " + filename);
+		throw std::runtime_error("[Logger] Cannot open log file: " + filename);
 	}
 }
 
