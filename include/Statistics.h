@@ -27,27 +27,27 @@ public:
 	 * @param values Vector of integers.
 	 * @return Minimum value, or std::nullopt if vector is empty.
 	 */
-	std::optional<int> calculateMin(const std::vector<int>& values);
+	static std::optional<int> calculateMin(const std::vector<int>& values);
 
 	/**
 	 * @brief Calculates the maximum value from a set of values.
 	 * @param values Vector of integers.
 	 * @return Maximum value, or std::nullopt if vector is empty.
 	 */
-	std::optional<int> calculateMax(const std::vector<int>& values);
+	static std::optional<int> calculateMax(const std::vector<int>& values);
 
 	/**
 	 * @brief Calculates median of given integers.
 	 * @param data Vector of integers.
 	 * @return Median value or std::nullopt if data is empty.
 	 */
-	std::optional<double> calculateMedian(const std::vector<int>& values);
+	static std::optional<double> calculateMedian(const std::vector<int>& values);
 
 	/**
 	 * @brief Calculates standard deviation of given integers.
 	 * @param values Vector of integers.
 	 * @return Standard deviation or std::nullopt if data is empty.
 	 */
-	std::optional<double> calculateStdDev(const std::vector<int>& values);
+	static std::optional<double> calculateStdDev(const std::vector<int>& values);
 };
 

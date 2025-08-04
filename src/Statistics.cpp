@@ -71,7 +71,7 @@ std::optional<double> Statistics::calculateStdDev(const std::vector<int>& values
 	double sumSq = 0.0;
 
 	for (int v : values) sumSq += (v -mean) * (v - mean);
-	double stdDev = std::sqrt(sumSq / values.size());
+	double stdDev = std::sqrt(sumSq / (values.size()-1));
 	Logger::getInstance().log(LogLevel::INFO, "[Statistics] StdDev calculated: " + std::to_string(stdDev));
 	return stdDev;
 }
