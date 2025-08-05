@@ -22,5 +22,5 @@ TEST_CASE("Grades print (just runs)") {
 	Grades g;
 	g.add(1);
 	g.add(2);
-	g.print(); // Not the output value is tested, but no errors
+	g.printGrades(); // Not the output value is tested, but no errors
 }

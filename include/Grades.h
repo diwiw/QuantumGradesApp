@@ -1,5 +1,4 @@
-#ifndef GRADES_H
-#define GRADES_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -10,11 +9,13 @@ private:
 
 public:
 	void add(int grade);
+	const std::vector<int>& getNotes() const;
 	float getMean() const;
+	float getMedian() const;
+	float getStdDev() const;
 	int getMax() const;
 	int getMin() const;
-	void print() const;
+	void printSummary() const;
+	void printGrades() const;
 
 };
-
-#endif

@@ -1,6 +1,5 @@
 // Logger.h
-#ifndef LOGGER_H
-#define LOGGER_H
+#pragma once
 
 #include <fstream>
 #include <string>
@@ -63,5 +62,3 @@ private:
 	std::mutex mtx;				   ///< Thread safety mutex
 
 };
-
-#endif	// LOGGER_H

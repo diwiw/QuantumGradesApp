@@ -2,7 +2,7 @@
 #include "doctest.h"
 #include "Logger.h"
 #include <filesystem>
-#include "version.h"
+#include "Version.h"
 
 struct LogInit {
 	LogInit() {
