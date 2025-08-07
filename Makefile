@@ -91,6 +91,6 @@ docs:
 
 # Clean
 clean:
-	rm -rf $(BUILD_DIR) $(BIN_DIR) $(VERSION_FILE) $(DATA_DIR)
+	rm -rf $(BUILD_DIR)/* $(BIN_DIR) $(VERSION_FILE) $(DATA_DIR)
 
 .PHONY: all clean run run_tests tests docs

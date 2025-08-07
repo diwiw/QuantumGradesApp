@@ -12,7 +12,7 @@
 - **Statistics** - mean, median, standard deviation, min, max calculations.
 - **FileManager** - static class for safe file read/write/append operations.
 - **Unit Tests** - implemented with [doctest](https://github.com/doctest/doctest) for all modules. 
-- **Versioning** - version information embedded in the build (`version.h`);
+- **Versioning** - version information embedded in the build (`Version.h`);
 
 ---
 
@@ -29,8 +29,8 @@
 
 
 ### Build application:
-```bash
-make ```
+`bash`
+`make`
 
 ### Run application:
 `./bin/app`

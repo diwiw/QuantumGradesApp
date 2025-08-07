@@ -28,7 +28,7 @@ int main() {
 	g.printSummary();
 
 	// === Save grades ===
-	std::cout << "\n Saving grades to \"data/grades.txt\"...\n";
+	std::cout << "\nSaving grades to \"data/grades.txt\"...\n";
 	std::vector<std::string> gradeLines;
 	for (int note : g.getNotes()) {
 		gradeLines.push_back(std::to_string(note));
