@@ -13,7 +13,7 @@ cmake-build-*/
 logs/
 
 # Version file
-include/version.h
+include/Version.h
 
 # Tests
 build/tests/
