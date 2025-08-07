@@ -19,7 +19,7 @@ set(DATA_DIR ${CMAKE_SOURCE_DIR}/data)
 
 include_directories(${INCLUDE_DIR} ${EXTERNAL_DIR})
 
-# === Generate version.h ===
+# === Generate Version.h ===
 execute_process(
 	COMMAND git describe --tags --always --dirty
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
