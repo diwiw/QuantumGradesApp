@@ -1,83 +1,130 @@
-# QuantumGradesApp
+# 📊 QuantumGradesApp
 
-**Version:** 0.3.0
-**Description:** Modular C++ application for managing and analyzing grades. Includes logging system, statistics calculations, file management, and unit tests.
+A modular and extensible C++ application for managing student grades, calculating basic statistics, and demonstrating modern C++ design patterns (RAII, Singleton, stateless utility classes). The project is designed to evolve into a quantum data simulation and analysis framework.
 
----
-
-## Features
-
-- **Grades Module** - add, store, and diesplay grades.
-- **Logger** - thread-safe singelton logger with log levels.
-- **Statistics** - mean, median, standard deviation, min, max calculations.
-- **FileManager** - static class for safe file read/write/append operations.
-- **Unit Tests** - implemented with [doctest](https://github.com/doctest/doctest) for all modules. 
-- **Versioning** - version information embedded in the build (`Version.h`);
+> **Current Version:** `v0.4.0`  
+> **Build System:** CMake  
+> **IDE Support:** Visual Studio Code (fully configured)  
+> **Documentation:** Auto-generated with Doxygen  
+> **Unit Testing:** Doctest  
 
 ---
 
-## Requirements
+## ✨ Features
 
-- **Compiler**: GCC 11+ or Clang 12+ (C++20 support)
-- **Make**: GNU Make 4.3+
-- **Doxygen** (optional, for documentation generation)
-- **Git** (for version information in builds)
+- Modular architecture using modern C++17.
+- Grade management with safe file read/write (via `FileManager`).
+- Basic statistics (mean, median, std. dev, min, max) via `Statistics`.
+- Singleton-based logging system (`Logger`).
+- Full test suite with `doctest` framework.
+- Automated documentation with Doxygen (HTML output).
+- Clean separation of `src/`, `include/`, `tests/`, and `data/`.
+- Cross-platform build system with CMake (Release/Debug).
+- Ready for CI/CD integration and future quantum extensions.
 
 ---
 
-## Build & Run
+## 🧱 Project Structure
 
+```bash
+QuantumGradesApp/
+├── CMakeLists.txt
+├── include/
+│   ├── FileManager.h
+│   ├── Grades.h
+│   ├── Logger.h
+│   ├── Statistics.h
+│   └── Version.h   # auto-generated
+├── src/
+│   ├── FileManager.cpp
+│   ├── Grades.cpp
+│   ├── Logger.cpp
+│   ├── Statistics.cpp
+│   └── main.cpp
+├── tests/
+│   ├── test_filemanager.cpp
+│   ├── test_grades.cpp
+│   ├── test_statistics.cpp
+│   └── test_main.cpp
+├── data/
+│   └── readGrades.txt   # sample input
+├── docs/
+│   └── html/            # generated docs
+├── changelog/
+│   ├── release_notes_v0.3.0.md
+│	└── release_notes_v0.4.0.md
+├── LICENSE.txt
+└── README.md
+```
 
-### Build application:
-`bash`
-`make`
+---
 
-### Run application:
-`./bin/app`
+## 🚀 Getting Started
 
-### Build and run tests:
-`make run_tests`
+### 🔧 Build with CMake
 
+```bash
+# Create build directory
+mkdir -p build && cd build
 
-## Project Structure
+# Configure project
+cmake ..
 
-QuantumGradeApp/
-├─ src/         # Source files (.cpp)
-├─ include/     # Header files (.h)
-├─ tests/       # Unit tests
-├─ data/        # Sample data files
-├─ logs/        # Application & test logs
-├─ Makefile     # Build system
-├─ external/    # External dependencies (doctest.h)
-├─ Doxyfile     # Doxygen configuration
-└─ License      # License file
+# Build application and tests
+cmake --build . --target app
+cmake --build . --target tests
+```
 
-## Testing
+### 🧪 Run Tests
 
-Unit tests are implemented for:
-- Grades
-- Logger
-- Statistics
-- FileManager
-To run:
-`make run_tests`
+```bash
+./bin/tests
+```
 
-## Documentation
+### 📂 Run Application
 
-Generate with:
-`make docs`
-Output will be in `docs/html/index.html`
+```bash
+./bin/app
+```
 
-## Releases
+---
 
-This project uses Git tags for versioning.
-To create a release:
-```git tag -a v0.3.0 -m "Release 0.3.0 - integrated Statistics & FileManager"
-git push origin v0.3.0```
+## 📝 Doxygen Documentation
 
-## Licence
+Generate HTML docs with:
 
-This project is licensed under the MIT License.
+```bash
+cd build
+make docs
+```
 
+Output: `docs/html/index.html`
 
+---
 
+## 🗒 Release Notes
+
+- [v0.4.0](changelog/release_notes_v0.4.0.md) – migrated to CMake, VSCODE support, automatic data file copy
+- [v0.3.0](changelog/release_notes_v0.3.0.md) – full Makefile-based implementation with tests, modular code, Logger, Statistics
+
+---
+
+## ⚖️ License
+
+MIT License – see [`LICENSE.txt`](LICENSE.txt)
+
+---
+
+## 💡 Roadmap
+
+- ✅ v0.4.0 – CMake, IDE, Doxygen, release packaging  
+- ⏳ v0.5.0 – CI/CD, GitHub Actions  
+- ⏳ v1.0.0 – Quantum/Simulation extension, CLI interface  
+- ⏳ v2.0.0+ – Python bindings, HPC integrations, ML analysis  
+
+---
+
+## 👤 Author
+
+Maintained by [diwiw](https://github.com/diwiw)  
+Contact: [GitHub Issues](https://github.com/diwiw/QuantumGradesApp/issues)

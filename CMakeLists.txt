@@ -1,16 +1,20 @@
 cmake_minimum_required(VERSION 3.16)
-project(QuantumGradesApp VERSION 0.4.0 LANGUAGES CXX)
+project(QuantumGradesApp VERSION 0.4.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # === Build type ===
 if(NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE Debug)
+	set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
 endif()
 
-	# === Directories ===
+# === Compiler flags ===
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+	add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+# === Directories ===
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 set(TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
@@ -26,6 +30,8 @@ execute_process(
 	OUTPUT_VARIABLE GIT_VERSION
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+
+
 
 # === Generate 'data' catalog in binary
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data)
@@ -54,8 +60,8 @@ target_include_directories(app PRIVATE ${INCLUDE_DIR})
 file(GLOB TEST_FILES ${TEST_DIR}/*.cpp)
 list(FILTER TEST_FILES EXCLUDE REGEX ".*test_main.cpp$")
 
-add_executable(run_tests ${SRC_FILES} ${TEST_FILES} ${TEST_DIR}/test_main.cpp)
-target_include_directories(run_tests PRIVATE ${INCLUDE_DIR} ${EXTERNAL_DIR})
+add_executable(tests ${SRC_FILES} ${TEST_FILES} ${TEST_DIR}/test_main.cpp)
+target_include_directories(tests PRIVATE ${INCLUDE_DIR} ${EXTERNAL_DIR})
 
 # === Doxygen ===
 find_package(Doxygen REQUIRED)

@@ -4,7 +4,7 @@
 #include <string>
 
 TEST_CASE("Logger basic log to file") {
-	const std::string testLogFile = "bin/log_test.txt";
+	const std::string testLogFile = "log_test.txt";
 	//Logger& logger = Logger::getInstance();
 	std::remove(testLogFile.c_str());
 	Logger::getInstance().setLogFile(testLogFile);

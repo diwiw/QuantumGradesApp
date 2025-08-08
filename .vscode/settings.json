@@ -1,7 +1,21 @@
 {
+    "cmake.Generator": "Ninja",
     "cmake.sourceDirector": "${workspaceFolder}",
     "cmake.buildDirectory": "${workspaceFolder}/build",
-    "cmake.configureOnOpen": true,
-    "cmake.generator": "Unix Makefiles",
-    "cmake.buildArgs": ["--", "-j4"]
+    "cmake.configureOnOpen": false,
+    "cmake.generator": "Ninja",
+    "cmake.buildArgs": [
+        "--",
+        "-j4"
+    ],
+    "cmake.buildType": "Debug",
+    "files.associations": {
+        "*.tpp": "cpp",
+        "*.hpp": "cpp",
+        "*.h": "cpp",
+        "iostream": "cpp",
+        "ostream": "cpp",
+        "istream": "cpp"      
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }
