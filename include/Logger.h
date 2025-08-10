@@ -1,6 +1,7 @@
 // Logger.h
 #pragma once
 
+#include "Platform.h" // Ensure platform-specific settings are included first
 #include <fstream>
 #include <string>
 #include <memory>
