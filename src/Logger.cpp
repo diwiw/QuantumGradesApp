@@ -1,3 +1,4 @@
+#include "Platform.h"
 #include "Logger.h"
 #include <iostream>
 #include <stdexcept>
