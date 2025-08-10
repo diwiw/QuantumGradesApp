@@ -14,6 +14,9 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 	add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# === Options ===
+option(BUILD_DOCS "Build documentation with doxygen" OFF)
+
 # === Directories ===
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
@@ -64,17 +67,22 @@ add_executable(tests ${SRC_FILES} ${TEST_FILES} ${TEST_DIR}/test_main.cpp)
 target_include_directories(tests PRIVATE ${INCLUDE_DIR} ${EXTERNAL_DIR})
 
 # === Doxygen ===
-find_package(Doxygen REQUIRED)
-if (DOXYGEN_FOUND)
-	set(DOXYGEN_IN ${CMAKE_SOURCE_DIR}/Doxyfile)
-	set(DOXYGEN_OUT ${CMAKE_BINARY_DIR}/docs)
+if(BUILD_DOCS)
+	find_package(Doxygen QUIET)
+	if (DOXYGEN_FOUND)
+		set(DOXYGEN_IN ${CMAKE_SOURCE_DIR}/Doxyfile)
+		set(DOXYGEN_OUT ${CMAKE_BINARY_DIR}/docs)
 
-	add_custom_target(docs
-		COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_IN}
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-		COMMENT "Generating API documentation with Doxygen"
-		VERBATIM
-	)
+		add_custom_target(docs
+			COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_IN}
+			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+			COMMENT "Generating API documentation with Doxygen"
+			VERBATIM
+		)
+	endif()
+	if (NOT DOXYGEN_FOUND)
+		message(FATAL_ERROR "Doxygen required when BUILD_DOCS=ON. Install doxygen or set BUILD_DOCS=OFF.")
+	endif()
 endif()
 
 # === Clean-all ===
