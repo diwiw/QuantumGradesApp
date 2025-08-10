@@ -1,4 +1,6 @@
 name: Release (tag)
+permissions:
+  contents: write # Allow write access to contents for creating releases
 on:
   push:
     tags:
