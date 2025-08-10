@@ -1,0 +1,48 @@
+name: Build (CMake + CTest)
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build cmake build-essential ccache
+      - name: Configure (Ubuntu, Ninja)
+        if: matrix.os == 'ubuntu-latest'
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      - name: Build (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: cmake --build build --parallel
+      - name: Test (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: ctest --test-dir build --output-on-failure
+      - name: Configure (Windows, VS 2022)
+        if: matrix.os == 'windows-latest'
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+      - name: Build (Windows)
+        if: matrix.os == 'windows-latest'
+        run: cmake --build build --config RelWithDebInfo --parallel
+      - name: Test (Windows)
+        if: matrix.os == 'windows-latest'
+        run: ctest --test-dir build -C RelWithDebInfo --output-on-failure
+      - name: Upload artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.os }}
+          path: |
+            build/**
+            !build/CMakeFiles/**
+            !build/**/*.obj
+            !build/**/*.o
