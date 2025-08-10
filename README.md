@@ -1,5 +1,7 @@
 # 📊 QuantumGradesApp
 
+![Build](https://github.com/diwiw/QuantumGradesApp/actions/workflows/build.yml/badge.svg)
+
 A modular and extensible C++ application for managing student grades, calculating basic statistics, and demonstrating modern C++ design patterns (RAII, Singleton, stateless utility classes). The project is designed to evolve into a quantum data simulation and analysis framework.
 
 > **Current Version:** `v0.4.0`  
