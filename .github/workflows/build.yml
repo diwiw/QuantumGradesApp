@@ -12,6 +12,16 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     steps:
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
+      - run: |
+          echo 'max_size = 500M' > ~/.ccache/ccache.conf
+          echo "CMAKE_____CXX_COMPILER_LAUNCHER=ccache" >> $GITHUB_ENV
       - uses: actions/checkout@v4
       - name: Install deps (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
@@ -20,7 +30,9 @@ jobs:
           sudo apt-get install -y ninja-build cmake build-essential ccache
       - name: Configure (Ubuntu, Ninja)
         if: matrix.os == 'ubuntu-latest'
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache
       - name: Build (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
         run: cmake --build build --parallel
