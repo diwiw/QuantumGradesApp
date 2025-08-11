@@ -1,60 +1,86 @@
 name: Build (CMake + CTest)
+
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
+  workflow_dispatch:
+
 jobs:
   build:
+    name: ${{ matrix.os }} • build & test
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ ubuntu-latest, windows-latest ]
+
     steps:
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/ccache
-          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-ccache-
-      - run: |
-          echo 'max_size = 500M' > ~/.ccache/ccache.conf
-          echo "CMAKE_____CXX_COMPILER_LAUNCHER=ccache" >> $GITHUB_ENV
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ---------- Ubuntu ----------
       - name: Install deps (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y ninja-build cmake build-essential ccache
-      - name: Configure (Ubuntu, Ninja)
+
+      - name: Setup ccache (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-          -DCMAKE_C_COMPILER_LAUNCHER=ccache
+        run: |
+          mkdir -p ~/.cache/ccache
+          mkdir -p ~/.ccache
+          echo 'max_size = 500M' > ~/.ccache/ccache.conf
+
+      - name: Cache ccache (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake', '**/*.hpp', '**/*.h', '**/*.cpp') }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
+
+      - name: Configure (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache
+
       - name: Build (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
         run: cmake --build build --parallel
+
       - name: Test (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
         run: ctest --test-dir build --output-on-failure
-      - name: Configure (Windows, VS 2022)
+
+      - name: ccache stats (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: ccache -s || true
+
+      # ---------- Windows ----------
+      - name: Configure (Windows)
         if: matrix.os == 'windows-latest'
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+
       - name: Build (Windows)
         if: matrix.os == 'windows-latest'
         run: cmake --build build --config RelWithDebInfo --parallel
+
       - name: Test (Windows)
         if: matrix.os == 'windows-latest'
         run: ctest --test-dir build -C RelWithDebInfo --output-on-failure
-      - name: Upload artifacts
-        if: ${{ always() }}
+
+      # ---------- Artifacts ----------
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-${{ matrix.os }}
           path: |
             build/**
-            !build/CMakeFiles/**
-            !build/**/*.obj
-            !build/**/*.o
+          if-no-files-found: ignore
