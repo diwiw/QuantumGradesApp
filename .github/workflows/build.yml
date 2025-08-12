@@ -63,6 +63,12 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: ccache -s || true
 
+      - name: Show ccache stats (Ubuntu)
+        if: always() && runner.os == 'Ubuntu'
+        run: |
+          echo "=== CCACHE STATS ==="        
+          ccache --show-stats
+
       # ---------- Windows ----------
       - name: Configure (Windows)
         if: matrix.os == 'windows-latest'
