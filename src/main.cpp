@@ -1,8 +1,12 @@
+#include <iostream>
+#include <filesystem>
 #include "Grades.h"
 #include "Version.h"
 #include "FileManager.h"
 #include "Logger.h"
-#include <iostream>
+#include "Config.h"
+
+
 
 int main() {
 	// === Header ===
@@ -14,6 +18,25 @@ int main() {
 
 	Logger::getInstance().log(LogLevel::INFO, "[APP] Application started - version " + std::string(APP_VERSION));
 	
+	// === Load configuration ===
+	std::cout << "Loading configuration...\n";
+	
+	std::string err;
+	auto cfg = Config::load("config/config.json", &err);
+	if(!err.empty()) {
+		std::cerr << "Error loading configuration: " << err << "\n";
+		return 1;	
+	}
+
+	// Make sure Log catalog exists
+	try {
+		std::filesystem::path p{cfg.logFile};
+		if(p.has_parent_path()) std::filesystem::create_directories(p.parent_path());
+	} catch (const std::exception& e) {
+		std::cerr << "Error creating log directory: " << e.what() << "\n";
+		return 1;
+	}
+
 	// === Add grades ===
 	Grades g;
 	std::cout << "Application adds notes, prints them and their statistics\n";

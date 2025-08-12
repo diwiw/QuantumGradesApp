@@ -3,6 +3,7 @@ project(QuantumGradesApp VERSION 0.4.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POLICY_DEFAULT_CMP0135 NEW)
 
 if (WIN32)
 	add_compile_definitions(
@@ -63,6 +64,15 @@ configure_file(
 file(GLOB SRC_FILES ${SRC_DIR}/*.cpp)
 list(FILTER SRC_FILES EXCLUDE REGEX ".*main.cpp$")
 
+# === External libraries ===
+include(FetchContent)
+FetchContent_Declare(
+	nlohmann_json
+	URL https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.tar.gz
+)
+FetchContent_MakeAvailable(nlohmann_json)
+
+
 # === Application build ===
 add_executable(app ${SRC_FILES} ${SRC_DIR}/main.cpp)
 target_include_directories(app PRIVATE ${INCLUDE_DIR})
@@ -73,6 +83,13 @@ list(FILTER TEST_FILES EXCLUDE REGEX ".*test_main.cpp$")
 
 add_executable(tests ${SRC_FILES} ${TEST_FILES} ${TEST_DIR}/test_main.cpp)
 target_include_directories(tests PRIVATE ${INCLUDE_DIR} ${EXTERNAL_DIR})
+
+# Make sure, that targets sees nlohmann_json
+target_link_libraries(app PRIVATE nlohmann_json::nlohmann_json)
+if(TARGET tests)
+	target_link_libraries(tests PRIVATE nlohmann_json::nlohmann_json)
+endif()
+
 
 # === Doxygen ===
 if(BUILD_DOCS)
@@ -97,4 +114,8 @@ endif()
 add_custom_target(clean-all
 	COMMAND ${CMAKE_COMMAND} -E rm ${CMAKE_BINARY_DIR}/*
 	COMMAND "Removing all build files..."
+	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/data
+	COMMAND "Removing data directory..."
+	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/test_tmp_cfg_json
+	COMMAND "Removing test_tmp_cfg_json directory..."	
 )
