@@ -53,23 +53,11 @@ file(COPY ${CMAKE_SOURCE_DIR}/data/readGrades.txt
 
 string(TIMESTAMP BUILD_DATE "%Y-%m-%d %H:%M:%S")
 
-# === Configure version header file ===
 configure_file(
 	${CMAKE_SOURCE_DIR}/cmake/version.h.in
 	${INCLUDE_DIR}/Version.h
 	@ONLY
 )
-
-
-# === Include TOML++ ===
-include(FetchContent)
-FetchContent_Declare(
-	tomlplusplus
-	GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
-	GIT_TAG v3.4.0
-)
-FetchContent_MakeAvailable(tomlplusplus)
-#target_include_directories(${PROJECT_NAME} PRIVATE ${tomlplusplus_SOURCE_DIR}/include)
 
 # === Application sources (without main for tests) ===
 file(GLOB SRC_FILES ${SRC_DIR}/*.cpp)
@@ -77,14 +65,14 @@ list(FILTER SRC_FILES EXCLUDE REGEX ".*main.cpp$")
 
 # === Application build ===
 add_executable(app ${SRC_FILES} ${SRC_DIR}/main.cpp)
-target_include_directories(app PRIVATE ${INCLUDE_DIR} ${tomlplusplus_SOURCE_DIR}/include)
+target_include_directories(app PRIVATE ${INCLUDE_DIR})
 
 # === Tests ===
 file(GLOB TEST_FILES ${TEST_DIR}/*.cpp)
 list(FILTER TEST_FILES EXCLUDE REGEX ".*test_main.cpp$")
 
 add_executable(tests ${SRC_FILES} ${TEST_FILES} ${TEST_DIR}/test_main.cpp)
-target_include_directories(tests PRIVATE ${INCLUDE_DIR} ${EXTERNAL_DIR} ${tomlplusplus_SOURCE_DIR}/include)
+target_include_directories(tests PRIVATE ${INCLUDE_DIR} ${EXTERNAL_DIR})
 
 # === Doxygen ===
 if(BUILD_DOCS)

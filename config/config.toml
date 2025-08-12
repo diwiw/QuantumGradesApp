@@ -1,9 +1,0 @@
-[logging]
-level = "DEBUG"
-dir = "logs"
-
-[paths]
-data_dir = "data"
-
-[engine]
-threads = 8
