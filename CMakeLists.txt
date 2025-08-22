@@ -1,9 +1,13 @@
-cmake_minimum_required(VERSION 3.16)
-project(QuantumGradesApp VERSION 0.4.1 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.20)
+project(QuantumGradesApp VERSION 0.5.9 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_POLICY_DEFAULT_CMP0135 NEW)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 NEW)
+endif()
 
 if (WIN32)
 	add_compile_definitions(
@@ -61,8 +65,8 @@ configure_file(
 )
 
 # === Application sources (without main for tests) ===
-file(GLOB SRC_FILES ${SRC_DIR}/*.cpp)
-list(FILTER SRC_FILES EXCLUDE REGEX ".*main.cpp$")
+file(GLOB_RECURSE SRC_FILES ${SRC_DIR}/*.cpp)
+list(FILTER SRC_FILES EXCLUDE REGEX ".*/main\\.cpp$")
 
 # === External libraries ===
 include(FetchContent)
@@ -112,10 +116,8 @@ endif()
 
 # === Clean-all ===
 add_custom_target(clean-all
-	COMMAND ${CMAKE_COMMAND} -E rm ${CMAKE_BINARY_DIR}/*
-	COMMAND "Removing all build files..."
-	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/data
-	COMMAND "Removing data directory..."
+	COMMAND ${CMAKE_COMMAND} -E rm ${CMAKE_BINARY_DIR}/*	
+	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/data	
 	COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/test_tmp_cfg_json
-	COMMAND "Removing test_tmp_cfg_json directory..."	
+	COMMAND "Removing all build files and temp directories..."
 )
