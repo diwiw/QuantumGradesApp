@@ -54,7 +54,7 @@ namespace backtest{
       cash                  -= fee;
       qty                   = 0.0;
       has_pos               = false;
-      r.final_equity *= cash;
+      r.final_equity = cash;
     }
     
     return r;
