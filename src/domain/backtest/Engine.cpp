@@ -46,10 +46,18 @@ namespace backtest{
     }
     strat.onFinish();
 
-  if (has_pos) { 
-    r.final_equity = (s.back().close / entry);
+    if (has_pos) { // 
+      const auto& last      = s.back();
+      const double px_exec  = applySlippage(last.close, exec_.slippage_bps, /*is_buy=*/false);
+      const double fee      = commissionCost(px_exec, qty, exec_.commission_fixed, exec_.commission_bps);
+      cash                  += px_exec * qty;
+      cash                  -= fee;
+      qty                   = 0.0;
+      has_pos               = false;
+      r.final_equity = cash;
+    }
+    
+    return r;
   }
-  return r;
-}
 
 } // namespace backtest
