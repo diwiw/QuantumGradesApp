@@ -28,6 +28,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 # === Options ===
+option(BUILD_EXAMPLES "Build example programs" OFF)
 option(BUILD_DOCS "Build documentation with doxygen" OFF)
 
 # === Directories ===
@@ -35,6 +36,7 @@ set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 set(TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external)
+set(EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
 set(DATA_DIR ${CMAKE_SOURCE_DIR}/data)
 
 include_directories(${INCLUDE_DIR} ${EXTERNAL_DIR})
@@ -77,9 +79,16 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(nlohmann_json)
 
 
-# === Application build ===
-add_executable(app ${SRC_FILES} ${SRC_DIR}/main.cpp)
-target_include_directories(app PRIVATE ${INCLUDE_DIR})
+# === Optional Examples build ===
+if(BUILD_EXAMPLES)
+	add_executable(examples_config ${SRC_FILES} ${EXAMPLES_DIR}/main_config_grades.cpp)
+	target_include_directories(examples_config PRIVATE ${INCLUDE_DIR})
+	target_link_libraries(examples_config PRIVATE nlohmann_json::nlohmann_json)
+
+	add_executable(examples_backtest ${SRC_FILES} ${EXAMPLES_DIR}/main_backtest.cpp)
+	target_include_directories(examples_backtest PRIVATE ${INCLUDE_DIR})
+	target_link_libraries(examples_backtest PRIVATE nlohmann_json::nlohmann_json)
+endif()
 
 # === Tests ===
 file(GLOB TEST_FILES ${TEST_DIR}/*.cpp)
@@ -89,7 +98,7 @@ add_executable(tests ${SRC_FILES} ${TEST_FILES} ${TEST_DIR}/test_main.cpp)
 target_include_directories(tests PRIVATE ${INCLUDE_DIR} ${EXTERNAL_DIR})
 
 # Make sure, that targets sees nlohmann_json
-target_link_libraries(app PRIVATE nlohmann_json::nlohmann_json)
+
 if(TARGET tests)
 	target_link_libraries(tests PRIVATE nlohmann_json::nlohmann_json)
 endif()
