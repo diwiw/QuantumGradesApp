@@ -20,7 +20,7 @@ int main() {
 		
 	// === Load configuration ===
 	std::cout << "Loading configuration...\n";
-	
+	/*
 	using qga::Config;
 	std::vector<std::string> warnings;
 
@@ -38,7 +38,7 @@ int main() {
 		<< " threads=" << cfg.threads()
 		<< " logLevel=" << Config::toString(cfg.logLevel())
 		<< " logFile=" << cfg.logFile().string() << '\n';	
-
+	*/
 	// === Add grades ===
 	Grades g;
 	std::cout << "Application adds notes, prints them and their statistics\n";

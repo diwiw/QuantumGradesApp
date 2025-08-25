@@ -3,10 +3,10 @@
     "configurations": [
         
         {
-            "name": "Debug App",
+            "name": "Debug Example Backtest",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/app",
+            "program": "${workspaceFolder}/build/bin/examples_backtest",
             "args":[],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -24,10 +24,10 @@
             "preLaunchTask": "Build (Debug)"
         },
         {
-            "name": "Release App",
+            "name": "Release Example Backtest",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/app",
+            "program": "${workspaceFolder}/build/bin/examples_backtest",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

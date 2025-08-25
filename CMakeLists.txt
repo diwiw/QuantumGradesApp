@@ -28,7 +28,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 # === Options ===
-option(BUILD_EXAMPLES "Build example programs" OFF)
+option(BUILD_EXAMPLES "Build example programs" ON)
 option(BUILD_DOCS "Build documentation with doxygen" OFF)
 
 # === Directories ===
