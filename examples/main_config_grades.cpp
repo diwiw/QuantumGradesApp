@@ -6,10 +6,6 @@
 #include "Logger.h"
 #include "Config.h"
 
-#include "domain/backtest/Engine.h"
-#include "domain/backtest/Execution.h"
-#include "domain/backtest/BarSeries.h"
-#include "strategy/BuyHold.h"
 
 
 int main() {
