@@ -18,6 +18,7 @@ namespace backtest {
         using Quote = domain::Quote;
         /// Append a new bar to the series.
         void add(const domain::Quote& q);
+        
         /// Number of bars.
         std::size_t size() const noexcept;
         /// Bounds-checked access to i-th bar.
