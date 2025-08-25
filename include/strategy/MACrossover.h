@@ -16,7 +16,7 @@ namespace strategy {
     class MACrossover final: public IStrategy {
     public:
         /// Construct with window sizes (fast < slow recommended).
-        MACrossover(int fast_period=10, int slow_period=20);
+        explicit MACrossover(int fast_period=10, int slow_period=20);
         void onStart() override;
         Signal onBar(const domain::Quote& q) override;
         void onFinish() override;
