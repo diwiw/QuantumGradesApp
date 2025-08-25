@@ -3,7 +3,7 @@
 #include <string>
 #include <chrono>
 
-namespace domain {
+namespace backtest {
     enum class Side { Buy, Sell };
 
 

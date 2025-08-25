@@ -6,6 +6,7 @@
 #include "domain/backtest/BarSeries.h"
 #include "domain/backtest/Result.h"
 #include "strategy/IStrategy.h"
+#include "domain/backtest/Execution.h"
 
 namespace backtest {
     /**
@@ -20,8 +21,9 @@ namespace backtest {
     class Engine {
         public:
             /// @param initial_equity Starting capital used in the simulation.
-            explicit Engine(double initial_equity = 10000.0)
-            : initial_equity_(initial_equity) {}
+            explicit Engine(double initial_equity = 10000.0,
+                    ExecParams exec = {})
+            : initial_equity_(initial_equity), exec_(exec) {}
             /**
              * @brief Execute the backtest over the given series with the provided strategy.
              * @param series Input time series of bars (OHLCV).
@@ -32,5 +34,6 @@ namespace backtest {
 
         private:
             double initial_equity_;  ///< Initial equity for the backtest.
+            ExecParams exec_;
     };
 }   // namespace backtest
