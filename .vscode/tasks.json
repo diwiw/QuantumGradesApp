@@ -31,12 +31,26 @@
             "problemMatcher": []
         },
         {
-            "label": "Build Debug App",
+            "label": "Build Debug Example_Config",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build", "build",
-                "--target", "app",
+                "--target", "examples_config",
+                "--config", "Debug",
+                "-j4"
+            ],
+            "group": "build",
+            "problemMatcher": ["$gcc"],
+            "dependsOn": ["Configure Debug"]
+        },
+        {
+            "label": "Build Debug Example_Backtest",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build", "build",
+                "--target", "examples_backtest",
                 "--config", "Debug",
                 "-j4"
             ],
@@ -59,12 +73,26 @@
             "dependsOn": ["Configure Debug"]
         },
         {
-            "label": "Build Release App",
+            "label": "Build Release Example_Config",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build", "build",
-                "--target", "app",
+                "--target", "examples_config",
+                "--config", "Release",
+                "-j4"
+            ],
+            "group": "build",
+            "problemMatcher": ["$gcc"],
+            "dependsOn": ["Configure Release"]
+        },
+        {
+            "label": "Build Release Example_Backtest",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build", "build",
+                "--target", "examples_backtest",
                 "--config", "Release",
                 "-j4"
             ],

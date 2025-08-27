@@ -11,7 +11,7 @@
 using namespace strategy;
 using namespace backtest;
 using namespace domain;
-/*
+
 TEST_SUITE("Strategies/MACrossover") {
     TEST_CASE("No signal when not enough bars") {
         auto s = testlib::make_series({1,2,3}); // fast=3, slow=5 -> not enough
@@ -36,7 +36,7 @@ TEST_SUITE("Strategies/MACrossover") {
         CHECK(res.final_equity > 0.0);
     }
 }
-*/
+
 
 static BarSeries make_series(const std::vector<double>& closes) {
   BarSeries s;
