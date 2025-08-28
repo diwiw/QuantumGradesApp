@@ -24,7 +24,7 @@ namespace backtest {
     std::chrono::system_clock::time_point timestamp() const noexcept { return ts_; }
 
     /// Cash delta: Buy -> negative, Sell -> positive.
-    double signed_cash() const noexcept {
+    double signedCash() const noexcept {
       return (side() == Side::Buy ? -price_ * quantity_ : price_ * quantity_);
     }
 

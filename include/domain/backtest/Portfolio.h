@@ -11,18 +11,18 @@ namespace backtest {
         explicit Portfolio(double starting_cash = 10000.0) : cash_(starting_cash) {}
 
         double cash() const noexcept { return cash_; }
-        double realized_pnl() const noexcept { return realized_pnl_; }
+        double realizedPnl() const noexcept { return realized_pnl_; }
 
-        Position& get_or_create(const domain::Instrument& ins);
+        Position& getOrCreate(const domain::Instrument& ins);
 
-        void apply_trade(const Trade& t);
+        void applyTrade(const Trade& t);
 
-        double nav_for(const domain::Instrument& ins, double mark_price) const;
+        double navFor(const domain::Instrument& ins, double mark_price) const;
 
     private:
-            static std::string key_for(const domain::Instrument& ins);
+            static std::string keyFor(const domain::Instrument& ins);
 
-            double aggregate_realized() const;
+            double aggregateRealized() const;
 
             std::unordered_map<std::string, Position> positions_;
             double cash_{0.0};

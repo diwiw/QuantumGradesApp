@@ -18,7 +18,7 @@ int main() {
     // === Load configuration ===
 	std::cout << "Loading configuration...\n";
 
-    /*
+    
 	using qga::Config;
 	std::vector<std::string> warnings;
 	Config& cfg = Config::getInstance();
@@ -32,7 +32,7 @@ int main() {
 		<< " threads=" << cfg.threads()
 		<< " logLevel=" << Config::toString(cfg.logLevel())
 		<< " logFile=" << cfg.logFile().string() << '\n';	
-	*/
+	
 	// === Add grades ===
 	Grades g;
 	std::cout << "Application adds notes, prints them and their statistics\n";
@@ -45,11 +45,11 @@ int main() {
 	g.printSummary();
 	// === Save grades ===
 	std::cout << "\nSaving grades to \"data/grades.txt\"...\n";
-	std::vector<std::string> gradeLines;
+	std::vector<std::string> grade_lines;
 	for (int note : g.getNotes()) {
-		gradeLines.push_back(std::to_string(note));
+		grade_lines.push_back(std::to_string(note));
 	}
-	if (FileManager::writeAllLines("data/grades.txt", gradeLines)) {
+	if (FileManager::writeAllLines("data/grades.txt", grade_lines)) {
 		Logger::getInstance().log(LogLevel::INFO, "[APP] Grades saved to data/grades.txt");
 		std::cout << "Grades saved successfully\n";
         } else {
@@ -60,28 +60,28 @@ int main() {
 	Logger::getInstance().log(LogLevel::INFO, "[APP] Application reads data from a file (data/readGrades.txt) presents them and their statistics");
 	
 	// === Read external file and print ===
-	const std::string filePath = "data/readGrades.txt";
-	std::cout << "\nReading data from: " << filePath << "\n";
-	Logger::getInstance().log(LogLevel::INFO, "[APP] Reading data from " + filePath);
+	const std::string FILE_PATH = "data/readGrades.txt";
+	std::cout << "\nReading data from: " << FILE_PATH << "\n";
+	Logger::getInstance().log(LogLevel::INFO, "[APP] Reading data from " + FILE_PATH);
 	
-	auto linesOpt = FileManager::readAllLines(filePath);
-	if(!linesOpt.has_value()) {
-		Logger::getInstance().log(LogLevel::ERROR, "[APP] Failed to read file: " + filePath);
-		std::cerr << "Error: Could not read file: " << filePath << "\n";
+	auto lines_opt = FileManager::readAllLines(FILE_PATH);
+	if(!lines_opt.has_value()) {
+		Logger::getInstance().log(LogLevel::ERROR, "[APP] Failed to read file: " + FILE_PATH);
+		std::cerr << "Error: Could not read file: " << FILE_PATH << "\n";
 		return 1;
 	}
-	const auto& lines = linesOpt.value();
+	const auto& lines = lines_opt.value();
     if (lines.empty()) {
-		Logger::getInstance().log(LogLevel::WARNING, "[APP] File is empty: " + filePath);
-		std::cout << "No data found in file: " << filePath << "\n";
+		Logger::getInstance().log(LogLevel::WARNING, "[APP] File is empty: " + FILE_PATH);
+		std::cout << "No data found in file: " << FILE_PATH << "\n";
 		return 0;
 	}
 	// === Display the file ===
-	std::cout << "=== File content: " << filePath << " ===\n";
+	std::cout << "=== File content: " << FILE_PATH << " ===\n";
 	for (const auto& line : lines) {
 		std::cout << line << "\n";
 	}
-	Logger::getInstance().log(LogLevel::INFO, "[APP] File read successfully: " + filePath);
+	Logger::getInstance().log(LogLevel::INFO, "[APP] File read successfully: " + FILE_PATH);
 	Logger::getInstance().log(LogLevel::INFO, "[APP] Application finished");	
 	return 0;
 	

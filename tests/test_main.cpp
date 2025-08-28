@@ -24,4 +24,4 @@ struct VersionPrinter {
 	}
 };
 
-static VersionPrinter versionPrinter;
+static VersionPrinter version_printer;

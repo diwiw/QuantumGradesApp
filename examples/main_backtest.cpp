@@ -33,9 +33,9 @@ int main() {
 
 	// === Strategies simple example ===
 	backtest::ExecParams exec{};
-	exec.commission_fixed	= 0.5;	// 50 cents per trade
-	exec.commission_bps		= 5.0;	// 5bps from value additionally
-	exec.slippage_bps		= 10.0;	// 10 bps -> buy more expensive, sell cheaper
+	exec.commission_fixed_	= 0.5;	// 50 cents per trade
+	exec.commission_bps_		= 5.0;	// 5bps from value additionally
+	exec.slippage_bps_		= 10.0;	// 10 bps -> buy more expensive, sell cheaper
 
 	backtest::Engine eng(10000.0, exec);
 
@@ -46,9 +46,9 @@ int main() {
 	auto result = eng.run(series, bh);
 
 	// === Report results
-	std::cout << "Initial equity: " << result.initial_equity << "\n";
-	std::cout << "Final equity: " << result.final_equity << "\n";
-	std::cout << "Trades executed: " << result.trades_executed << "\n\n";
+	std::cout << "Initial equity: " << result.initial_equity_ << "\n";
+	std::cout << "Final equity: " << result.final_equity_ << "\n";
+	std::cout << "Trades executed: " << result.trades_executed_ << "\n\n";
 
 	return 0;
 

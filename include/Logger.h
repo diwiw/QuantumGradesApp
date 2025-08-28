@@ -58,8 +58,8 @@ private:
 	std::string levelToString(LogLevel level); ///< Convert level to string
 	std::string getCurrentTime();		   ///< Get current timestamp
 						   
-	std::ofstream logfile;			   ///< Log file stream
-	LogLevel currentLevel;			   ///< Currenet minimum log level
-	std::mutex mtx;				   ///< Thread safety mutex
+	std::ofstream logfile_;			   ///< Log file stream
+	LogLevel current_level_;			   ///< Currenet minimum log level
+	std::mutex mtx_;				   ///< Thread safety mutex
 
 };

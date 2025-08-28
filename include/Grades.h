@@ -5,7 +5,7 @@
 
 class Grades{
 private:
-	std::vector<int> notes;
+	std::vector<int> notes_;
 
 public:
 	void add(int grade);

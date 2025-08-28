@@ -1,10 +1,10 @@
-/*
 #include "doctest.h"
 #include <filesystem>
 #include <fstream>
 #include "Config.h"
 
 namespace fs = std::filesystem;
+using namespace qga;
 
 static fs::path tmpdir() {
     fs::path d{"test_tmp_cfg_json"};
@@ -24,11 +24,14 @@ TEST_SUITE("Config/JSON") {
         })";
         out.close();
 
-        auto cfg = Config::load(f.string());
-        CHECK(cfg.logLevel == "DEBUG");
-        CHECK(cfg.logFile == "logs/test_log.txt");
-        CHECK(cfg.dataDir == "dataset");
-        CHECK(cfg.threads == 8);
+        Config& cfg = Config::getInstance(); 
+        cfg.loadDefaults();
+        cfg.loadFromFile(f);
+
+        CHECK(cfg.logLevel() == LogLevel::debug);
+        CHECK(cfg.logFile() == fs::path("logs/test_log.txt"));
+        CHECK(cfg.dataDir() == fs::path("dataset")); 
+        CHECK(cfg.threads() == 8);
     }
 
     TEST_CASE("Missing keys keep defaults") {
@@ -40,11 +43,14 @@ TEST_SUITE("Config/JSON") {
         })";
         out.close();
 
-        Config& cfg = Config::getInstance(f.string());
-        CHECK(cfg.logLevel == "INFO");
-        CHECK(cfg.logFile == "app.log"); // Default value
-        CHECK(cfg.dataDir == "data2");
-        CHECK(cfg.threads == 4); // Default value
+        Config& cfg = Config::getInstance();
+        cfg.loadDefaults();
+        cfg.loadFromFile(f);
+
+        CHECK(cfg.logLevel() == LogLevel::info);
+        CHECK(cfg.logFile() == fs::path("app.log")); // Default value
+        CHECK(cfg.dataDir() == fs::path("data2"));
+        CHECK(cfg.threads() == 4); // Default value
     }
 
-}*/
+}
