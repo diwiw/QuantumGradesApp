@@ -80,15 +80,15 @@ namespace domain {
         /// @return Ticker/identifier (e.g. "AAPL").
         const std::string& symbol() const noexcept { return symbol_; }
         /// @return MIC code of the trading venu (e.g. "XNAS").
-        const std::string& exchange_mic() const noexcept { return exchange_mic_; }
+        const std::string& exchangeMic() const noexcept { return exchange_mic_; }
         /// @return Asset class classification.
-        AssetClass asset_class() const noexcept { return asset_class_; }
+        AssetClass assetClass() const noexcept { return asset_class_; }
         /// @return Trading/settlement currency.
         Currency currency() const noexcept { return currency_; }
         /// @return Minimum price increment (tick size).
-        double tick_size() const noexcept { return tick_size_; }
+        double tickSize() const noexcept { return tick_size_; }
         /// @return Minimum tradeable quantinty.
-        int lot_size() const noexcept { return lot_size_; }
+        int lotSize() const noexcept { return lot_size_; }
         /// @return Contract multiplier (e.g. 100 for options).
         double multiplier() const noexcept { return multiplier_; }
         /// @}
@@ -127,7 +127,7 @@ namespace std {
     template <> struct hash<domain::Instrument> {
         size_t operator()(const domain::Instrument& inst) const noexcept {
             return std::hash<std::string>()(inst.symbol()) ^ 
-                   std::hash<std::string>()(inst.exchange_mic());
+                   std::hash<std::string>()(inst.exchangeMic());
         }
     };
 }

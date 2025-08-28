@@ -18,8 +18,8 @@ namespace domain {
  *   Traded volume during the bar.
  */
     struct Quote{
-        std::int64_t ts{};                      ///< Epoch millis (convention in this project).
-        double open{}, high{}, low{}, close{};  ///< OHLC prices.
-        double volume{};                        ///< Bar volume.
+        std::int64_t ts_{};                      ///< Epoch millis (convention in this project).
+        double open_{}, high_{}, low_{}, close_{};  ///< OHLC prices.
+        double volume_{};                        ///< Bar volume.
     };
 } // namespace domain

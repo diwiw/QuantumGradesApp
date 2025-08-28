@@ -11,12 +11,12 @@ namespace backtest {
 
         const domain::Instrument& instrument() const noexcept { return instrument_; }
         double qty() const noexcept { return qty_; }
-        double avg_price() const noexcept { return avg_price_; }
-        double realized_pnl() const noexcept { return realized_pnl_; }
+        double avgPrice() const noexcept { return avg_price_; }
+        double realizedPnl() const noexcept { return realized_pnl_; }
 
-        void apply_fill(double fill_price, double fill_qty, bool is_buy);
+        void applyFill(double fill_price, double fill_qty, bool is_buy);
 
-        double unrealized_pnl(double mark_price) const noexcept {
+        double unrealizedPnl(double mark_price) const noexcept {
             return (mark_price - avg_price_) * qty_;
         }
     private:

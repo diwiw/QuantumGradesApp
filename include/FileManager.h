@@ -24,7 +24,7 @@ public:
 	 * @param filePath Path to the file
 	 * @return Vector of lines if successful, std::nullopt if error.
 	 */
-	static std::optional<std::vector<std::string>> readAllLines(const std::string& filePath);
+	static std::optional<std::vector<std::string>> readAllLines(const std::string& file_path);
 
 	/**
 	 * @brief Writes a vector of lines to a file (overwrites existing content).
@@ -32,7 +32,7 @@ public:
 	 * @param lines Vector of lines to write.
 	 * @return true if successful, false otherwise.
 	 */
-	static bool writeAllLines(const std::string& filePath, const std::vector<std::string>& lines);
+	static bool writeAllLines(const std::string& file_path, const std::vector<std::string>& lines);
 	
 	/**
 	 * @brief Appends a line to an existing file.
@@ -40,20 +40,20 @@ public:
 	 * @param line The line to append.
 	 * @return true if successful, false otherwise.
 	 */
-	static bool appendLine(const std::string& filePath, const std::string& line);
+	static bool appendLine(const std::string& file_path, const std::string& line);
 
 	/**
 	 * @brief Checks if a file exists.
 	 * @param filePath Path to a file.
 	 * @return true if exists, false otherwise.
 	 */
-	static bool exists(const std::string& filePath);
+	static bool exists(const std::string& file_path);
 
 	/**
 	 * @brief Deletes a file if it exists.
 	 * @param filePath Path to the file.
 	 * @return true if deleted, false if file doesn't exist or failed to delete.
 	 */
-	static bool removeFile(const std::string& filePath);
+	static bool removeFile(const std::string& file_path);
 
 };

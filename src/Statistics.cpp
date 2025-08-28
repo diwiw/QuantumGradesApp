@@ -23,9 +23,9 @@ std::optional<int> Statistics::calculateMin(const std::vector<int>& values) {
 		Logger::getInstance().log(LogLevel::ERROR, "[Statistics] Cannot calculate min value: data is empty");
 		return std::nullopt;
 	}
-	int minVal = *std::min_element(values.begin(), values.end());
-	Logger::getInstance().log(LogLevel::INFO, "[Statistics] Min calculate: " + std::to_string(minVal));
-	return minVal;
+	int min_val = *std::min_element(values.begin(), values.end());
+	Logger::getInstance().log(LogLevel::INFO, "[Statistics] Min calculate: " + std::to_string(min_val));
+	return min_val;
 }
 
 std::optional<int> Statistics::calculateMax(const std::vector<int>& values) {
@@ -33,9 +33,9 @@ std::optional<int> Statistics::calculateMax(const std::vector<int>& values) {
 		Logger::getInstance().log(LogLevel::ERROR, "[Statistics] Cannot calculate max value: data ist empty");
 		return std::nullopt;
 	}
-	int maxVal = *std::max_element(values.begin(), values.end());
-	Logger::getInstance().log(LogLevel::INFO, "[Statistics] Max calculated: " + std::to_string(maxVal));
-	return maxVal;
+	int max_val = *std::max_element(values.begin(), values.end());
+	Logger::getInstance().log(LogLevel::INFO, "[Statistics] Max calculated: " + std::to_string(max_val));
+	return max_val;
 }
 
 std::optional<double> Statistics::calculateMedian(const std::vector<int>& values) {
@@ -44,14 +44,14 @@ std::optional<double> Statistics::calculateMedian(const std::vector<int>& values
 		return std::nullopt;
 	}
 
-	std::vector<int> sortedData = values;
-	std::sort(sortedData.begin(), sortedData.end());
+	std::vector<int> sorted_data = values;
+	std::sort(sorted_data.begin(), sorted_data.end());
 
 	double median;
-	if(sortedData.size() % 2 == 0) {
-		median = (sortedData[sortedData.size()/2 -1] + sortedData[sortedData.size()/2]) / 2.0;
+	if(sorted_data.size() % 2 == 0) {
+		median = (sorted_data[sorted_data.size()/2 -1] + sorted_data[sorted_data.size()/2]) / 2.0;
 	} else {
-		median = sortedData[sortedData.size()/2];
+		median = sorted_data[sorted_data.size()/2];
 	}
 
 	Logger::getInstance().log(LogLevel::INFO, "[Statistics] Median calculated: " + std::to_string(median));
@@ -64,15 +64,15 @@ std::optional<double> Statistics::calculateStdDev(const std::vector<int>& values
 	       	return std::nullopt;
 	}
 
-	auto meanOpt = calculateMean(values);
-	if(!meanOpt.has_value()) return std::nullopt;
+	auto mean_opt = calculateMean(values);
+	if(!mean_opt.has_value()) return std::nullopt;
 
-	double mean = meanOpt.value();
-	double sumSq = 0.0;
+	double mean = mean_opt.value();
+	double sum_sq = 0.0;
 
-	for (int v : values) sumSq += (v -mean) * (v - mean);
-	double stdDev = std::sqrt(sumSq / (values.size()-1));
-	Logger::getInstance().log(LogLevel::INFO, "[Statistics] StdDev calculated: " + std::to_string(stdDev));
-	return stdDev;
+	for (int v : values) sum_sq += (v -mean) * (v - mean);
+	double std_dev = std::sqrt(sum_sq / (values.size()-1));
+	Logger::getInstance().log(LogLevel::INFO, "[Statistics] StdDev calculated: " + std::to_string(std_dev));
+	return std_dev;
 }
 
