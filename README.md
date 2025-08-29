@@ -69,11 +69,11 @@ C++20 project evolving from a simple grades/statistics demo into a **quantitativ
 
 To better understand the design of **QuantumGradesApp**, see the diagrams below:
 
-- [Backtest Flow](docs/backtest_flow.md)  
+- [Backtest Flow](docs/pages/backtest_flow.md)  
   Shows the step-by-step data flow inside the backtest engine  
   (BarSeries → Engine → Strategy → Execution → Portfolio → Result).
 
-- [Class Diagram](docs/class_diagram.md)  
+- [Class Diagram](docs/pages/class_diagram.md)  
   Shows the relationships between the main domain classes  
   (Engine, BarSeries, Portfolio, Orders/Trades, Strategies).
 
