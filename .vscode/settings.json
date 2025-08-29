@@ -9,6 +9,17 @@
         "-j4"
     ],
     "cmake.buildType": "Debug",
+
+    // === CLANG-TIDY integration ===
+    "C_Cpp.codeAnalysis.clangTidy.enabled": true,
+    "C_Cpp.clang_format_path": "clang-tidy",
+    "C_Cpp.codeAnalysis.clangTidy.checks": "bugprone-*,performance-*,modernize-*,readability-*",
+
+    // === CLANG-FORMAT integration ===
+    "C_Cpp.formatting": "clangFormat",
+    "clang-format.style": "file",
+    "editor.formatOnSave": true,
+
     "files.associations": {
         "*.tpp": "cpp",
         "*.hpp": "cpp",

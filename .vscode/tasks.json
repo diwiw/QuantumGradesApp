@@ -9,7 +9,8 @@
                 "-S", ".",
                 "-B", "build",
                 "-G", "Ninja",
-                "-DCMAKE_BUILD_TYPE=Debug"
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DBUILD_EXAMPLES=ON"
             ],
             "group": {
                 "kind": "build",
@@ -25,7 +26,8 @@
                 "-S", ".",
                 "-B", "build",
                 "-G", "Ninja",
-                "-DCMAKE_BUILD_TYPE=Release"
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-DBUILD_EXAMPLES=ON"
             ],
             "group": "build",
             "problemMatcher": []
@@ -100,19 +102,19 @@
             "problemMatcher": ["$gcc"],
             "dependsOn": ["Configure Release"]
         },
-        {
-            "label": "Build Release Tests",
+         {
+            "label": "clang-tidy: fix project",
+            "type": "shell",
+            "command": "./tools/run-tidy-fix.sh",
+            "problemMatcher": []
+            },
+            {
+            "label": "cmake: build",
             "type": "shell",
             "command": "cmake",
-            "args": [
-                "--build", "build",
-                "--target", "tests",
-                "--config", "Release",
-                "-j4"
-            ],
-            "group": "build",
-            "problemMatcher": ["$gcc"],
-            "dependsOn": ["Configure Release"]
+            "args": ["--build", "build", "-j"],
+            "group": { "kind": "build", "isDefault": true },
+            "problemMatcher": []
         },
         {
             "label": "Clean Build",
