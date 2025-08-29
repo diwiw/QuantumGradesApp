@@ -5,10 +5,11 @@
 #include "FileManager.h"
 #include "Logger.h"
 #include "Config.h"
+
 int main() {
 	// === Header ===
 	std::cout << "===================================\n";
-    std::cout << " QuantumGradesApp Config_Grades\n";
+  std::cout << " QuantumGradesApp Config_Grades\n";
 	std::cout << " Version: " << APP_VERSION << "\n";
 	std::cout << " Build date: " << APP_BUILD_DATE << "\n";
 	std::cout << "===================================\n\n";

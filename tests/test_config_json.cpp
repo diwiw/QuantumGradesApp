@@ -28,7 +28,7 @@ TEST_SUITE("Config/JSON") {
         cfg.loadDefaults();
         cfg.loadFromFile(f);
 
-        CHECK(cfg.logLevel() == LogLevel::debug);
+        CHECK(cfg.logLevel() == LogLevel::Debug);
         CHECK(cfg.logFile() == fs::path("logs/test_log.txt"));
         CHECK(cfg.dataDir() == fs::path("dataset")); 
         CHECK(cfg.threads() == 8);
@@ -47,7 +47,7 @@ TEST_SUITE("Config/JSON") {
         cfg.loadDefaults();
         cfg.loadFromFile(f);
 
-        CHECK(cfg.logLevel() == LogLevel::info);
+        CHECK(cfg.logLevel() == LogLevel::Info);
         CHECK(cfg.logFile() == fs::path("app.log")); // Default value
         CHECK(cfg.dataDir() == fs::path("data2"));
         CHECK(cfg.threads() == 4); // Default value
