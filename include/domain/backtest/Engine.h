@@ -1,15 +1,20 @@
 /**
- * @file BarSeries.h
- * @brief Container of market bars used by the backtest engine.
+
+ * @file Engine.h
+ * @brief Orchestrates a backtest: streams bars to a strategy and executes signals.
  *
- * Defines a simple container for storing and accessing time-ordered
- * market quotes (OHLCV data). Used internally by the engine and strategies.
+ * Defines the main simulation loop, which runs a given strategy over a time series
+ * of market data (BarSeries), applying execution logic and recording results.
+
  */
 
 #pragma once
 
-#include <vector>
-#include "domain/Quote.h"
+#include "domain/backtest/BarSeries.h"
+#include "domain/backtest/Result.h"
+#include "strategy/IStrategy.h"
+#include "domain/backtest/Execution.h"
+
 
 namespace backtest {
 
@@ -17,39 +22,35 @@ namespace backtest {
      * @class BarSeries
      * @brief Simple time-ordered container for @ref domain::Quote bars.
      *
-     * Provides read-only accessors and append functionality for use in
-     * backtests. Acts as the primary data source for strategy evaluation.
+
+     * Core simulation engine that performs the following steps:
+     * - Initializes strategy and portfolio.
+     * - Feeds market data (bars) to the strategy.
+     * - Executes generated signals via slippage and commission model.
+     * - Records trades and final metrics.
      */
-    class BarSeries {
-    public:
-        using Quote = domain::Quote;
-        /**
-        * @brief Appends a new market bar (quote) to the series.
-        * @param q Market quote containing OHLCV data and timestamp.
-        */
-        void add(const domain::Quote& q);
-        
-        /**
-         * @brief Returns the number of bars in the series.
-         * @return Total number of quotes stored.
-         */
-        std::size_t size() const noexcept;
+    class Engine {
+        public:
+            /**
+             * @brief Constructs the backtest engine.
+             * @param initial_equity Starting capital used in the simulation.
+             * @param exec Execution parameters (slippage, commission).
+             */
+            explicit Engine(double initial_equity = 10000.0,
+                    ExecParams exec = {})
+            : initial_equity_(initial_equity), exec_(exec) {}
 
-        /**
-         * @brief Returns a const reference to the i-th bar.
-         * @param i Index into the series.
-         * @return Const reference to the requested quote.
-         * @throws std::out_of_range if index is invalid.
-         */
-        const Quote& at(std::size_t i) const;
+            /**
+             * @brief Execute the backtest over the given series with the provided strategy.
+             * @param series Input time series of bars (OHLCV).
+             * @param strat  Strategy to be executed.
+             * @return BacktestResult summary (equity, trades).
+             */
+            BacktestResult run(BarSeries const& series, strategy::IStrategy& strat);
 
-        /**
-         * @brief Returns the most recent bar in the series.
-         * @return Const reference to the last quote.
-         * @pre `size() > 0`
-         */
-        const Quote& back() const;
-    private:
-        std::vector<Quote> data_;   ///< Internal container of quotes.
+        private:
+            double initial_equity_;  ///< Initial equity for the backtest.
+            ExecParams exec_;          ///< Execution model (commissions, slippage).
+
     };
 } // namespace backtest
