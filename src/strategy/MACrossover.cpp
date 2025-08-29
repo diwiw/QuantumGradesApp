@@ -4,7 +4,7 @@
 
 namespace strategy {
 
-  static double update_window(std::deque<double>& w, double& sum, int win, double px) {
+  static double updateWindow(std::deque<double>& w, double& sum, int win, double px) {
     w.push_back(px);
     sum += px;
     if ((int)w.size() > win) { sum -= w.front(); w.pop_front(); }
@@ -23,28 +23,28 @@ namespace strategy {
   }
 
   Signal MACrossover::onBar(const domain::Quote& q) {
-    const double close = q.close;
+    const double CLOSE = q.close_;
 
-    const double sma_f = update_window(w_fast_, sum_fast_, fast_period_, close);
-    const double sma_s = update_window(w_slow_, sum_slow_, slow_period_, close);
+    const double SMA_F = updateWindow(w_fast_, sum_fast_, fast_period_, CLOSE);
+    const double SMA_S = updateWindow(w_slow_, sum_slow_, slow_period_, CLOSE);
 
-    if (!std::isfinite(sma_f) || !std::isfinite(sma_s)) return Signal::None;
+    if (!std::isfinite(SMA_F) || !std::isfinite(SMA_S)) return Signal::None;
 
     if (!ready_) {
       ready_ = true;
-      prev_fast_ = sma_f;
-      prev_slow_ = sma_s;
+      prev_fast_ = SMA_F;
+      prev_slow_ = SMA_S;
       return Signal::None;
     }
 
-    const bool cross_up   = (prev_fast_ <= prev_slow_) && (sma_f >  sma_s);
-    const bool cross_down = (prev_fast_ >= prev_slow_) && (sma_f <  sma_s);
+    const bool CROSS_UP   = (prev_fast_ <= prev_slow_) && (SMA_F >  SMA_S);
+    const bool CROSS_DOWN = (prev_fast_ >= prev_slow_) && (SMA_F <  SMA_S);
 
-    prev_fast_ = sma_f;
-    prev_slow_ = sma_s;
+    prev_fast_ = SMA_F;
+    prev_slow_ = SMA_S;
 
-    if (cross_up)   return Signal::Buy;
-    if (cross_down) return Signal::Sell;
+    if (CROSS_UP)   return Signal::Buy;
+    if (CROSS_DOWN) return Signal::Sell;
     return Signal::None;
   }
 

@@ -10,25 +10,25 @@ TEST_CASE("Statistics- calculateMean") {
 	REQUIRE(mean.has_value());
 	CHECK(doctest::Approx(mean.value()) == 5.0);
 
-	std::vector<int> emptyData;
-	auto meanEmpty = Statistics::calculateMean(emptyData);
-	CHECK_FALSE(meanEmpty.has_value());
+	std::vector<int> empty_data;
+	auto mean_empty = Statistics::calculateMean(empty_data);
+	CHECK_FALSE(mean_empty.has_value());
 }
 
 TEST_CASE("Statistics- calculateMedian"){
-	std::vector<int> oddData = {1, 3, 5};
-	auto medianOdd = Statistics::calculateMedian(oddData);
-	REQUIRE(medianOdd.has_value());
-	CHECK(doctest::Approx(medianOdd.value()) == 3.0);
+	std::vector<int> odd_data = {1, 3, 5};
+	auto median_odd = Statistics::calculateMedian(odd_data);
+	REQUIRE(median_odd.has_value());
+	CHECK(doctest::Approx(median_odd.value()) == 3.0);
 
-	std::vector<int> evenData = {1, 2, 3, 4};
-	auto medianEven = Statistics::calculateMedian(evenData);
-	REQUIRE(medianEven.has_value());
-	CHECK(doctest::Approx(medianEven.value()) == 2.5);
+	std::vector<int> even_data = {1, 2, 3, 4};
+	auto median_even = Statistics::calculateMedian(even_data);
+	REQUIRE(median_even.has_value());
+	CHECK(doctest::Approx(median_even.value()) == 2.5);
 
-	std::vector<int> emptyData;
-	auto medianEmpty = Statistics::calculateMedian(emptyData);
-	CHECK_FALSE(medianEmpty.has_value());
+	std::vector<int> empty_data;
+	auto median_empty = Statistics::calculateMedian(empty_data);
+	CHECK_FALSE(median_empty.has_value());
 }
 
 TEST_CASE("Statistics- calculateStdDev"){
@@ -37,20 +37,20 @@ TEST_CASE("Statistics- calculateStdDev"){
 	REQUIRE(stddev.has_value());
 	CHECK(stddev.value() == doctest::Approx(1.5811).epsilon(0.0001));
 
-	std::vector<int> insufficientData = {1};
-	auto stddevInsufficient = Statistics::calculateStdDev(insufficientData);
-	CHECK_FALSE(stddevInsufficient.has_value());
+	std::vector<int> insufficient_data = {1};
+	auto stddev_insufficient = Statistics::calculateStdDev(insufficient_data);
+	CHECK_FALSE(stddev_insufficient.has_value());
 }
 
 TEST_CASE("Statistics- calculateMax"){
 	std::vector<int> data = {1, 3, 5, 7, 11};
-	auto maxValue = Statistics::calculateMax(data);
-	REQUIRE(maxValue.has_value());
-	CHECK(doctest::Approx(maxValue.value()) == 11);
+	auto max_value = Statistics::calculateMax(data);
+	REQUIRE(max_value.has_value());
+	CHECK(doctest::Approx(max_value.value()) == 11);
 
-	std::vector<int> emptyData;
-	auto maxEmpty = Statistics::calculateMax(emptyData);
-	CHECK_FALSE(maxEmpty.has_value());
+	std::vector<int> empty_data;
+	auto max_empty = Statistics::calculateMax(empty_data);
+	CHECK_FALSE(max_empty.has_value());
 } 
 //
 //TEST_CASE("Statistics finds max and min values"){

@@ -27,8 +27,10 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 	add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+# === clang ===
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # === Options ===
-option(BUILD_EXAMPLES "Build example programs" OFF)
 option(BUILD_DOCS "Build documentation with doxygen" OFF)
 
 # === Directories ===
