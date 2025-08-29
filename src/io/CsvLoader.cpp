@@ -4,7 +4,7 @@
 #include <sstream>
 
 namespace io {
-    bool load_csv(const std::string& path, backtest::BarSeries& out) {
+    bool loadCsv(const std::string& path, backtest::BarSeries& out) {
     std::ifstream in(path);
     if (!in) return false;
     std::string line;

@@ -22,6 +22,6 @@ namespace io {
      * @note This is a simple loader for research/testing only. Production usage
      * should include schema validation and error handling.
      */
-    bool load_csv(const std::string& path, backtest::BarSeries& out);
+    bool loadCsv(const std::string& path, backtest::BarSeries& out);
     
 }   // namespace io

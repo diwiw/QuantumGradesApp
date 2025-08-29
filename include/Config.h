@@ -19,13 +19,13 @@ namespace qga {
    * @brief Logging verbosity levels, similar to spdlog/severity levels.
    */
   enum class LogLevel { 
-    trace,     ///< Most detailed logs (development/debug).
-    debug,     ///< Debugging information.
-    info,      ///< General information (default).
-    warn,      ///< Warnings about potential issues.
-    err,       ///< Errors that allow app to continue.
-    critical,  ///< Critical errors requiring app termination.
-    off        ///< Disable logging entirely.
+    Trace,     ///< Most detailed logs (development/debug).
+    Debug,     ///< Debugging information.
+    Info,      ///< General information (default).
+    Warn,      ///< Warnings about potential issues.
+    Err,       ///< Errors that allow app to continue.
+    Critical,  ///< Critical errors requiring app termination.
+    Off        ///< Disable logging entirely.
 };
 
   /**
@@ -92,16 +92,16 @@ namespace qga {
     // === Read-only API ===
 
     /// @return Path to the data directory.
-    const std::filesystem::path& dataDir()  const noexcept { return dataDir_; }
+    const std::filesystem::path& dataDir()  const noexcept { return data_dir_; }
     
     /// @return Number of worker threads.
     int                          threads()  const noexcept { return threads_; }
     
     /// @return Current log level.
-    LogLevel                     logLevel() const noexcept { return logLevel_; }
+    LogLevel                     logLevel() const noexcept { return log_level_; }
     
     /// @return Path to the log output file.
-    const std::filesystem::path& logFile()  const noexcept { return logFile_; }
+    const std::filesystem::path& logFile()  const noexcept { return log_file_; }
 
      // === Helpers ===
 
@@ -131,10 +131,10 @@ namespace qga {
     Config() = default;
 
     // === State ===
-    std::filesystem::path dataDir_  = "data";   ///< Data directory for input/output files.
+    std::filesystem::path data_dir_  = "data";   ///< Data directory for input/output files.
     int                   threads_  = 4;         ///< Number of worker threads.
-    LogLevel              logLevel_ = LogLevel::info;  ///< Logging verbosity level.
-    std::filesystem::path logFile_  = "app.log"; ///< Output file for logs.
+    LogLevel              log_level_ = LogLevel::Info;  ///< Logging verbosity level.
+    std::filesystem::path log_file_  = "app.log"; ///< Output file for logs.
 
      // === Internal helpers ===
 
