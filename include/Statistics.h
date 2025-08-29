@@ -1,4 +1,12 @@
+/**
+ * @file Statistics.h
+ * @brief Utility class for performing basic statistical calculations.
+ *
+ * This class contains only static methods and is completely stateless.
+ */
+
 #pragma once
+
 #include <vector>
 #include <optional>
 
@@ -10,10 +18,10 @@
  */
 class Statistics {
 public:
-	Statistics() = delete;
-	~Statistics() = delete;
-	Statistics(const Statistics&) = delete;
-	Statistics& operator=(const Statistics&) = delete;
+	 Statistics() = delete;                            ///< Deleted constructor (non-instantiable).
+    ~Statistics() = delete;                           ///< Deleted destructor.
+    Statistics(const Statistics&) = delete;           ///< Deleted copy constructor.
+    Statistics& operator=(const Statistics&) = delete;///< Deleted copy assignment operator.
 
 	/**
 	 * @brief Calculates the mean (avg) of a set of values.
