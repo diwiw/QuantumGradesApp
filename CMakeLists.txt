@@ -31,7 +31,7 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # === Options ===
-option(BUILD_DOCS "Build documentation with doxygen" OFF)
+option(BUILD_DOCS "Build documentation with doxygen" ON)
 
 # === Directories ===
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
