@@ -1,3 +1,11 @@
+/**
+ * @file Config.h
+ * @brief Global singleton-based application configuration.
+ *
+ * Supports loading parameters from JSON and environment variables (QGA_*),
+ * with validation and normalization (e.g. thread clamping).
+ */
+
 #pragma once
 #include <filesystem>
 #include <optional>
@@ -6,39 +14,109 @@
 
 namespace qga {
 
-  enum class LogLevel { trace, debug, info, warn, err, critical, off };
+  /**
+   * @enum LogLevel
+   * @brief Logging verbosity levels, similar to spdlog/severity levels.
+   */
+  enum class LogLevel { 
+    Trace,     ///< Most detailed logs (development/debug).
+    Debug,     ///< Debugging information.
+    Info,      ///< General information (default).
+    Warn,      ///< Warnings about potential issues.
+    Err,       ///< Errors that allow app to continue.
+    Critical,  ///< Critical errors requiring app termination.
+    Off        ///< Disable logging entirely.
+};
 
-  /// Global application configuration (singleton).
-  /// - Load once at startup (from JSON + ENV), then read-only via getters.
-  /// - Always validated & normalized (e.g., threads clamped to CPU cores).
+  /**
+   * @class Config
+   * @brief Global singleton managing application-wide configuration.
+   *
+   * Features:
+   * - Loaded once at startup from JSON + environment (`QGA_*`).
+   * - Normalized (e.g. `threads` clamped to available cores).
+   * - Read-only API via getters.
+   * - Supports warning collection for user feedback.
+   *
+   * Usage:
+   * ```cpp
+   * auto& cfg = Config::getInstance();
+   * cfg.loadFromFile("config.json");
+   * cfg.loadFromEnv();
+   * int threads = cfg.threads();
+   * ```
+   */
   class Config {
   public:
     // === Singleton access ===
+
+    /**
+     * @brief Access the global singleton instance.
+     * @return Reference to the singleton.
+     */
     static Config& getInstance() noexcept;
 
     // === Loading / setup ===
-    // Load from JSON file (missing file -> keep current values / defaults).
-    // Collects warnings (type mismatches, unknown log level, etc.).
+
+    /**
+     * @brief Load configuration from a JSON file.
+     * @param path Path to JSON file.
+     * @param warnings Optional vector to collect warnings (e.g. type mismatches).
+     *
+     * @note If the file is missing or invalid, the config remains unchanged.
+     */
     void loadFromFile(const std::filesystem::path& path,
                       std::vector<std::string>* warnings = nullptr);
 
-    // Apply environment overrides (QGA_*), then validate.
+    /**
+     * @brief Load overrides from environment variables prefixed with `QGA_`.
+     * @param warnings Optional vector to collect warnings (e.g. unknown log level).
+     */
     void loadFromEnv(std::vector<std::string>* warnings = nullptr);
 
-    // Reset to safe defaults (useful for tests), then validate.
+    /**
+     * @brief Reset config to default values and validate.
+     *
+     * Useful for unit tests or full reload.
+     */
     void loadDefaults();
 
-    // Validate & normalize current values. Appends warnings if provided.
+    /**
+     * @brief Validate current state and normalize values.
+     * @param warnings Optional vector to collect validation warnings.
+     *
+     * @details Clamps thread count, checks file paths, parses log level.
+     */
     void validate(std::vector<std::string>* warnings = nullptr);
 
     // === Read-only API ===
-    const std::filesystem::path& dataDir()  const noexcept { return dataDir_; }
-    int                          threads()  const noexcept { return threads_; }
-    LogLevel                     logLevel() const noexcept { return logLevel_; }
-    const std::filesystem::path& logFile()  const noexcept { return logFile_; }
 
-    // === Helpers ===
+    /// @return Path to the data directory.
+    const std::filesystem::path& dataDir()  const noexcept { return data_dir_; }
+    
+    /// @return Number of worker threads.
+    int                          threads()  const noexcept { return threads_; }
+    
+    /// @return Current log level.
+    LogLevel                     logLevel() const noexcept { return log_level_; }
+    
+    /// @return Path to the log output file.
+    const std::filesystem::path& logFile()  const noexcept { return log_file_; }
+
+     // === Helpers ===
+
+    /**
+     * @brief Convert log level enum to string.
+     * @param lvl Log level enum.
+     * @return Corresponding string representation.
+     */
     static const char* toString(LogLevel lvl) noexcept;
+
+    /**
+     * @brief Parse log level from string (case-insensitive).
+     * @param s Input string (e.g. "info", "debug").
+     * @return Parsed LogLevel if valid; otherwise nullopt.
+     */
     static std::optional<LogLevel> parseLogLevel(std::string s) noexcept;
 
     // --- Rule of Five (singleton: non-copyable, non-movable) ---
@@ -49,17 +127,29 @@ namespace qga {
     Config& operator=(Config&&)      = delete;
 
   private:
-    // Private ctor: only accessible via getInstance()
+    /// Private constructor (singleton pattern).
     Config() = default;
 
-    // State (always accessed via getters)
-    std::filesystem::path dataDir_  = "data";
-    int                   threads_  = 4;
-    LogLevel              logLevel_ = LogLevel::info;
-    std::filesystem::path logFile_  = "app.log";
+    // === State ===
+    std::filesystem::path data_dir_  = "data";   ///< Data directory for input/output files.
+    int                   threads_  = 4;         ///< Number of worker threads.
+    LogLevel              log_level_ = LogLevel::Info;  ///< Logging verbosity level.
+    std::filesystem::path log_file_  = "app.log"; ///< Output file for logs.
 
-    // Internal helpers
+     // === Internal helpers ===
+
+    /**
+     * @brief Convert string to lowercase (for log level parsing).
+     * @param s Input string.
+     * @return Lowercased string.
+     */
     static std::string toLower(std::string s) noexcept;
+
+    /**
+     * @brief Add a warning message to the warning vector, if not null.
+     * @param w Pointer to vector; may be null.
+     * @param msg Warning message to append.
+     */
     static void addWarn(std::vector<std::string>* w, std::string msg);
   };
 

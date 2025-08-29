@@ -1,4 +1,8 @@
-// Logger.h
+/**
+ * @file Logger.h
+ * @brief Thread-safe, singleton logger class with log-level filtering and file output.
+ */
+
 #pragma once
 
 #include "Platform.h" // Ensure platform-specific settings are included first
@@ -7,13 +11,16 @@
 #include <memory>
 #include <mutex>
 
-/// Enum class representing severity levels for log messages
+/**
+ * @enum LogLevel
+ * @brief Severity levels for logging messages.
+ */
 enum class LogLevel {
-	DEBUG,		///< Detailed debug info
-	INFO,		///< General information
-	WARNING,	///< Warings about potential issues
-	ERROR,		///< Errors
-	CRITICAL	///< Critical Errors
+    DEBUG,     ///< Detailed debug information.
+    INFO,      ///< General informational messages.
+    WARNING,   ///< Warnings about potential issues.
+    ERROR,     ///< Error messages.
+    CRITICAL   ///< Critical conditions requiring immediate attention.
 };
 
 /**
