@@ -1,11 +1,9 @@
 /**
-
  * @file Engine.h
  * @brief Orchestrates a backtest: streams bars to a strategy and executes signals.
  *
  * Defines the main simulation loop, which runs a given strategy over a time series
  * of market data (BarSeries), applying execution logic and recording results.
-
  */
 
 #pragma once
@@ -15,14 +13,11 @@
 #include "strategy/IStrategy.h"
 #include "domain/backtest/Execution.h"
 
-
 namespace backtest {
-
     /**
-     * @class BarSeries
-     * @brief Simple time-ordered container for @ref domain::Quote bars.
+     * @class Engine
+     * @brief Runs a strategy over a series of bars and produces a result.
      *
-
      * Core simulation engine that performs the following steps:
      * - Initializes strategy and portfolio.
      * - Feeds market data (bars) to the strategy.
@@ -51,6 +46,5 @@ namespace backtest {
         private:
             double initial_equity_;  ///< Initial equity for the backtest.
             ExecParams exec_;          ///< Execution model (commissions, slippage).
-
     };
-} // namespace backtest
+}   // namespace backtest

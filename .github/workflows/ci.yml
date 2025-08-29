@@ -20,7 +20,6 @@ jobs:
 
       run: cmake -S . -B build -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_EXAMPLES=OFF -DBUILD_DOCS=OFF
 
-
     - name: Build
       run: cmake --build build -j
 

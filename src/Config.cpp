@@ -21,8 +21,7 @@ namespace qga {
     }
 
     const char* Config::toString(LogLevel lvl) noexcept {
-       switch (lvl) {
-
+    switch (lvl) {
         case LogLevel::Trace:    return "TRACE";
         case LogLevel::Debug:    return "DEBUG";
         case LogLevel::Info:     return "INFO";
@@ -30,14 +29,12 @@ namespace qga {
         case LogLevel::Err:      return "ERROR";
         case LogLevel::Critical: return "CRITICAL";
         case LogLevel::Off:      return "OFF";
-
-        }
-      return "INFO";
+    }
+    return "INFO";
     }
 
     std::optional<LogLevel> Config::parseLogLevel(std::string s) noexcept {
     s = toLower(std::move(s));
-
     if (s == "trace")    return LogLevel::Trace;
     if (s == "debug")    return LogLevel::Debug;
     if (s == "info")     return LogLevel::Info;
@@ -45,7 +42,6 @@ namespace qga {
     if (s == "err"  || s == "error")   return LogLevel::Err;
     if (s == "critical" || s == "crit")return LogLevel::Critical;
     if (s == "off" || s == "none")     return LogLevel::Off;
-
     return std::nullopt;
     }
 
@@ -57,24 +53,19 @@ namespace qga {
 
     // ===== Public API =====
     void Config::loadDefaults() {
-
     data_dir_  = "data";
     threads_  = 4;
     log_level_ = LogLevel::Info;
     log_file_  = "app.log";
-
     validate(nullptr);
     }
 
     void Config::validate(std::vector<std::string>* warnings) {
-
     const unsigned HW = std::max(1u, std::thread::hardware_concurrency());
-
 
     if (threads_ < 1) {
         addWarn(warnings, "engine.threads < 1 → set to 1");
         threads_ = 1;
-
     } else if (threads_ > static_cast<int>(HW)) {
         addWarn(warnings, "engine.threads > CPU cores → set to " + std::to_string(HW));
         threads_ = static_cast<int>(HW);
@@ -88,7 +79,6 @@ namespace qga {
     if (log_file_.empty()) {
         addWarn(warnings, "logging.file is empty → 'app.log'");
         log_file_ = "app.log";
-
     }
     }
 
@@ -116,9 +106,7 @@ namespace qga {
     if (j.contains("paths") && j["paths"].is_object()) {
         const auto& jp = j["paths"];
         if (jp.contains("data_dir")) {
-
         if (jp["data_dir"].is_string()) data_dir_ = jp["data_dir"].get<std::string>();
-
         else addWarn(warnings, "paths.data_dir: expected string");
         }
     }
@@ -138,18 +126,14 @@ namespace qga {
         if (jl.contains("level")) {
         if (jl["level"].is_string()) {
             auto lvl = parseLogLevel(jl["level"].get<std::string>());
-
             if (lvl) log_level_ = *lvl;
-
             else addWarn(warnings, "logging.level: unknown value (allowed: trace/debug/info/warn/error/critical/off)");
         } else {
             addWarn(warnings, "logging.level: expected string");
         }
         }
         if (jl.contains("file")) {
-
         if (jl["file"].is_string()) log_file_ = jl["file"].get<std::string>();
-
         else addWarn(warnings, "logging.file: expected string");
         }
     }
@@ -159,9 +143,7 @@ namespace qga {
 
     void Config::loadFromEnv(std::vector<std::string>* warnings) {
     if (const char* v = std::getenv("QGA_DATA_DIR")) {
-
         if (*v) data_dir_ = v; else addWarn(warnings, "QGA_DATA_DIR is empty");
-
     }
     if (const char* v = std::getenv("QGA_THREADS")) {
         try {
@@ -171,12 +153,10 @@ namespace qga {
         }
     }
     if (const char* v = std::getenv("QGA_LOG_FILE")) {
-
         if (*v) log_file_ = v; else addWarn(warnings, "QGA_LOG_FILE is empty");
     }
     if (const char* v = std::getenv("QGA_LOG_LEVEL")) {
         if (auto lvl = parseLogLevel(v)) log_level_ = *lvl;
-
         else addWarn(warnings, "QGA_LOG_LEVEL: unknown value");
     }
 
