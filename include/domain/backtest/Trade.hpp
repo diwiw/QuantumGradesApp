@@ -1,13 +1,13 @@
 /**
- * @file Trade.h
+ * @file Trade.hpp
  * @brief Models an executed trade (fill) resulting from an Order.
  */
 
 #pragma once
 
 #include <chrono>
-#include "domain/backtest/Order.h"
-#include "domain/backtest/BarSeries.h"
+#include "domain/backtest/Order.hpp"
+#include "domain/backtest/BarSeries.hpp"
 
 
 namespace backtest {

@@ -1,11 +1,11 @@
 #include "doctest.h"
-#include "strategy/MACrossover.h"
-#include "strategy/IStrategy.h"
-#include "domain/backtest/Engine.h"
-#include "domain/backtest/BarSeries.h"
-#include "domain/backtest/Execution.h"
-#include "strategy/BuyHold.h"
-#include "domain/Quote.h"
+#include "strategy/MACrossover.hpp"
+#include "strategy/IStrategy.hpp"
+#include "domain/backtest/Engine.hpp"
+#include "domain/backtest/BarSeries.hpp"
+#include "domain/backtest/Execution.hpp"
+#include "strategy/BuyHold.hpp"
+#include "domain/Quote.hpp"
 #include "test_helpers.hpp"
 
 using namespace strategy;

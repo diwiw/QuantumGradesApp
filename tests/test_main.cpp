@@ -1,8 +1,8 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
-#include "Logger.h"
+#include "Logger.hpp"
 #include <filesystem>
-#include "Version.h"
+#include "Version.hpp"
 
 struct LogInit {
 	LogInit() {

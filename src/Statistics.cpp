@@ -1,5 +1,5 @@
-#include "Statistics.h"
-#include "Logger.h"
+#include "Statistics.hpp"
+#include "Logger.hpp"
 #include <algorithm>
 #include <cmath>
 #include <numeric>

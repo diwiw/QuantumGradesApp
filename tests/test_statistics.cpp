@@ -1,6 +1,6 @@
 #include "doctest.h"
-#include "Statistics.h"
-#include "Logger.h"
+#include "Statistics.hpp"
+#include "Logger.hpp"
 #include <vector>
 
 TEST_CASE("Statistics- calculateMean") {
@@ -59,7 +59,7 @@ TEST_CASE("Statistics- calculateMax"){
 //	CHECK(Statistics::calculateMin(data) == 5);
 //}
 
-//TEST_CASE("Statistics handles empty input"){
+//TEST_CASE("Statistics.hppandles empty input"){
 //	std::vector<int> empty;
 //	CHECK_THROWS_AS(Statistics::calculateMean(empty), std::invalid_argument);
 //	CHECK_THROWS_AS(Statistics::calculateMedian(empty), std::invalid_argument);

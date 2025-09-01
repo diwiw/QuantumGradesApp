@@ -1,5 +1,5 @@
-#include "domain/backtest/Order.h"
-#include "domain/backtest/BarSeries.h"
+#include "domain/backtest/Order.hpp"
+#include "domain/backtest/BarSeries.hpp"
 #include <stdexcept>
 
 using namespace domain;

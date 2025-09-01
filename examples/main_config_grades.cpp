@@ -1,10 +1,10 @@
 #include <iostream>
 #include <filesystem>
-#include "Grades.h"
-#include "Version.h"
-#include "FileManager.h"
-#include "Logger.h"
-#include "Config.h"
+#include "Grades.hpp"
+#include "Version.hpp"
+#include "FileManager.hpp"
+#include "Logger.hpp"
+#include "Config.hpp"
 
 int main() {
 	// === Header ===

@@ -1,5 +1,5 @@
-#include "FileManager.h"
-#include "Logger.h"
+#include "FileManager.hpp"
+#include "Logger.hpp"
 #include <fstream>
 #include <filesystem>
 

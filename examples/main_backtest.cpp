@@ -1,15 +1,15 @@
 #include <iostream>
 #include <filesystem>
-#include "Grades.h"
-#include "Version.h"
-#include "FileManager.h"
-#include "Logger.h"
-#include "Config.h"
+#include "Grades.hpp"
+#include "Version.hpppp"
+#include "FileManager.hpp"
+#include "Logger.hpp"
+#include "Config.hpp"
 
-#include "domain/backtest/Engine.h"
-#include "domain/backtest/Execution.h"
-#include "domain/backtest/BarSeries.h"
-#include "strategy/BuyHold.h"
+#include "domain/backtest/Engine.hpp"
+#include "domain/backtest/Execution.hpp"
+#include "domain/backtest/BarSeries.hpp"
+#include "strategy/BuyHold.hpp"
 
 
 int main() {

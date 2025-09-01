@@ -1,5 +1,5 @@
 /**
- * @file Quote.h
+ * @file Quote.hpp
  * @brief Single OHLCV bar (market candle) in time series.
  */
 #pragma once

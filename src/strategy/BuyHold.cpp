@@ -1,4 +1,4 @@
-#include "strategy/BuyHold.h"
+#include "strategy/BuyHold.hpp"
 
 
 namespace strategy {

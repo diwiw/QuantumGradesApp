@@ -1,4 +1,4 @@
-#include "domain/backtest/Position.h"
+#include "domain/backtest/Position.hpp"
 
 namespace backtest{
 

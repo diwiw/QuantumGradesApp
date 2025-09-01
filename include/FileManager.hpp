@@ -1,5 +1,5 @@
 /**
- * @file FileManager.h
+ * @file FileManager.hpp
  * @brief Utility class for file operations (static, stateless).
  *
  * This class provides safe read/write/append operations for text files.

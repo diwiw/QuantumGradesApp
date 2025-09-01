@@ -1,8 +1,8 @@
 #pragma once
 #include <cstdint>
 #include <vector>
-#include "domain/Quote.h"
-#include "domain/backtest/BarSeries.h"
+#include "domain/Quote.hpp"
+#include "domain/backtest/BarSeries.hpp"
 
 namespace testlib {
 

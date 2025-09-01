@@ -1,5 +1,5 @@
 /**
- * @file Position.h
+ * @file Position.hpp
  * @brief Models an open trading position for a single instrument.
  *
  * Tracks quantity, average entry price, and realized/unrealized PnL.
@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "domain/Instrument.h"
+#include "domain/Instrument.hpp"
 #include <algorithm>
 #include <stdexcept>
 

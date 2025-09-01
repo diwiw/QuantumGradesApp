@@ -1,4 +1,4 @@
-#include "domain/backtest/BarSeries.h"
+#include "domain/backtest/BarSeries.hpp"
 #include <stdexcept>
 
 namespace backtest{

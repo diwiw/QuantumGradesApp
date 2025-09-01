@@ -1,5 +1,5 @@
 #include "doctest.h"
-#include "Grades.h"
+#include "Grades.hpp"
 
 TEST_CASE("Grades add and mean"){
 	Grades g;

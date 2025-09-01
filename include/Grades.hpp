@@ -1,5 +1,5 @@
 /**
- * @file Grades.h
+ * @file Grades.hpp
  * @brief A simple class to manage and analyze a collection of integer grades.
  */
 #pragma once

@@ -1,5 +1,5 @@
 /**
- * @file Order.h
+ * @file Order.hpp
  * @brief Order abstraction used in backtests: side, type, quantity, timestamp.
  *
  * Represents a simplified financial order object for use in the backtest engine.
@@ -7,7 +7,7 @@
  */
 #pragma once
 
-#include "domain/Instrument.h"
+#include "domain/Instrument.hpp"
 #include <string>
 #include <chrono>
 

@@ -1,6 +1,6 @@
-#include "Grades.h"
-#include "Logger.h"
-#include "Statistics.h"
+#include "Grades.hpp"
+#include "Logger.hpp"
+#include "Statistics.hpp"
 #include <iostream>
 #include <numeric>
 #include <algorithm>

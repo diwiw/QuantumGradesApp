@@ -1,8 +1,8 @@
 #include "doctest.h"
-#include "domain/Instrument.h"
-#include "domain/backtest/Trade.h"
-#include "domain/backtest/Position.h"
-#include "domain/backtest/Portfolio.h"
+#include "domain/Instrument.hpp"
+#include "domain/backtest/Trade.hpp"
+#include "domain/backtest/Position.hpp"
+#include "domain/backtest/Portfolio.hpp"
 
 using namespace domain;
 using namespace backtest;

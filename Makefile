@@ -13,7 +13,7 @@ DATA_DIR 	:= data
 # Files
 APP 		:= $(BIN_DIR)/app
 TEST_BIN 	:= $(BIN_DIR)/run_tests
-VERSION_FILE 	:= $(INCLUDE_DIR)/Version.h
+VERSION_FILE 	:= $(INCLUDE_DIR)/Version.hpp
 APP_VERSION 	:= 0.3.0
 APP_BUILD_DATE	:= $(shell git describe --tags --always --dirty)
 COMMIT_TAG 	:= $(shell  date '+%Y-%m-%d %H:%M:%S')
@@ -52,7 +52,7 @@ $(BUILD_DIR)/tests/%.o: $(TEST_DIR)/%.cpp | $(BUILD_DIR) $(VERSION_FILE)
 	@mkdir -p $(BUILD_DIR)/tests
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Version header generation
+# Version.hpp header generation
 $(VERSION_FILE):
 	@mkdir -p $(INCLUDE_DIR)
 	@echo "Generating version header QuantumGradesApp v$(APP_VERSION)"

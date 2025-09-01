@@ -1,4 +1,4 @@
-#include "domain/backtest/Trade.h"
+#include "domain/backtest/Trade.hpp"
 #include <stdexcept>
 
 namespace backtest {
