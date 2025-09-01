@@ -6,9 +6,12 @@
             "type": "shell",
             "command": "cmake",
             "args": [
-                "-S", ".",
-                "-B", "build",
-                "-G", "Ninja",
+                "-S",
+                ".",
+                "-B",
+                "build",
+                "-G",
+                "Ninja",
                 "-DCMAKE_BUILD_TYPE=Debug",
                 "-DBUILD_EXAMPLES=ON"
             ],
@@ -23,9 +26,12 @@
             "type": "shell",
             "command": "cmake",
             "args": [
-                "-S", ".",
-                "-B", "build",
-                "-G", "Ninja",
+                "-S",
+                ".",
+                "-B",
+                "build",
+                "-G",
+                "Ninja",
                 "-DCMAKE_BUILD_TYPE=Release",
                 "-DBUILD_EXAMPLES=ON"
             ],
@@ -37,90 +43,135 @@
             "type": "shell",
             "command": "cmake",
             "args": [
-                "--build", "build",
-                "--target", "examples_config",
-                "--config", "Debug",
+                "--build",
+                "build",
+                "--target",
+                "examples_config",
+                "--config",
+                "Debug",
                 "-j4"
             ],
             "group": "build",
-            "problemMatcher": ["$gcc"],
-            "dependsOn": ["Configure Debug"]
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn": [
+                "Configure Debug"
+            ]
         },
         {
             "label": "Build Debug Example_Backtest",
             "type": "shell",
             "command": "cmake",
             "args": [
-                "--build", "build",
-                "--target", "examples_backtest",
-                "--config", "Debug",
+                "--build",
+                "build",
+                "--target",
+                "examples_backtest",
+                "--config",
+                "Debug",
                 "-j4"
             ],
             "group": "build",
-            "problemMatcher": ["$gcc"],
-            "dependsOn": ["Configure Debug"]
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn": [
+                "Configure Debug"
+            ]
         },
         {
             "label": "Build Debug Tests",
             "type": "shell",
             "command": "cmake",
             "args": [
-                "--build", "build",
-                "--target", "tests",
-                "--config", "Debug",
+                "--build",
+                "build",
+                "--target",
+                "tests",
+                "--config",
+                "Debug",
                 "-j4"
             ],
             "group": "build",
-            "problemMatcher": ["$gcc"],
-            "dependsOn": ["Configure Debug"]
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn": [
+                "Configure Debug"
+            ]
         },
         {
             "label": "Build Release Example_Config",
             "type": "shell",
             "command": "cmake",
             "args": [
-                "--build", "build",
-                "--target", "examples_config",
-                "--config", "Release",
+                "--build",
+                "build",
+                "--target",
+                "examples_config",
+                "--config",
+                "Release",
                 "-j4"
             ],
             "group": "build",
-            "problemMatcher": ["$gcc"],
-            "dependsOn": ["Configure Release"]
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn": [
+                "Configure Release"
+            ]
         },
         {
             "label": "Build Release Example_Backtest",
             "type": "shell",
             "command": "cmake",
             "args": [
-                "--build", "build",
-                "--target", "examples_backtest",
-                "--config", "Release",
+                "--build",
+                "build",
+                "--target",
+                "examples_backtest",
+                "--config",
+                "Release",
                 "-j4"
             ],
             "group": "build",
-            "problemMatcher": ["$gcc"],
-            "dependsOn": ["Configure Release"]
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn": [
+                "Configure Release"
+            ]
         },
-         {
+        {
             "label": "clang-tidy: fix project",
             "type": "shell",
             "command": "./tools/run-tidy-fix.sh",
             "problemMatcher": []
-            },
-            {
+        },
+        {
             "label": "cmake: build",
             "type": "shell",
             "command": "cmake",
-            "args": ["--build", "build", "-j"],
-            "group": { "kind": "build", "isDefault": true },
+            "args": [
+                "--build",
+                "build",
+                "-j"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "problemMatcher": []
         },
         {
             "label": "Clean Build",
             "type": "shell",
             "command": "rm",
-            "args": ["-rf", "build"],
+            "args": [
+                "-rf",
+                "build"
+            ],
             "problemMatcher": []
         }
     ]
