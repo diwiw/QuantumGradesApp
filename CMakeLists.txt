@@ -98,9 +98,9 @@ list(FILTER TEST_FILES EXCLUDE REGEX ".*test_main.cpp$")
 
 add_executable(tests ${SRC_FILES} ${TEST_FILES} ${TEST_DIR}/test_main.cpp)
 target_include_directories(tests PRIVATE ${INCLUDE_DIR} ${EXTERNAL_DIR})
+target_compile_definitions(tests PRIVATE UNIT_TEST)
 
 # Make sure, that targets sees nlohmann_json
-
 if(TARGET tests)
 	target_link_libraries(tests PRIVATE nlohmann_json::nlohmann_json)
 endif()
