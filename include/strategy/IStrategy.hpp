@@ -1,9 +1,9 @@
 /**
- * @file IStrategy.h
+ * @file IStrategy.hpp
  * @brief Strategy interface returning trading signals per bar.
  */
 #pragma once
-#include "domain/Quote.h"
+#include "domain/Quote.hpp"
 
 namespace strategy {
     

@@ -1,12 +1,12 @@
 /**
- * @file CsvLoader.h
+ * @file CsvLoader.hpp
  * @brief CSV file reader for loading market data into BarSeries.
  */
 
 #pragma once
 
 #include <string>
-#include "domain/backtest/BarSeries.h"
+#include "domain/backtest/BarSeries.hpp"
 namespace io { 
 
     /**

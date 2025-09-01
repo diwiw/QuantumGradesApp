@@ -1,9 +1,9 @@
 /**
- * @file BuyHold.h
+ * @file BuyHold.hpp
  * @brief Baseline strategy: buy once at the beginning and hold.
  */
 #pragma once
-#include "strategy/IStrategy.h"
+#include "strategy/IStrategy.hpp"
 
 namespace strategy {
 

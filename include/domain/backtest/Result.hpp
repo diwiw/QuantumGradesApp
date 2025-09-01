@@ -1,5 +1,5 @@
 /**
- * @file Result.h
+ * @file Result.hpp
  * @brief Backtest outcome (summary metrics).
  */
 #pragma once

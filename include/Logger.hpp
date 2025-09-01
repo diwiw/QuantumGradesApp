@@ -1,11 +1,11 @@
 /**
- * @file Logger.h
+ * @file Logger.hpp
  * @brief Thread-safe, singleton logger class with log-level filtering and file output.
  */
 
 #pragma once
 
-#include "Platform.h" // Ensure platform-specific settings are included first
+#include "Platform.hpp" // Ensure platform-specific settings are included first
 #include <fstream>
 #include <string>
 #include <memory>

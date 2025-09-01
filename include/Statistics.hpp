@@ -1,5 +1,5 @@
 /**
- * @file Statistics.h
+ * @file Statistics.hpp
  * @brief Utility class for performing basic statistical calculations.
  *
  * This class contains only static methods and is completely stateless.

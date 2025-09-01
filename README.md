@@ -97,22 +97,22 @@ QuantumGradesApp/
 │ └─ class_diagram.md
 ├─ external/ # third-party libraries (via FetchContent)
 ├─ include/
-│ ├─ Config.h
-│ ├─ FileManager.h
-│ ├─ Logger.h
-│ ├─ Statistics.h
+│ ├─ Config.hpp
+│ ├─ FileManager.hpp
+│ ├─ Logger.hpp
+│ ├─ Statistics.hpp
 │ └─ domain/
 │ └─ backtest/
-│ ├─ Engine.h
-│ ├─ BarSeries.h
-│ ├─ Order.h
-│ ├─ Portfolio.h
-│ ├─ Trade.h
-│ └─ Execution.h
+│ ├─ Engine.hpp
+│ ├─ BarSeries.hpp
+│ ├─ Order.hpp
+│ ├─ Portfolio.hpp
+│ ├─ Trade.hpp
+│ └─ Execution.hpp
 │ └─ strategy/
-│ ├─ IStrategy.h
-│ ├─ BuyHold.h
-│ └─ MACrossover.h
+│ ├─ IStrategy.hpp
+│ ├─ BuyHold.hpp
+│ └─ MACrossover.hpp
 ├─ src/
 │ └─ domain/
 │ └─ backtest/

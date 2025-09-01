@@ -43,7 +43,7 @@ set(DATA_DIR ${CMAKE_SOURCE_DIR}/data)
 
 include_directories(${INCLUDE_DIR} ${EXTERNAL_DIR})
 
-# === Generate Version.h ===
+# === Generate Version.hpp ===
 execute_process(
 	COMMAND git describe --tags --always --dirty
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -64,7 +64,7 @@ string(TIMESTAMP BUILD_DATE "%Y-%m-%d %H:%M:%S")
 
 configure_file(
 	${CMAKE_SOURCE_DIR}/cmake/version.h.in
-	${INCLUDE_DIR}/Version.h
+	${INCLUDE_DIR}/Version.hpp
 	@ONLY
 )
 

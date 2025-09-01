@@ -1,7 +1,7 @@
 #include "doctest.h"
 #include <filesystem>
 #include <fstream>
-#include "Config.h"
+#include "Config.hpp"
 
 namespace fs = std::filesystem;
 using namespace qga;

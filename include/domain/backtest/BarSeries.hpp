@@ -1,5 +1,5 @@
 /**
- * @file BarSeries.h
+ * @file BarSeries.hpp
  * @brief Container of market bars used by the backtest engine.
  *
  * Defines a simple container for storing and accessing time-ordered
@@ -9,7 +9,7 @@
 #pragma once
 
 #include <vector>
-#include "domain/Quote.h"
+#include "domain/Quote.hpp"
 
 namespace backtest {
 

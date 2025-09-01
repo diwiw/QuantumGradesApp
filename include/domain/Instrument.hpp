@@ -1,5 +1,5 @@
 /**
- * @file Instrument.h
+ * @file Instrument.hpp
  * @brief Domain model: security/instrument metadata (symbol, venue, asset class, trading params).
  * 
  * Minimal, robust Value Object representing a tradable instrument.

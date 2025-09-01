@@ -1,5 +1,5 @@
 /**
- * @file Config.h
+ * @file Config.hpp
  * @brief Global singleton-based application configuration.
  *
  * Supports loading parameters from JSON and environment variables (QGA_*),

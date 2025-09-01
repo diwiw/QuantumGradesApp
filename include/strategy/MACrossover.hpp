@@ -1,10 +1,10 @@
 /**
- * @file MACrossover.h
+ * @file MACrossover.hpp
  * @brief Simple SMA fast/slow crossover strategy.
  */
 #pragma once
 #include <deque>
-#include "strategy/IStrategy.h"
+#include "strategy/IStrategy.hpp"
 
 namespace strategy {
 

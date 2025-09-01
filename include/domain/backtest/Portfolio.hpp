@@ -1,5 +1,5 @@
 /**
- * @file Portfolio.h
+ * @file Portfolio.hpp
  * @brief Tracks current portfolio state and applies trades in the backtest engine.
  *
  * Manages positions, cash, and realized profit/loss during a simulation.
@@ -9,8 +9,8 @@
 
 #include <unordered_map>
 #include <string>
-#include "domain/backtest/Position.h"
-#include "domain/backtest/Trade.h"
+#include "domain/backtest/Position.hpp"
+#include "domain/backtest/Trade.hpp"
 
 namespace backtest {
 

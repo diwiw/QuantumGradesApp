@@ -1,5 +1,5 @@
 /**
- * @file Engine.h
+ * @file Engine.hpp
  * @brief Orchestrates a backtest: streams bars to a strategy and executes signals.
  *
  * Defines the main simulation loop, which runs a given strategy over a time series
@@ -8,10 +8,10 @@
 
 #pragma once
 
-#include "domain/backtest/BarSeries.h"
-#include "domain/backtest/Result.h"
-#include "strategy/IStrategy.h"
-#include "domain/backtest/Execution.h"
+#include "domain/backtest/BarSeries.hpp"
+#include "domain/backtest/Result.hpp"
+#include "strategy/IStrategy.hpp"
+#include "domain/backtest/Execution.hpp"
 
 namespace backtest {
     /**
