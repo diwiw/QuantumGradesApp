@@ -88,7 +88,6 @@ std::optional<backtest::BarSeries> DataIngest::fromHttpUrl(const std::string& ur
         return std::nullopt;
     }
 
-
     backtest::BarSeries series;
     std::istringstream iss(*content);
     std::string line;
@@ -104,7 +103,6 @@ std::optional<backtest::BarSeries> DataIngest::fromHttpUrl(const std::string& ur
         auto quote = parseRow(fields);
         if (quote) {
             series.add(*quote);
-
         }
     }
 
