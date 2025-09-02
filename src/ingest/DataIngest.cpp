@@ -52,14 +52,19 @@ namespace ingest {
     }
 
     std::optional<domain::Quote> DataIngest::parseRow(const std::vector<std::string>& fields) {
+        if(!validateRow(fields)) {
+            return std::nullopt;
+        }
+        
         try {
             domain::Quote q;
             q.ts_       = std::stoll(fields[0]);
-            q.open_     = std::stoll(fields[1]);
-            q.high_     = std::stoll(fields[2]);
-            q.low_      = std::stoll(fields[3]);
-            q.close_    = std::stoll(fields[4]);
-            q.volume_   = std::stoll(fields[5]);
+            q.open_     = std::stod(fields[1]);
+            q.high_     = std::stod(fields[2]);
+            q.low_      = std::stod(fields[3]);
+            q.close_    = std::stod(fields[4]);
+            q.volume_   = std::stod(fields[5]);
+            
             return q;
         } catch (const std::exception& e) {
             throw std::runtime_error("parseRow() failed: " + std::string(e.what()));
