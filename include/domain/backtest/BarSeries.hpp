@@ -49,7 +49,21 @@ namespace backtest {
          * @pre `size() > 0`
          */
         const Quote& back() const;
+
+       /**
+         * @brief Checks if the BarSeries contains any quotes.
+         *
+         * This method allows users to verify whether the series is empty,
+         * which can be useful for validating data loading operations or 
+         * ensuring proper initialization before processing.
+         *
+         * @return True if the BarSeries contains no quotes, false otherwise.
+         *
+         * @note This method is noexcept and does not modify the state of the object.
+         */
+        bool empty() const noexcept;
     private:
         std::vector<Quote> data_;   ///< Internal container of quotes.
     };
+
 } // namespace backtest

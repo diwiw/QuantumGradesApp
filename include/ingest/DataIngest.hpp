@@ -53,7 +53,7 @@ namespace ingest {
         /**
          * @brief Load market data from a remote CSV over HTTP.
          * 
-         * Currently not implemented. Will be supported in v0.7.1+.
+         * Currently not fully implemented. Will be supported in v0.7.1+.
          * 
          * @param url Remote URL returning CSV content.
          * @return Optional BarSeries if request and parsing succeed.
