@@ -21,4 +21,8 @@ namespace backtest{
     return data_.back();
   }
 
+  bool BarSeries::empty() const noexcept {
+    return data_.empty();
+  }
+
 } // namespace backtest

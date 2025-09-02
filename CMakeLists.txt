@@ -80,16 +80,20 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
+# === HTTP Curl Library ===
+find_package(CURL REQUIRED)
 
 # === Optional Examples build ===
 if(BUILD_EXAMPLES)
 	add_executable(examples_config ${SRC_FILES} ${EXAMPLES_DIR}/main_config_grades.cpp)
 	target_include_directories(examples_config PRIVATE ${INCLUDE_DIR})
-	target_link_libraries(examples_config PRIVATE nlohmann_json::nlohmann_json)
+	target_link_libraries(examples_config PRIVATE nlohmann_json::nlohmann_json CURL::libcurl)
+	target_compile_definitions(examples_config PRIVATE USE_CURL)
 
 	add_executable(examples_backtest ${SRC_FILES} ${EXAMPLES_DIR}/main_backtest.cpp)
 	target_include_directories(examples_backtest PRIVATE ${INCLUDE_DIR})
-	target_link_libraries(examples_backtest PRIVATE nlohmann_json::nlohmann_json)
+	target_link_libraries(examples_backtest PRIVATE nlohmann_json::nlohmann_json CURL::libcurl)
+	target_compile_definitions(examples_backtest PRIVATE USE_CURL)
 endif()
 
 # === Tests ===
@@ -98,11 +102,11 @@ list(FILTER TEST_FILES EXCLUDE REGEX ".*test_main.cpp$")
 
 add_executable(tests ${SRC_FILES} ${TEST_FILES} ${TEST_DIR}/test_main.cpp)
 target_include_directories(tests PRIVATE ${INCLUDE_DIR} ${EXTERNAL_DIR})
-target_compile_definitions(tests PRIVATE UNIT_TEST)
+target_compile_definitions(tests PRIVATE UNIT_TEST USE_CURL)
 
 # Make sure, that targets sees nlohmann_json
 if(TARGET tests)
-	target_link_libraries(tests PRIVATE nlohmann_json::nlohmann_json)
+	target_link_libraries(tests PRIVATE nlohmann_json::nlohmann_json CURL::libcurl)
 endif()
 
 

@@ -1,74 +1,141 @@
 #include "ingest/DataIngest.hpp"
-#include "FileManager.hpp"
-#include "domain/backtest/BarSeries.hpp"
+#include <fstream>
 #include <sstream>
-#include <stdexcept>
+#include <iostream>
+#include <curl/curl.h>  // For HTTP requests
 
-namespace ingest {
-    
-    std::optional<backtest::BarSeries> DataIngest::fromCsv(const std::string& path) {
-        auto lines_opt = FileManager::readAllLines(path);
-        if (!lines_opt.has_value()) {
-            throw std::runtime_error("Failed to read CSV file: " + path);
-        }
+namespace {
 
-        const auto& lines = lines_opt.value();
-        backtest::BarSeries series;
+    // === GLOBAL CURL INIT (RAII-style) ===
+    struct CurlGlobalInit {
+        CurlGlobalInit() { curl_global_init(CURL_GLOBAL_DEFAULT); }
+        ~CurlGlobalInit() { curl_global_cleanup(); }
+    };
 
-        for(size_t i = 0 ; i < lines.size(); i++) {
-            const std::string& line = lines[i];
-            if (line.empty()) continue;
+    CurlGlobalInit global_curl_init;
 
-            std::istringstream stream(line);
-            std::string token;
-            std::vector<std::string> fields;
-
-            while (std::getline(stream, token, ',')) {
-                fields.push_back(token);
-            }
-
-            if (!validateRow(fields)) {
-                throw std::runtime_error("Invalid CSV format at line " + std::to_string(i + 1));
-            }
-
-            auto quote_opt = parseRow(fields);
-            if (!quote_opt.has_value()) {
-                throw std::runtime_error("Failed to parse row at line " + std::to_string(i + 1));
-            }
-
-            series.add(quote_opt.value());
-        }
-
-        return series;
+    // === CALLBACK: Append HTTP body to std::string ===
+    size_t writeToString(void* contents, size_t size, size_t nmemb, std::string* userp) {
+        size_t total = size * nmemb;
+        auto* buffer = static_cast<std::string*>(userp);
+        buffer->append(static_cast<char*>(contents), total);
+        return total;
     }
 
+    // === HTTP GET using libcurl ===
+    std::optional<std::string> fetchHttpContent(const std::string& url) {
+        CURL* curl = curl_easy_init();
+        if (!curl) return std::nullopt;
 
-    std::optional<backtest::BarSeries> DataIngest::fromHttpUrl(const std::string& url) {
-        throw std::runtime_error("fromHttpUrl() not implemented yet: " + url);
-    }
+        std::string response;
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeToString);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); // handle redirects
 
-    bool DataIngest::validateRow(const std::vector<std::string>& fields) {
-        return fields.size() == 6;
-    }
+        CURLcode res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
 
-    std::optional<domain::Quote> DataIngest::parseRow(const std::vector<std::string>& fields) {
-        if(!validateRow(fields)) {
+        if (res != CURLE_OK) {
+            std::cerr << "[DataIngest] HTTP error: " << curl_easy_strerror(res) << "\n";
             return std::nullopt;
         }
-        
-        try {
-            domain::Quote q;
-            q.ts_       = std::stoll(fields[0]);
-            q.open_     = std::stod(fields[1]);
-            q.high_     = std::stod(fields[2]);
-            q.low_      = std::stod(fields[3]);
-            q.close_    = std::stod(fields[4]);
-            q.volume_   = std::stod(fields[5]);
-            
-            return q;
-        } catch (const std::exception& e) {
-            throw std::runtime_error("parseRow() failed: " + std::string(e.what()));
+
+        return response;
+    }
+}   // namespace
+
+namespace ingest {
+
+// === PUBLIC ===
+
+std::optional<backtest::BarSeries> DataIngest::fromCsv(const std::string& path) {
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        std::cerr << "[DataIngest] Failed to open file: " << path << "\n";
+        return std::nullopt;
+    }
+
+    backtest::BarSeries series;
+    std::string line;
+    while (std::getline(file, line)) {
+        std::vector<std::string> fields;
+        std::stringstream ss(line);
+        std::string item;
+        while (std::getline(ss, item, ',')) {
+            fields.push_back(item);
+        }
+
+        if (!validateRow(fields)) continue;
+        auto quote = parseRow(fields);
+        if (quote) {
+            series.add(*quote);
         }
     }
 
-}   // namespace ingest
+    if (series.empty()) {
+        std::cerr << "[DataIngest] No valid rows found in file: " << path << "\n";
+        return std::nullopt;
+    }
+
+    return series;
+}
+
+std::optional<backtest::BarSeries> DataIngest::fromHttpUrl(const std::string& url) {
+    auto content = fetchHttpContent(url);
+    if (!content.has_value()) {
+        std::cerr << "[DataIngest] Failed to fetch HTTP content from: " << url << "\n";
+        return std::nullopt;
+    }
+
+    backtest::BarSeries series;
+    std::istringstream iss(*content);
+    std::string line;
+    while (std::getline(iss, line)) {
+        std::vector<std::string> fields;
+        std::stringstream ss(line);
+        std::string item;
+        while (std::getline(ss, item, ',')) {
+            fields.push_back(item);
+        }
+
+        if (!validateRow(fields)) continue;
+        auto quote = parseRow(fields);
+        if (quote) {
+            series.add(*quote);
+        }
+    }
+
+    if (series.empty()) {
+        std::cerr << "[DataIngest] No valid rows fetched from HTTP source.\n";
+        return std::nullopt;
+    }
+
+    return series;
+}
+
+// === PRIVATE ===
+
+bool DataIngest::validateRow(const std::vector<std::string>& fields) {
+    return fields.size() == 6;
+}
+
+std::optional<domain::Quote> DataIngest::parseRow(const std::vector<std::string>& fields) {
+    if (fields.size() != 6) return std::nullopt;
+
+    try {
+        int64_t ts     = std::stoll(fields[0]);
+        double open    = std::stod(fields[1]);
+        double high    = std::stod(fields[2]);
+        double low     = std::stod(fields[3]);
+        double close   = std::stod(fields[4]);
+        double volume  = std::stod(fields[5]);
+
+        return domain::Quote{ ts, open, high, low, close, volume };
+    } catch (const std::exception& e) {
+        std::cerr << "[DataIngest] parseRow failed: " << e.what() << "\n";
+        return std::nullopt;
+    }
+}
+
+} // namespace ingest

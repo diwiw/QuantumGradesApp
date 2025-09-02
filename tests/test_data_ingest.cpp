@@ -43,3 +43,41 @@ TEST_CASE("parseRow returns Quote for valid fields") {
     CHECK(result->close_ == doctest::Approx(101.2));
     CHECK(result->volume_ == doctest::Approx(12345.67));
 }
+
+/** 
+ * @brief Integration test for ingesting market data via HTTP
+ *
+ * Requires a running local HTTP server with a valid CSV file.
+ * Example:
+ *   cd tests/data
+ *   python3 -m http.server 8000
+ *
+ * CSV must match expected format:
+ * timestamp, open, high, low, close, volume
+ */
+
+TEST_CASE("DataIngest::fromHttpUrl loads valid CSV data over HTTP") {
+    const std::string URL = "http://localhost:8000/test_http.csv";
+
+    auto result = ingest::DataIngest::fromHttpUrl(URL);
+    REQUIRE_MESSAGE(result.has_value(), "Failed to load data from HTTP URL");
+
+    const auto& series = result.value();
+    CHECK(series.size() == 2);
+
+    const auto& first = series.at(0);
+    CHECK(first.ts_ == 1669900800000);
+    CHECK(first.open_ == doctest::Approx(100.5));
+    CHECK(first.high_ == doctest::Approx(102.3));
+    CHECK(first.low_ == doctest::Approx(99.0));
+    CHECK(first.close_ == doctest::Approx(101.2));
+    CHECK(first.volume_ == doctest::Approx(12345.67));
+
+    const auto& second = series.at(1);
+    CHECK(second.ts_ == 1669987200000);
+    CHECK(second.open_ == doctest::Approx(101.2));
+    CHECK(second.high_ == doctest::Approx(103.0));
+    CHECK(second.low_ == doctest::Approx(100.0));
+    CHECK(second.close_ == doctest::Approx(102.5));
+    CHECK(second.volume_ == doctest::Approx(14500.00));
+}
