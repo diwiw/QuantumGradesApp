@@ -47,7 +47,7 @@ namespace backtest{
     strat.onFinish();
 
     if (has_pos) { // 
-      const auto& last      = s.back();
+      const auto& last      = s.end();
       const double PX_EXEC  = applySlippage(last.close_, exec_.slippage_bps_, /*is_buy=*/false);
       const double FEE      = commissionCost(PX_EXEC, qty, exec_.commission_fixed_, exec_.commission_bps_);
       cash                  += PX_EXEC * qty;
