@@ -16,13 +16,31 @@ namespace backtest{
     return data_[i];
   }
 
-  const domain::Quote& BarSeries::back() const {
+  const BarSeries::Quote& BarSeries::operator[](std::size_t i) const {
+    if (data_.empty()) throw std::out_of_range("BarSeries::back on empty series");
+    return data_[i];
+  }
+
+  const domain::Quote& BarSeries::end() const {
     if (data_.empty()) throw std::out_of_range("BarSeries::back on empty series");
     return data_.back();
   }
 
+   const domain::Quote& BarSeries::front() const {
+    if (data_.empty()) throw std::out_of_range("BarSeries::begin on empty series");
+    return data_.front();
+  }
+
   bool BarSeries::empty() const noexcept {
     return data_.empty();
+  }
+
+  void BarSeries::clear() noexcept {
+    data_.clear();
+  }
+
+  const std::vector<domain::Quote>& BarSeries::data() const noexcept {
+    return data_;
   }
 
 } // namespace backtest
