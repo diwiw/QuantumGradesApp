@@ -1,5 +1,5 @@
 #include "Statistics.hpp"
-#include "Logger.hpp"
+#include "utils/Logger.hpp"
 #include <algorithm>
 #include <cmath>
 #include <numeric>
