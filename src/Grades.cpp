@@ -1,5 +1,5 @@
 #include "Grades.hpp"
-#include "Logger.hpp"
+#include "utils/Logger.hpp"
 #include "Statistics.hpp"
 #include <iostream>
 #include <numeric>

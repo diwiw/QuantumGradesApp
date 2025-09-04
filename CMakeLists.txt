@@ -72,7 +72,8 @@ configure_file(
 file(GLOB_RECURSE SRC_FILES ${SRC_DIR}/*.cpp)
 list(FILTER SRC_FILES EXCLUDE REGEX ".*/main\\.cpp$")
 
-# === External libraries ===
+# === External libraries === === ===
+
 include(FetchContent)
 FetchContent_Declare(
 	nlohmann_json
@@ -83,11 +84,14 @@ FetchContent_MakeAvailable(nlohmann_json)
 # === HTTP Curl Library ===
 find_package(CURL REQUIRED)
 
+# === spdlog ===
+find_package(spdlog REQUIRED)
+
 # === Optional Examples build ===
 if(BUILD_EXAMPLES)
 	add_executable(examples_config ${SRC_FILES} ${EXAMPLES_DIR}/main_config_grades.cpp)
 	target_include_directories(examples_config PRIVATE ${INCLUDE_DIR})
-	target_link_libraries(examples_config PRIVATE nlohmann_json::nlohmann_json CURL::libcurl)
+	target_link_libraries(examples_config PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog)
 	target_compile_definitions(examples_config PRIVATE USE_CURL)
 
 	add_executable(examples_backtest ${SRC_FILES} ${EXAMPLES_DIR}/main_backtest.cpp)
@@ -106,7 +110,7 @@ target_compile_definitions(tests PRIVATE UNIT_TEST USE_CURL)
 
 # Make sure, that targets sees nlohmann_json
 if(TARGET tests)
-	target_link_libraries(tests PRIVATE nlohmann_json::nlohmann_json CURL::libcurl)
+	target_link_libraries(tests PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog)
 endif()
 
 

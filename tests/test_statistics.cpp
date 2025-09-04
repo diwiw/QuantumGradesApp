@@ -1,6 +1,6 @@
 #include "doctest.h"
 #include "Statistics.hpp"
-#include "Logger.hpp"
+#include "utils/Logger.hpp"
 #include <vector>
 
 TEST_CASE("Statistics- calculateMean") {

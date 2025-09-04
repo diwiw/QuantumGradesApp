@@ -1,6 +1,6 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
-#include "Logger.hpp"
+#include "utils/Logger.hpp"
 #include <filesystem>
 #include "Version.hpp"
 
