@@ -44,6 +44,10 @@ namespace utils {
 
         /// @brief Does nothing.
         void setLevel(LogLevel /*level*/) {}
+
+        /// @brief Does nothing.
+        void log(LogLevel /*level*/, const std::string& /*msg*/)  override{}
+
     };
 
 } // namespace utils
