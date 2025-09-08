@@ -96,7 +96,7 @@ if(BUILD_EXAMPLES)
 
 	add_executable(examples_backtest ${SRC_FILES} ${EXAMPLES_DIR}/main_backtest.cpp)
 	target_include_directories(examples_backtest PRIVATE ${INCLUDE_DIR})
-	target_link_libraries(examples_backtest PRIVATE nlohmann_json::nlohmann_json CURL::libcurl)
+	target_link_libraries(examples_backtest PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog)
 	target_compile_definitions(examples_backtest PRIVATE USE_CURL)
 endif()
 
