@@ -94,14 +94,19 @@ find_package(SQLite3 REQUIRED)
 
 # === Optional Examples build ===
 if(BUILD_EXAMPLES)
+	add_executable(demo_db_logger_config ${SRC_FILES} ${EXAMPLES_DIR}/demo_db_logger_config.cpp)
+	target_include_directories(demo_db_logger_config PRIVATE ${INCLUDE_DIR})
+	target_link_libraries(demo_db_logger_config PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog SQLite::SQLite3)
+	target_compile_definitions(demo_db_logger_config PRIVATE USE_CURL)
+
 	add_executable(examples_config ${SRC_FILES} ${EXAMPLES_DIR}/main_config_grades.cpp)
 	target_include_directories(examples_config PRIVATE ${INCLUDE_DIR})
-	target_link_libraries(examples_config PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog sqlite3::sqlite3)
+	target_link_libraries(examples_config PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog SQLite::SQLite3)
 	target_compile_definitions(examples_config PRIVATE USE_CURL)
 
 	add_executable(examples_backtest ${SRC_FILES} ${EXAMPLES_DIR}/main_backtest.cpp)
 	target_include_directories(examples_backtest PRIVATE ${INCLUDE_DIR})
-	target_link_libraries(examples_backtest PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog sqlite3::sqlite3)
+	target_link_libraries(examples_backtest PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog SQLite::SQLite3)
 	target_compile_definitions(examples_backtest PRIVATE USE_CURL)
 endif()
 
@@ -115,7 +120,7 @@ target_compile_definitions(tests PRIVATE UNIT_TEST USE_CURL)
 
 # Make sure, that targets sees nlohmann_json
 if(TARGET tests)
-	target_link_libraries(tests PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog sqlite3::sqlite3)
+	target_link_libraries(tests PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog SQLite::SQLite3)
 endif()
 
 
