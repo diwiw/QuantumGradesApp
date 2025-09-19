@@ -44,15 +44,15 @@ TEST_SUITE("Logger") {
     }
 
     TEST_CASE("SpdLogger writes to file") {
-        const std::string log_file = "test_spdlog.log";
-        if (std::filesystem::exists(log_file)) {
-            std::filesystem::remove(log_file);
+        const std::string LOG_FILE = "test_spdlog.log";
+        if (std::filesystem::exists(LOG_FILE)) {
+            std::filesystem::remove(LOG_FILE);
         }
 
         auto logger = std::make_shared<SpdLogger>(
             "TestLogger",
             std::vector<std::shared_ptr<spdlog::sinks::sink>>{
-                std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_file, true)
+                std::make_shared<spdlog::sinks::basic_file_sink_mt>(LOG_FILE, true)
             },
             false // sync mode
         );
@@ -62,8 +62,8 @@ TEST_SUITE("Logger") {
 
         logger.reset(); // wymuszamy flush i zamknięcie
 
-        REQUIRE(std::filesystem::exists(log_file));
-        std::ifstream infile(log_file);
+        REQUIRE(std::filesystem::exists(LOG_FILE));
+        std::ifstream infile(LOG_FILE);
         std::string contents((std::istreambuf_iterator<char>(infile)),
                              std::istreambuf_iterator<char>());
 
