@@ -37,3 +37,4 @@ build/tests/
 *.swp
 *.bak
 .DS_Store
+test_spdlog.log
