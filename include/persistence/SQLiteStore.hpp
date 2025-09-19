@@ -9,6 +9,7 @@
 #pragma once
 
 #include "persistence/IDataStore.hpp"
+#include "utils/ILogger.hpp"
 #include <sqlite3.h>
 #include <string>
 #include <memory>
@@ -28,10 +29,11 @@ namespace qga::persistence {
     public:
         /// @brief Constructor opens (or creates) the SQLite database file.
         /// @param db_path Filesystem path to the SQLite database file.
-        explicit SQLiteStore(const std::string& db_path);
+        explicit SQLiteStore(const std::string& db_path,
+                                std::shared_ptr<utils::ILogger> logger = nullptr); //DI
 
         /// @brief Destructor closes the database connection.
-        ~SQLiteStore();
+        ~SQLiteStore() override;
 
         // --- IDataStore interface implementation ---
 
@@ -45,6 +47,7 @@ namespace qga::persistence {
     private:
         sqlite3* db_ = nullptr; ///< raw pointer managed internally (RAII in ctor/dtor)
         std::string db_path_; ///< Path to SQLite database file
+        std::shared_ptr<utils::ILogger> logger_; ///< Optional logger for diagnostics, DI
 
         void initSchema(); ///< Create tables if they do not exist
         void open(const std::string& db_file); ///< Open DB connection

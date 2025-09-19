@@ -1,13 +1,33 @@
 {
     "version": "0.2.0",
     "configurations": [
-        
         {
-             "name": "Debug Example Backtest",
+            "name": "Debug Demo DB Logger Config",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/demo_db_logger_config",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Build (Debug)"
+        },
+        {
+            "name": "Debug Example Backtest",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/examples_backtest",
-            "args":[],
+            "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

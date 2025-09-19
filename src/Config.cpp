@@ -21,16 +21,16 @@ namespace qga {
     }
 
     const char* Config::toString(LogLevel lvl) noexcept {
-    switch (lvl) {
-        case LogLevel::Trace:    return "TRACE";
-        case LogLevel::Debug:    return "DEBUG";
-        case LogLevel::Info:     return "INFO";
-        case LogLevel::Warn:     return "WARN";
-        case LogLevel::Err:      return "ERROR";
-        case LogLevel::Critical: return "CRITICAL";
-        case LogLevel::Off:      return "OFF";
-    }
-    return "INFO";
+        switch (lvl) {
+            case LogLevel::Trace:    return "TRACE";
+            case LogLevel::Debug:    return "DEBUG";
+            case LogLevel::Info:     return "INFO";
+            case LogLevel::Warn:     return "WARN";
+            case LogLevel::Err:      return "ERROR";
+            case LogLevel::Critical: return "CRITICAL";
+            case LogLevel::Off:      return "OFF";
+        }
+        return "INFO";
     }
 
     std::optional<LogLevel> Config::parseLogLevel(std::string s) noexcept {

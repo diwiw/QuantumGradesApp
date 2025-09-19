@@ -1,6 +1,6 @@
 # 📊 QuantumGradesApp
 
-> **Current Version:** `v0.6.0`  
+> **Current Version:** `v0.6.5`  
 > **Build System:** CMake  
 > **IDE Support:** Visual Studio Code (fully configured)  
 > **Documentation:** Auto-generated with Doxygen  
@@ -118,6 +118,7 @@ QuantumGradesApp/
 │ └─ backtest/
 │ └─ strategy/
 ├─ tests/
+│ │ └─ test_http.csv
 │ ├─ test_main.cpp
 │ └─ test_*.cpp
 ├─ CMakeLists.txt
@@ -159,6 +160,12 @@ Run example (Backtest):
 ```bash
 ./bin/tests
 ```
+For testing HTTP in file test_data_ingest, there should be server locally started, before start test:
+
+```bash
+cd tests/data
+python3 -m http.server 8000
+```
 ---
 
 ## 📝 Doxygen Documentation
@@ -188,6 +195,7 @@ cmake --build build --target docs
 ```
 ## 🗒 Release Notes
 
+- [v0.7.0](changelog/release_notes_v0.7.0.md) – dataIngest: CSV, HTTP, Persistence: SQLite3, JSON validation, Async spdlog, config/module struct
 - [v0.6.0](changelog/release_notes_v0.6.0.md) – strategy framework, full backtest engine, domain model
 - [v0.5.0](changelog/release_notes_v0.5.0.md) – CI/CD, CMake refactor, Logger, Statistics, Grades, FileManager 
 - [v0.4.0](changelog/release_notes_v0.4.0.md) – CMake migration, VSCode setup

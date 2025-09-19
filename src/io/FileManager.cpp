@@ -1,7 +1,9 @@
-#include "FileManager.hpp"
+#include "io/FileManager.hpp"
 #include "utils/Logger.hpp"
 #include <fstream>
 #include <filesystem>
+
+namespace qga::io {
 
 std::optional<std::vector<std::string>> FileManager::readAllLines(const std::string& file_path) {
 	if(!exists(file_path)){
@@ -71,3 +73,5 @@ bool FileManager::removeFile(const std::string& file_path) {
 		return false;
 	}
 }
+
+} // namespace qga::io

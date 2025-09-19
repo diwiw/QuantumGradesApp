@@ -14,6 +14,7 @@
 #include <vector>
 #include <optional>
 
+namespace qga::io {
 /**
  * @class FileManager
  * @brief Static utility class for safe text file operations.
@@ -79,3 +80,5 @@ public:
 	static bool removeFile(const std::string& file_path);
 
 };
+
+} // namespace qga::io
