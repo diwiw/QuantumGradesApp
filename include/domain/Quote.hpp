@@ -5,7 +5,8 @@
 #pragma once
 #include <cstdint>
 
-namespace domain {
+namespace qga::domain {
+
 /**
  * @struct Quote
  * @brief Immutable market bar with timestamp and OHLCV fields.
@@ -17,9 +18,10 @@ namespace domain {
  * @var Quote::volume
  *   Traded volume during the bar.
  */
-    struct Quote{
-        std::int64_t ts_{};                      ///< Epoch millis (convention in this project).
-        double open_{}, high_{}, low_{}, close_{};  ///< OHLC prices.
-        double volume_{};                        ///< Bar volume.
-    };
-} // namespace domain
+struct Quote{
+    std::int64_t ts_{};                      ///< Epoch millis (convention in this project).
+    double open_{}, high_{}, low_{}, close_{};  ///< OHLC prices.
+    double volume_{};                        ///< Bar volume.
+};
+
+} // namespace qga::domain

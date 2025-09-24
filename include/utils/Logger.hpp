@@ -11,6 +11,9 @@
 #include <memory>
 #include <mutex>
 
+namespace qga::utils {
+
+
 /**
  * @enum LogLevel
  * @brief Severity levels for logging messages.
@@ -70,3 +73,5 @@ private:
 	std::mutex mtx_;				   ///< Thread safety mutex
 
 };
+
+} // namespace qga::utils

@@ -2,7 +2,7 @@
 #include <limits>
 #include <cmath>
 
-namespace strategy {
+namespace qga::strategy {
 
   static double updateWindow(std::deque<double>& w, double& sum, int win, double px) {
     w.push_back(px);
@@ -12,17 +12,17 @@ namespace strategy {
     return std::numeric_limits<double>::quiet_NaN();
   }
 
-  MACrossover::MACrossover(int fast, int slow)
+  qga::strategy::MACrossover::MACrossover(int fast, int slow)
     : fast_period_(fast), slow_period_(slow) {}
 
-  void MACrossover::onStart() {
+  void MACrossover::MACrossover::onStart() {
     w_fast_.clear(); w_slow_.clear();
     sum_fast_ = sum_slow_ = 0.0;
     prev_fast_ = prev_slow_ = 0.0;
     ready_ = false;
   }
 
-  Signal MACrossover::onBar(const domain::Quote& q) {
+  qga::strategy::Signal MACrossover::onBar(const domain::Quote& q) {
     const double CLOSE = q.close_;
 
     const double SMA_F = updateWindow(w_fast_, sum_fast_, fast_period_, CLOSE);
@@ -50,4 +50,4 @@ namespace strategy {
 
   void MACrossover::onFinish() {}
 
-} // namespace strategy
+} // namespace qga::strategy

@@ -1,7 +1,7 @@
 #include "domain/backtest/BarSeries.hpp"
 #include <stdexcept>
 
-namespace backtest{
+namespace qga::domain::backtest{
 
   void BarSeries::add(const domain::Quote& q) {
     // (opcjonalnie) weryfikacja danych wejściowych
@@ -43,4 +43,4 @@ namespace backtest{
     return data_;
   }
 
-} // namespace backtest
+} // namespace qga::domain::backtest

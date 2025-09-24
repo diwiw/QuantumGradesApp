@@ -2,29 +2,33 @@
 #include "ingest/DataIngest.hpp"
 
 // Test helper class with friend access
+
+namespace qga::ingest {
+    
 class DataIngestTestAccess {
 public:
     static bool validateRow(const std::vector<std::string>& fields) {
-        return ingest::DataIngest::validateRow(fields);
+        return qga::ingest::DataIngest::validateRow(fields);
     }
 
-    static std::optional<domain::Quote> parseRow(const std::vector<std::string>& fields) {
-        return ingest::DataIngest::parseRow(fields);
+    static std::optional<qga::domain::Quote> parseRow(const std::vector<std::string>& fields) {
+        return qga::ingest::DataIngest::parseRow(fields);
     }
 };
+
 
 TEST_CASE("validateRow return true for valid field count") {
     std::vector<std::string> valid_row = {
         "1625097600000", "100.0", "105.0", "99.0", "104.0", "12345.67"
     };
-    CHECK(DataIngestTestAccess::validateRow(valid_row));
+    CHECK(qga::ingest::DataIngestTestAccess::validateRow(valid_row));
 }
 
 TEST_CASE("validateRow return false for invalid field count") {
     std::vector<std::string> invalid_row = {
         "1625097600000", "100.0" // only 2 fields
     };
-    CHECK_FALSE(DataIngestTestAccess::validateRow(invalid_row));
+    CHECK_FALSE(qga::ingest::DataIngestTestAccess::validateRow(invalid_row));
 }
 
 TEST_CASE("parseRow returns Quote for valid fields") {
@@ -32,7 +36,7 @@ TEST_CASE("parseRow returns Quote for valid fields") {
         "1669900800000", "100.5", "102.3", "99.0", "101.2", "12345.67"
     };
 
-    auto result = DataIngestTestAccess::parseRow(fields);
+    auto result = qga::ingest::DataIngestTestAccess::parseRow(fields);
 
     REQUIRE(result.has_value());
 
@@ -59,7 +63,7 @@ TEST_CASE("parseRow returns Quote for valid fields") {
 TEST_CASE("DataIngest::fromHttpUrl loads valid CSV data over HTTP") {
     const std::string URL = "http://localhost:8000/test_http.csv";
 
-    auto result = ingest::DataIngest::fromHttpUrl(URL);
+    auto result = qga::ingest::DataIngest::fromHttpUrl(URL);
     REQUIRE_MESSAGE(result.has_value(), "Failed to load data from HTTP URL");
 
     const auto& series = result.value();
@@ -81,3 +85,5 @@ TEST_CASE("DataIngest::fromHttpUrl loads valid CSV data over HTTP") {
     CHECK(second.close_ == doctest::Approx(102.5));
     CHECK(second.volume_ == doctest::Approx(14500.00));
 }
+
+} // namespace qga::ingest

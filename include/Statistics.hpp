@@ -10,6 +10,9 @@
 #include <vector>
 #include <optional>
 
+namespace qga {
+
+
 /**
  * @brief Utility class for performing basic statistical calculations 
  * (static methods, stateless). 
@@ -59,3 +62,5 @@ public:
 	static std::optional<double> calculateStdDev(const std::vector<int>& values);
 };
 
+
+} // namespace qga

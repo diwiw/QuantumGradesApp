@@ -7,6 +7,9 @@
 #include <vector>
 #include <string>
 
+namespace qga {
+
+
 /**
  * @class Grades
  * @brief Stores a list of integer grades and provides basic statistics.
@@ -73,3 +76,5 @@ public:
 	void printGrades() const;
 
 };
+
+} // namespace qga

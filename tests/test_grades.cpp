@@ -1,6 +1,8 @@
 #include "doctest.h"
 #include "Grades.hpp"
 
+using namespace qga;
+
 TEST_CASE("Grades add and mean"){
 	Grades g;
 	g.add(5);

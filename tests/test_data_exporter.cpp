@@ -6,9 +6,9 @@
 #include <filesystem>
 #include <string>
 
-using backtest::BarSeries;
-using domain::Quote;
-using io::DataExporter;
+using qga::domain::backtest::BarSeries;
+using qga::domain::Quote;
+using qga::io::DataExporter;
 
 namespace fs = std::filesystem;
 

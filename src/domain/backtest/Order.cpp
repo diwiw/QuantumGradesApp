@@ -2,9 +2,7 @@
 #include "domain/backtest/BarSeries.hpp"
 #include <stdexcept>
 
-using namespace domain;
-
-namespace backtest{
+namespace qga::domain::backtest {
 
     Order::Order(Instrument instrument,
         Side side,
@@ -22,4 +20,4 @@ namespace backtest{
             throw std::invalid_argument("Order quantity must be > 0");
         }
     }
-}   // namespace backtest
+}   // namespace qga::domain::backtest

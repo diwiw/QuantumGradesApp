@@ -3,14 +3,14 @@
 #include <stdexcept>
 #include <sstream>
 
-namespace io {
+namespace qga::io {
 
-    DataExporter::DataExporter(const std::string& output_path, bool append)
+    qga::io::DataExporter::DataExporter(const std::string& output_path, bool append)
         : output_path_(output_path), append_(append) {}
 
-    DataExporter::~DataExporter() = default;
+    qga::io::DataExporter::~DataExporter() = default;
 
-    void DataExporter::exportSeries(const backtest::BarSeries& series) {
+    void qga::io::DataExporter::exportSeries(const qga::domain::backtest::BarSeries& series) {
         if (series.empty()) {
             throw std::invalid_argument("BarSeries is empty");
         }
@@ -34,7 +34,7 @@ namespace io {
         }
     }
 
-    void DataExporter::exportRange(const backtest::BarSeries& series, size_t from, size_t to) {
+    void DataExporter::exportRange(const qga::domain::backtest::BarSeries& series, size_t from, size_t to) {
         if (series.empty() || from >= to || to > series.size()) {
             throw std::invalid_argument("Series empty or invalid range");
         }

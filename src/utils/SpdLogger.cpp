@@ -1,6 +1,7 @@
 #include "utils/SpdLogger.hpp"
 
-namespace utils {
+namespace qga::utils {
+    
     SpdLogger::SpdLogger(const std::string& logger_name,
                          const std::string& file_path,
                          LogLevel level)

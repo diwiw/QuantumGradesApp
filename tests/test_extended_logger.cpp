@@ -13,7 +13,7 @@
 #include <fstream>
 #include <filesystem>
 
-using namespace utils;
+using namespace qga::utils;
 
 TEST_SUITE("Logger") {
 
@@ -49,7 +49,7 @@ TEST_SUITE("Logger") {
             std::filesystem::remove(LOG_FILE);
         }
 
-        auto logger = std::make_shared<SpdLogger>(
+        auto logger = std::make_shared<qga::utils::SpdLogger>(
             "TestLogger",
             std::vector<std::shared_ptr<spdlog::sinks::sink>>{
                 std::make_shared<spdlog::sinks::basic_file_sink_mt>(LOG_FILE, true)

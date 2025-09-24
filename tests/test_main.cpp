@@ -4,11 +4,12 @@
 #include <filesystem>
 #include "Version.hpp"
 
+
 struct LogInit {
 	LogInit() {
 		if (!std::filesystem::exists("logs"))
 			std::filesystem::create_directory("logs");
-		Logger::getInstance().setLogFile("logs/test_log.txt");
+			qga::utils::Logger::getInstance().setLogFile("logs/test_log.txt");
 	}
 };
 

@@ -26,53 +26,52 @@
 #include <spdlog/async_logger.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 
-
-namespace utils {
+namespace qga::utils {
     
-    /**
-    * @class LoggerFactory
-    * @brief Factory for creating spdlog-based loggers.
-    *
-    * Handles creation of async/file/stdout/null loggers with custom settings.
-    * Allows easy integration with Config system and future extension.
-    */
-    class LoggerFactory {
-    public:
-    /**
-    * @brief Creates an asynchronous rotating logger.
-    *
-    * @param name Logger name (e.g. "core", "engine").
-    * @param filename Output file path.
-    * @param level LogLevel threshold.
-    * @param max_size Max size in bytes before rotation.
-    * @param max_files Number of rotated files to keep.
-    * @return Shared pointer to ILogger.
-    */
-    static std::shared_ptr<ILogger> createAsyncRotatingLogger(
-    const std::string& name,
-    const std::string& filename,
-    LogLevel level = LogLevel::Info,
-    size_t max_size = 1048576 * 5, // 5MB
-    size_t max_files = 3
-    );
+/**
+* @class LoggerFactory
+* @brief Factory for creating spdlog-based loggers.
+*
+* Handles creation of async/file/stdout/null loggers with custom settings.
+* Allows easy integration with Config system and future extension.
+*/
+class LoggerFactory {
+public:
+/**
+* @brief Creates an asynchronous rotating logger.
+*
+* @param name Logger name (e.g. "core", "engine").
+* @param filename Output file path.
+* @param level LogLevel threshold.
+* @param max_size Max size in bytes before rotation.
+* @param max_files Number of rotated files to keep.
+* @return Shared pointer to ILogger.
+*/
+static std::shared_ptr<ILogger> createAsyncRotatingLogger(
+const std::string& name,
+const std::string& filename,
+LogLevel level = LogLevel::Info,
+size_t max_size = 1048576 * 5, // 5MB
+size_t max_files = 3
+);
 
 
-    /**
-    * @brief Creates a stdout-only logger for CLI/debugging.
-    * @param name Logger name.
-    * @param level Log level threshold.
-    * @return Shared pointer to ILogger.
-    */
-    static std::shared_ptr<ILogger> createConsoleLogger(
-    const std::string& name,
-    LogLevel level = LogLevel::Info
-    );
+/**
+* @brief Creates a stdout-only logger for CLI/debugging.
+* @param name Logger name.
+* @param level Log level threshold.
+* @return Shared pointer to ILogger.
+*/
+static std::shared_ptr<ILogger> createConsoleLogger(
+const std::string& name,
+LogLevel level = LogLevel::Info
+);
 
-    /**
-    * @brief Creates a disabled/null logger (e.g. for testing).
-    * @return Shared pointer to ILogger that discards messages.
-    */
-    static std::shared_ptr<ILogger> createNullLogger();
-    };
+/**
+* @brief Creates a disabled/null logger (e.g. for testing).
+* @return Shared pointer to ILogger that discards messages.
+*/
+static std::shared_ptr<ILogger> createNullLogger();
+};
 
-} // namespace utils
+} // namespace qga::utils

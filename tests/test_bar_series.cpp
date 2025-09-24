@@ -1,8 +1,10 @@
 #include "doctest.h"
 #include "domain/backtest/BarSeries.hpp"
 
-using backtest::BarSeries;
-using domain::Quote;
+
+
+using qga::domain::backtest::BarSeries;
+using qga::domain::Quote;
 
 TEST_CASE("BarSeries::add and size") {
     BarSeries series;

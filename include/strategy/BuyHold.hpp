@@ -5,40 +5,41 @@
 #pragma once
 #include "strategy/IStrategy.hpp"
 
-namespace strategy {
+namespace qga::strategy {
+
+/**
+ * @class BuyHold
+ * @brief Emits a single Buy signal on the first bar; otherwise None.
+ *
+ * A simple benchmark strategy that performs a single buy on the first
+ * available quote and then holds the position until the end.
+ *
+ * Implements the @ref IStrategy interface.
+ */
+class BuyHold final: public IStrategy {
+public:
+    /**
+     * @brief Called once before the backtest begins.
+     */
+    void onStart() override;    
 
     /**
-     * @class BuyHold
-     * @brief Emits a single Buy signal on the first bar; otherwise None.
+     * @brief Called for each quote in the time series.
      *
-     * A simple benchmark strategy that performs a single buy on the first
-     * available quote and then holds the position until the end.
+     * Emits a Buy signal only on the first bar; then returns None.
      *
-     * Implements the @ref IStrategy interface.
+     * @param q Market quote for the current bar.
+     * @return Buy signal on first bar; None thereafter.
      */
-    class BuyHold final: public IStrategy {
-    public:
-        /**
-         * @brief Called once before the backtest begins.
-         */
-        void onStart() override;    
+    Signal onBar(const domain::Quote& q) override;
 
-        /**
-         * @brief Called for each quote in the time series.
-         *
-         * Emits a Buy signal only on the first bar; then returns None.
-         *
-         * @param q Market quote for the current bar.
-         * @return Buy signal on first bar; None thereafter.
-         */
-        Signal onBar(const domain::Quote& q) override;
+    /**
+     * @brief Called once after the backtest ends.
+     */
+    void onFinish() override;
+    
+    private:
+        bool has_bought_ = false;  ///< Flag to track if a buy has been made.
+};
 
-        /**
-         * @brief Called once after the backtest ends.
-         */
-        void onFinish() override;
-        
-        private:
-            bool has_bought_ = false;  ///< Flag to track if a buy has been made.
-    };
-}   // namespace strategy
+} // namespace qga::strategy

@@ -45,18 +45,18 @@ namespace {
     }
 }   // namespace
 
-namespace ingest {
+namespace qga::ingest {
 
 // === PUBLIC ===
 
-std::optional<backtest::BarSeries> DataIngest::fromCsv(const std::string& path) {
+std::optional<domain::backtest::BarSeries> DataIngest::fromCsv(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open()) {
         std::cerr << "[DataIngest] Failed to open file: " << path << "\n";
         return std::nullopt;
     }
 
-    backtest::BarSeries series;
+    domain::backtest::BarSeries series;
     std::string line;
     while (std::getline(file, line)) {
         std::vector<std::string> fields;
@@ -81,14 +81,14 @@ std::optional<backtest::BarSeries> DataIngest::fromCsv(const std::string& path) 
     return series;
 }
 
-std::optional<backtest::BarSeries> DataIngest::fromHttpUrl(const std::string& url) {
+std::optional<domain::backtest::BarSeries> DataIngest::fromHttpUrl(const std::string& url) {
     auto content = fetchHttpContent(url);
     if (!content.has_value()) {
         std::cerr << "[DataIngest] Failed to fetch HTTP content from: " << url << "\n";
         return std::nullopt;
     }
 
-    backtest::BarSeries series;
+    domain::backtest::BarSeries series;
     std::istringstream iss(*content);
     std::string line;
     while (std::getline(iss, line)) {

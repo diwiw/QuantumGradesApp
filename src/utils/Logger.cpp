@@ -4,6 +4,8 @@
 #include <ctime>
 #include <filesystem>
 
+namespace qga::utils {
+
 Logger::Logger() : current_level_(LogLevel::INFO) {
 	if(!std::filesystem::exists("logs"))
 		std::filesystem::create_directory("logs");
@@ -55,3 +57,5 @@ void Logger::log(LogLevel level, const std::string& message) {
 
 	logfile_ << time_buf << " " << level_str << " " << message << std::endl;
 }
+
+} // namespace qga::utils
