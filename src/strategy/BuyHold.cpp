@@ -1,11 +1,11 @@
 #include "strategy/BuyHold.hpp"
 
 
-namespace strategy {
+namespace qga::strategy {
 
   void BuyHold::onStart() { has_bought_ = false; }
 
-  Signal BuyHold::onBar(const domain::Quote&) {
+    Signal BuyHold::onBar(const domain::Quote&) {
     if (!has_bought_) {
       has_bought_ = true;
       return Signal::Buy;
@@ -15,4 +15,4 @@ namespace strategy {
 
   void BuyHold::onFinish() {}
 
-} // namespace strategy
+} // namespace qga::strategy

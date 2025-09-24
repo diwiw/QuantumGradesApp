@@ -1,6 +1,6 @@
 #include "domain/backtest/Engine.hpp"
 
-namespace backtest{
+namespace qga::domain::backtest{
 
   BacktestResult Engine::run(BarSeries const& s, strategy::IStrategy& strat) {
     BacktestResult r;
@@ -60,4 +60,4 @@ namespace backtest{
     return r;
   }
 
-} // namespace backtest
+} // namespace qga::domain::backtest

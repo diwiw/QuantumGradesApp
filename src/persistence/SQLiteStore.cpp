@@ -118,20 +118,20 @@ namespace qga::persistence {
         return quotes;
     }
 
-    void SQLiteStore::saveBarSeries(const backtest::BarSeries& /*series*/) {
+    void SQLiteStore::saveBarSeries(const qga::domain::backtest::BarSeries& /*series*/) {
         // TODO: implement with CREATE TABLE bars(...) + INSERT loop
         throw std::runtime_error("saveBarSeries not implemented yet");
     }
 
-    backtest::BarSeries SQLiteStore::loadBarSeries(const std::string& /*symbol*/) {
+    qga::domain::backtest::BarSeries SQLiteStore::loadBarSeries(const std::string& /*symbol*/) {
         throw std::runtime_error("loadBarSeries not implemented yet");
     }
 
-    void SQLiteStore::savePortfolio(const backtest::Portfolio& /*portfolio*/) {
+    void SQLiteStore::savePortfolio(const qga::domain::backtest::Portfolio& /*portfolio*/) {
         throw std::runtime_error("savePortfolio not implemented yet");
     }
 
-    backtest::Portfolio SQLiteStore::loadPortfolio(int /*portfolio_id*/) {
+    qga::domain::backtest::Portfolio SQLiteStore::loadPortfolio(int /*portfolio_id*/) {
         throw std::runtime_error("loadPortfolio not implemented yet");
     }
 

@@ -3,6 +3,8 @@
 #include <fstream>
 #include <string>
 
+using namespace qga::utils;
+
 TEST_CASE("Logger basic log to file") {
 	const std::string TEST_LOG_FILE = "log_test.txt";
 	//Logger& logger = Logger::getInstance();

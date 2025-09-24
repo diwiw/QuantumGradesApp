@@ -4,8 +4,8 @@
 #include "domain/backtest/Position.hpp"
 #include "domain/backtest/Portfolio.hpp"
 
-using namespace domain;
-using namespace backtest;
+using namespace qga::domain;
+using namespace qga::domain::backtest;
 
 static Instrument aapl() { return Instrument{"AAPL", AssetClass::Equity, "XNAS", Currency::USD, 0.01, 1, 1.0}; }
 

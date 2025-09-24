@@ -1,6 +1,6 @@
 #include "domain/backtest/Position.hpp"
 
-namespace backtest{
+namespace qga::domain::backtest{
 
     Position::Position(domain::Instrument instrument)
     : instrument_ (std::move(instrument)) {}
@@ -24,4 +24,4 @@ namespace backtest{
         
     }
 
-}   // namespace backtest
+}   // namespace qga::domain::backtest

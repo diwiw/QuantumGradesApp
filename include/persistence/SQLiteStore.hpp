@@ -39,10 +39,10 @@ namespace qga::persistence {
 
         void saveQuotes(const std::string& symbol, const std::vector<domain::Quote>& quotes) override;
         std::vector<domain::Quote> loadQuotes(const std::string& symbol) override;
-        void saveBarSeries(const backtest::BarSeries& series) override;
-        backtest::BarSeries loadBarSeries(const std::string& symbol) override;
-        void savePortfolio(const backtest::Portfolio& portfolio) override;
-        backtest::Portfolio loadPortfolio(int portfolio_id) override;
+        void saveBarSeries(const qga::domain::backtest::BarSeries& series) override;
+        qga::domain::backtest::BarSeries loadBarSeries(const std::string& symbol) override;
+        void savePortfolio(const qga::domain::backtest::Portfolio& portfolio) override;
+        qga::domain::backtest::Portfolio loadPortfolio(int portfolio_id) override;
 
     private:
         sqlite3* db_ = nullptr; ///< raw pointer managed internally (RAII in ctor/dtor)

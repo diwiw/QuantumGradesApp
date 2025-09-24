@@ -1,6 +1,6 @@
 #include "domain/backtest/Portfolio.hpp"
 
-namespace backtest {
+namespace qga::domain::backtest {
 
     std::string Portfolio::keyFor(const domain::Instrument& ins) {
         //Assumes your Instrument exposes symbol() and exchange_mic()
@@ -38,4 +38,4 @@ namespace backtest {
         for(auto const& kv : positions_) sum += kv.second.realizedPnl();
         return sum;
     }
-}   // namespace backtest
+}   // namespace qga::domain::backtest

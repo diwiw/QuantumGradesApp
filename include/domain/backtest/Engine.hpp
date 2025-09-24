@@ -13,38 +13,40 @@
 #include "strategy/IStrategy.hpp"
 #include "domain/backtest/Execution.hpp"
 
-namespace backtest {
-    /**
-     * @class Engine
-     * @brief Runs a strategy over a series of bars and produces a result.
-     *
-     * Core simulation engine that performs the following steps:
-     * - Initializes strategy and portfolio.
-     * - Feeds market data (bars) to the strategy.
-     * - Executes generated signals via slippage and commission model.
-     * - Records trades and final metrics.
-     */
-    class Engine {
-        public:
-            /**
-             * @brief Constructs the backtest engine.
-             * @param initial_equity Starting capital used in the simulation.
-             * @param exec Execution parameters (slippage, commission).
-             */
-            explicit Engine(double initial_equity = 10000.0,
-                    ExecParams exec = {})
-            : initial_equity_(initial_equity), exec_(exec) {}
+namespace qga::domain::backtest {
 
-            /**
-             * @brief Execute the backtest over the given series with the provided strategy.
-             * @param series Input time series of bars (OHLCV).
-             * @param strat  Strategy to be executed.
-             * @return BacktestResult summary (equity, trades).
-             */
-            BacktestResult run(BarSeries const& series, strategy::IStrategy& strat);
+/**
+ * @class Engine
+ * @brief Runs a strategy over a series of bars and produces a result.
+ *
+ * Core simulation engine that performs the following steps:
+ * - Initializes strategy and portfolio.
+ * - Feeds market data (bars) to the strategy.
+ * - Executes generated signals via slippage and commission model.
+ * - Records trades and final metrics.
+ */
+class Engine {
+    public:
+        /**
+         * @brief Constructs the backtest engine.
+         * @param initial_equity Starting capital used in the simulation.
+         * @param exec Execution parameters (slippage, commission).
+         */
+        explicit Engine(double initial_equity = 10000.0,
+                ExecParams exec = {})
+        : initial_equity_(initial_equity), exec_(exec) {}
 
-        private:
-            double initial_equity_;  ///< Initial equity for the backtest.
-            ExecParams exec_;          ///< Execution model (commissions, slippage).
-    };
-}   // namespace backtest
+        /**
+         * @brief Execute the backtest over the given series with the provided strategy.
+         * @param series Input time series of bars (OHLCV).
+         * @param strat  Strategy to be executed.
+         * @return BacktestResult summary (equity, trades).
+         */
+        BacktestResult run(BarSeries const& series, strategy::IStrategy& strat);
+
+    private:
+        double initial_equity_;  ///< Initial equity for the backtest.
+        ExecParams exec_;          ///< Execution model (commissions, slippage).
+};
+
+} // namespace qga::domain::backtest

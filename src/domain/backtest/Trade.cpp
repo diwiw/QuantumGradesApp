@@ -1,7 +1,7 @@
 #include "domain/backtest/Trade.hpp"
 #include <stdexcept>
 
-namespace backtest {
+namespace qga::domain::backtest {
 
     Trade::Trade(const Order& order,
         double executed_price,
@@ -15,4 +15,4 @@ namespace backtest {
         if(quantity_ <= 0.0)    throw std::invalid_argument("Trade quantity must be > 0");    
     }
 
-}   // namespace backtest
+}   // namespace qga::domain::backtest

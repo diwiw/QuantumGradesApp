@@ -6,14 +6,14 @@
 
 namespace testlib {
 
-inline domain::Quote bar(double c, std::int64_t ts, double vol = 0.0) {
+inline qga::domain::Quote bar(double c, std::int64_t ts, double vol = 0.0) {
     return {ts, c, c, c, c, vol};
 }
 
-inline backtest::BarSeries makeSeries(const std::vector<double>& closes,
+inline qga::domain::backtest::BarSeries makeSeries(const std::vector<double>& closes,
                                        std::int64_t ts0 = 0,
                                        std::int64_t step_ms = 60'000) {
-    backtest::BarSeries s;
+    qga::domain::backtest::BarSeries s;
     std::int64_t ts = ts0;
     for (double c : closes) {
         s.add(bar(c, ts));

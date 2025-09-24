@@ -40,21 +40,21 @@ namespace qga::persistence {
 
         /// @brief Save a BarSeries to the data store.
         /// @param series BarSeries object to save.
-        virtual void saveBarSeries(const backtest::BarSeries& series) = 0;
+        virtual void saveBarSeries(const qga::domain::backtest::BarSeries& series) = 0;
 
         /// @brief Load a BarSeries for a given symbol from the data store.
         /// @param symbol Symbol identifier (e.g. "AAPL").
         /// @return BarSeries object loaded from the store.
-        virtual backtest::BarSeries loadBarSeries(const std::string& symbol) = 0;
+        virtual qga::domain::backtest::BarSeries loadBarSeries(const std::string& symbol) = 0;
 
         /// @brief Save a Portfolio to the data store.
         /// @param portfolio Portfolio object to save.
-        virtual void savePortfolio(const backtest::Portfolio& portfolio) = 0;
+        virtual void savePortfolio(const qga::domain::backtest::Portfolio& portfolio) = 0;
 
         /// @brief Load a Portfolio by its ID from the data store.
         /// @param portfolioId Unique identifier of the portfolio.
         /// @return Portfolio object loaded from the store.
-        virtual backtest::Portfolio loadPortfolio(int portfolio_id) = 0;
+        virtual qga::domain::backtest::Portfolio loadPortfolio(int portfolio_id) = 0;
 
         // Additional methods for trades, transactions, etc. can be added here
     };

@@ -3,6 +3,8 @@
 #include "utils/Logger.hpp"
 #include <vector>
 
+using namespace qga;
+
 TEST_CASE("Statistics- calculateMean") {
 	
 	std::vector<int> data = {2, 4, 6, 8};

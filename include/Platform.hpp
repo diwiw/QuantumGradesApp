@@ -1,5 +1,8 @@
 #pragma once
 
+namespace qga {
+
+
 // ---- Platform-wide sanity for Windows builds -------------------------------
 #if defined(_WIN32) || defined(_WIN64)
   // Trim Windows headers to speed up compile and avoid extra macros
@@ -51,3 +54,5 @@
 #endif
 
 // ---- End of Platform.hpp -----------------------------------------------------
+
+} // namespace qga
