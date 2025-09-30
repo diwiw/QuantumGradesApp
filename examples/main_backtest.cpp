@@ -20,7 +20,7 @@ int main() {
 	std::cout << " Build date: " << APP_BUILD_DATE << "\n";
 	std::cout << "===================================\n\n";
 
-	qga::utils::Logger::getInstance().log(qga::utils::LogLevel::INFO, "[APP] Application started - version " + std::string(APP_VERSION));
+	qga::utils::Logger::getInstance().log(qga::LogLevel::Info, "[APP] Application started - version " + std::string(APP_VERSION));
 
 	// === Build a simple time series of quotes (BarSeries)
 	qga::domain::backtest::BarSeries series;

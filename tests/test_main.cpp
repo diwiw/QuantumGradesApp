@@ -7,9 +7,10 @@
 
 struct LogInit {
 	LogInit() {
-		if (!std::filesystem::exists("logs"))
+		if (!std::filesystem::exists("logs")) {
 			std::filesystem::create_directory("logs");
-			qga::utils::Logger::getInstance().setLogFile("logs/test_log.txt");
+		}
+		qga::utils::Logger::getInstance().setLogFile("logs/test_log.txt");
 	}
 };
 

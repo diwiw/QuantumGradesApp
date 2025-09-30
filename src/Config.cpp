@@ -1,4 +1,5 @@
 #include "Config.hpp"
+#include "utils/LoggerFactory.hpp"
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>
@@ -9,58 +10,35 @@ using nlohmann::json;
 
 namespace qga {
 
-    // ===== Utilities =====
-    std::string Config::toLower(std::string s) noexcept {
+// ===== Utilities =====
+std::string Config::toLower(std::string s) noexcept {
     std::transform(s.begin(), s.end(), s.begin(),
-                    [](unsigned char c){ return static_cast<char>(std::tolower(c)); });
+                [](unsigned char c){ return static_cast<char>(std::tolower(c)); });
     return s;
-    }
+}
 
-    void Config::addWarn(std::vector<std::string>* w, std::string msg) {
-    if (w) w->push_back(std::move(msg));
-    }
+void Config::addWarn(std::vector<std::string>* w, std::string msg) {
+if (w) w->push_back(std::move(msg));
+}
 
-    const char* Config::toString(LogLevel lvl) noexcept {
-        switch (lvl) {
-            case LogLevel::Trace:    return "TRACE";
-            case LogLevel::Debug:    return "DEBUG";
-            case LogLevel::Info:     return "INFO";
-            case LogLevel::Warn:     return "WARN";
-            case LogLevel::Err:      return "ERROR";
-            case LogLevel::Critical: return "CRITICAL";
-            case LogLevel::Off:      return "OFF";
-        }
-        return "INFO";
-    }
-
-    std::optional<LogLevel> Config::parseLogLevel(std::string s) noexcept {
-    s = toLower(std::move(s));
-    if (s == "trace")    return LogLevel::Trace;
-    if (s == "debug")    return LogLevel::Debug;
-    if (s == "info")     return LogLevel::Info;
-    if (s == "warn" || s == "warning") return LogLevel::Warn;
-    if (s == "err"  || s == "error")   return LogLevel::Err;
-    if (s == "critical" || s == "crit")return LogLevel::Critical;
-    if (s == "off" || s == "none")     return LogLevel::Off;
-    return std::nullopt;
-    }
-
-    // ===== Singleton =====
-    Config& Config::getInstance() noexcept {
+// ===== Singleton =====
+Config& Config::getInstance() noexcept {
     static Config instance; // thread-safe since C++11
     return instance;
-    }
+}
 
-    // ===== Public API =====
-    void Config::loadDefaults() {
+// ===== Public API =====
+void Config::loadDefaults() {
     data_dir_  = "data";
     threads_  = 4;
     log_level_ = LogLevel::Info;
     log_file_  = "app.log";
     validate(nullptr);
-    }
+    initLogger();
+}
 
-    void Config::validate(std::vector<std::string>* warnings) {
+void Config::validate(std::vector<std::string>* warnings) {
+    
     const unsigned HW = std::max(1u, std::thread::hardware_concurrency());
 
     if (threads_ < 1) {
@@ -80,10 +58,12 @@ namespace qga {
         addWarn(warnings, "logging.file is empty → 'app.log'");
         log_file_ = "app.log";
     }
-    }
 
-    void Config::loadFromFile(const std::filesystem::path& path,
-                            std::vector<std::string>* warnings) {
+    initLogger();
+}
+
+void Config::loadFromFile(const std::filesystem::path& path,
+                        std::vector<std::string>* warnings) {
     // Start from current values (or defaults if you prefer)
     // Try to open file
     std::ifstream in(path);
@@ -106,8 +86,8 @@ namespace qga {
     if (j.contains("paths") && j["paths"].is_object()) {
         const auto& jp = j["paths"];
         if (jp.contains("data_dir")) {
-        if (jp["data_dir"].is_string()) data_dir_ = jp["data_dir"].get<std::string>();
-        else addWarn(warnings, "paths.data_dir: expected string");
+            if (jp["data_dir"].is_string()) data_dir_ = jp["data_dir"].get<std::string>();
+            else addWarn(warnings, "paths.data_dir: expected string");
         }
     }
 
@@ -124,36 +104,38 @@ namespace qga {
     if (j.contains("logging") && j["logging"].is_object()) {
         const auto& jl = j["logging"];
         if (jl.contains("level")) {
-        if (jl["level"].is_string()) {
-            auto lvl = parseLogLevel(jl["level"].get<std::string>());
-            if (lvl) log_level_ = *lvl;
-            else addWarn(warnings, "logging.level: unknown value (allowed: trace/debug/info/warn/error/critical/off)");
-        } else {
-            addWarn(warnings, "logging.level: expected string");
-        }
+            if (jl["level"].is_string()) {
+                auto lvl = parseLogLevel(jl["level"].get<std::string>());
+                if (lvl) log_level_ = *lvl;
+                else addWarn(warnings, "logging.level: unknown value (allowed: trace/debug/info/warn/error/critical/off)");
+            } else {
+                addWarn(warnings, "logging.level: expected string");
+            }
         }
         if (jl.contains("file")) {
-        if (jl["file"].is_string()) log_file_ = jl["file"].get<std::string>();
-        else addWarn(warnings, "logging.file: expected string");
+            if (jl["file"].is_string()) log_file_ = jl["file"].get<std::string>();
+            else addWarn(warnings, "logging.file: expected string");
         }
     }
 
     validate(warnings);
-    }
+}
 
-    void Config::loadFromEnv(std::vector<std::string>* warnings) {
+void Config::loadFromEnv(std::vector<std::string>* warnings) {
     if (const char* v = std::getenv("QGA_DATA_DIR")) {
-        if (*v) data_dir_ = v; else addWarn(warnings, "QGA_DATA_DIR is empty");
+        if (*v) data_dir_ = v; 
+        else addWarn(warnings, "QGA_DATA_DIR is empty");
     }
     if (const char* v = std::getenv("QGA_THREADS")) {
         try {
-        threads_ = std::stoi(v);
+            threads_ = std::stoi(v);
         } catch (...) {
-        addWarn(warnings, "QGA_THREADS: invalid integer");
+            addWarn(warnings, "QGA_THREADS: invalid integer");
         }
     }
     if (const char* v = std::getenv("QGA_LOG_FILE")) {
-        if (*v) log_file_ = v; else addWarn(warnings, "QGA_LOG_FILE is empty");
+        if (*v) log_file_ = v; 
+        else addWarn(warnings, "QGA_LOG_FILE is empty");
     }
     if (const char* v = std::getenv("QGA_LOG_LEVEL")) {
         if (auto lvl = parseLogLevel(v)) log_level_ = *lvl;
@@ -161,6 +143,14 @@ namespace qga {
     }
 
     validate(warnings);
+}
+
+// ===== Logger integration =====
+void Config::initLogger() {
+    logger_ = utils::LoggerFactory::createLogger("App", log_file_.string(), log_level_);
+    if (logger_) {
+        logger_->info(std::string("Logger initialized with level ") + toString(log_level_));
     }
+}
 
 } // namespace qga

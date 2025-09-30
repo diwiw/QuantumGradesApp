@@ -6,25 +6,13 @@
 #pragma once
 
 #include "Platform.hpp" // Ensure platform-specific settings are included first
+#include "common/LogLevel.hpp"
 #include <fstream>
 #include <string>
 #include <memory>
 #include <mutex>
 
 namespace qga::utils {
-
-
-/**
- * @enum LogLevel
- * @brief Severity levels for logging messages.
- */
-enum class LogLevel {
-    DEBUG,     ///< Detailed debug information.
-    INFO,      ///< General informational messages.
-    WARNING,   ///< Warnings about potential issues.
-    ERROR,     ///< Error messages.
-    CRITICAL   ///< Critical conditions requiring immediate attention.
-};
 
 /**
  * @class Logger
@@ -45,7 +33,7 @@ public:
 	 * @brief Set the minimum log level for output
 	 * @param level LogLevel (e.g., INFO, ERROR)
 	 */
-	void setLogLevel(LogLevel level);
+	void setLogLevel(qga::LogLevel level);
 
 	/**
 	 * @brief Set the log output file
@@ -58,18 +46,18 @@ public:
 	 * @param level LogLevel
 	 * @param message Message string to log
 	 */
-	void log(LogLevel level, const std::string& message);
+	void log(qga::LogLevel level, const std::string& message);
 
 private:
 	Logger();	///< Private constructor (singleton pattern)
 	~Logger();	///< Destructor to close log file
 	Logger(const Logger&) = delete;	///< Deleted assignment 
 	Logger& operator=(const Logger&) = delete; ///< Deleted assignment
-	std::string levelToString(LogLevel level); ///< Convert level to string
+	std::string levelToString(qga::LogLevel level); ///< Convert level to string
 	std::string getCurrentTime();		   ///< Get current timestamp
 						   
 	std::ofstream logfile_;			   ///< Log file stream
-	LogLevel current_level_;			   ///< Currenet minimum log level
+	qga::LogLevel current_level_;			   ///< Currenet minimum log level
 	std::mutex mtx_;				   ///< Thread safety mutex
 
 };

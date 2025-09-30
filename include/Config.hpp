@@ -1,33 +1,25 @@
 /**
  * @file Config.hpp
- * @brief Global singleton-based application configuration.
+ * @brief Global singleton-based application configuration with integrated Logging.
  *
- * Supports loading parameters from JSON and environment variables (QGA_*),
- * with validation and normalization (e.g. thread clamping).
+ * Supports:
+ * - Loading parameters from JSON and environment variables (QGA_*).
+ * - Validation and normalization (e.g. thread clamping).
+ * - Integrated Logger (created via LoggerFactory).
  */
 
 #pragma once
 #include <filesystem>
+#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
+#include "common/LogLevel.hpp"
+#include "utils/ILogger.hpp"
+
 namespace qga {
-
-  /**
-   * @enum LogLevel
-   * @brief Logging verbosity levels, similar to spdlog/severity levels.
-   */
-  enum class LogLevel { 
-    Trace,     ///< Most detailed logs (development/debug).
-    Debug,     ///< Debugging information.
-    Info,      ///< General information (default).
-    Warn,      ///< Warnings about potential issues.
-    Err,       ///< Errors that allow app to continue.
-    Critical,  ///< Critical errors requiring app termination.
-    Off        ///< Disable logging entirely.
-};
-
+  
   /**
    * @class Config
    * @brief Global singleton managing application-wide configuration.
@@ -37,6 +29,7 @@ namespace qga {
    * - Normalized (e.g. `threads` clamped to available cores).
    * - Read-only API via getters.
    * - Supports warning collection for user feedback.
+   * - Integrated Logger for application-wide use.
    *
    * Usage:
    * ```cpp
@@ -103,22 +96,6 @@ namespace qga {
     /// @return Path to the log output file.
     const std::filesystem::path& logFile()  const noexcept { return log_file_; }
 
-     // === Helpers ===
-
-    /**
-     * @brief Convert log level enum to string.
-     * @param lvl Log level enum.
-     * @return Corresponding string representation.
-     */
-    static const char* toString(LogLevel lvl) noexcept;
-
-    /**
-     * @brief Parse log level from string (case-insensitive).
-     * @param s Input string (e.g. "info", "debug").
-     * @return Parsed LogLevel if valid; otherwise nullopt.
-     */
-    static std::optional<LogLevel> parseLogLevel(std::string s) noexcept;
-
     // --- Rule of Five (singleton: non-copyable, non-movable) ---
     ~Config() = default;
     Config(const Config&)            = delete;
@@ -136,6 +113,8 @@ namespace qga {
     LogLevel              log_level_ = LogLevel::Info;  ///< Logging verbosity level.
     std::filesystem::path log_file_  = "app.log"; ///< Output file for logs.
 
+    std::shared_ptr<utils::ILogger> logger_; ///< Integrated logger instance.
+
      // === Internal helpers ===
 
     /**
@@ -151,6 +130,14 @@ namespace qga {
      * @param msg Warning message to append.
      */
     static void addWarn(std::vector<std::string>* w, std::string msg);
+
+    /**
+     * @brief Initialize the integrated logger based on current config.
+     *
+     * Creates a logger instance (e.g. via LoggerFactory) with the configured
+     * log level and output file.
+     */
+    void initLogger();
   };
 
 } // namespace qga

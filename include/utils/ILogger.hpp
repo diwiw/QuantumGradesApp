@@ -11,21 +11,9 @@
 #pragma once
 
 #include <string>
+#include "common/LogLevel.hpp"
 
 namespace qga::utils {
-
-/**
-* @enum LogLevel
-* @brief Enumeration for severity levels used in logging.
-*/
-enum class LogLevel {
-    Trace,    ///< Trace level for very detailed logs
-    Debug,    ///< Debug level for debugging information
-    Info,     ///< Info level for general information
-    Warn,     ///< Warning level for potential issues
-    Error,    ///< Error level for errors that need attention
-    Critical  ///< Critical level for severe issues
-};
 
 /**
 * @class ILogger
@@ -43,33 +31,33 @@ public:
     * @param level Severity level of the log message.
     * @param message Message to log.
     */
-    virtual void log(LogLevel level, const std::string& message) = 0;
+    virtual void log(qga::LogLevel level, const std::string& message) = 0;
 
     /** @name Convenience Logging Methods */
     ///@{
 
 
     /** @brief Log a trace-level message. */
-    virtual void trace(const std::string& message) { log(LogLevel::Trace, message); }
+    virtual void trace(const std::string& message) { log(qga::LogLevel::Trace, message); }
 
     /** @brief Log a debug-level message. */
-    virtual void debug(const std::string& message) { log(LogLevel::Debug, message); }
+    virtual void debug(const std::string& message) { log(qga::LogLevel::Debug, message); }
 
 
     /** @brief Log an info-level message. */
-    virtual void info(const std::string& message) { log(LogLevel::Info, message); }
+    virtual void info(const std::string& message) { log(qga::LogLevel::Info, message); }
 
 
     /** @brief Log a warning-level message. */
-    virtual void warn(const std::string& message) { log(LogLevel::Warn, message); }
+    virtual void warn(const std::string& message) { log(qga::LogLevel::Warn, message); }
 
 
     /** @brief Log an error-level message. */
-    virtual void error(const std::string& message) { log(LogLevel::Error, message); }
+    virtual void error(const std::string& message) { log(qga::LogLevel::Err, message); }
 
 
     /** @brief Log a critical-level message. */
-    virtual void critical(const std::string& message) { log(LogLevel::Critical, message); }
+    virtual void critical(const std::string& message) { log(qga::LogLevel::Critical, message); }
 
     ///@}
 };
