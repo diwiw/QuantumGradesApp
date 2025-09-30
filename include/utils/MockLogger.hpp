@@ -46,7 +46,7 @@ public:
     void warn(const std::string& msg) override { log(LogLevel::Warn, msg); }
 
     /// @brief Log an error message.
-    void error(const std::string& msg) override { log(LogLevel::Error, msg); }
+    void error(const std::string& msg) override { log(LogLevel::Err, msg); }
 
     /// @brief Log a critical message.
     void critical(const std::string& msg) override { log(LogLevel::Critical, msg); }

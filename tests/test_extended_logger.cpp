@@ -24,9 +24,9 @@ TEST_SUITE("Logger") {
         logger->warn("Something might be wrong");
         logger->error("Error happened");        
 
-        auto infos = logger->getLogsByLevel(LogLevel::Info);
-        auto warns = logger->getLogsByLevel(LogLevel::Warn);
-        auto errors = logger->getLogsByLevel(LogLevel::Error);
+        auto infos = logger->getLogsByLevel(qga::LogLevel::Info);
+        auto warns = logger->getLogsByLevel(qga::LogLevel::Warn);
+        auto errors = logger->getLogsByLevel(qga::LogLevel::Err);
         CHECK(infos[0] == "Hello");
         CHECK(warns[0] == "Something might be wrong");
         CHECK(errors[0] == "Error happened");
@@ -35,12 +35,12 @@ TEST_SUITE("Logger") {
     TEST_CASE("NullLogger ignores messages") {
         auto logger = std::make_shared<NullLogger>();
 
-        // Te logi powinny zostać zignorowane
+        // These logs should be ignored
         logger->info("Should not appear");
         logger->error("Still nothing");
 
-        // Nic do sprawdzenia – klasa celowo nie przechowuje logów
-        CHECK(true); // test przejdzie zawsze
+        // Nothing to check – class intentionally does not store logs
+        CHECK(true); // test will always pass
     }
 
     TEST_CASE("SpdLogger writes to file") {

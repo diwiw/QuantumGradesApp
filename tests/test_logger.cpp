@@ -13,8 +13,8 @@ TEST_CASE("Logger basic log to file") {
 	
 	// Clearing the file before test
 	std::string msg = "Test log message";
-	Logger::getInstance().log(LogLevel::INFO, msg);
-		
+	Logger::getInstance().log(qga::LogLevel::Info, msg);
+
 	// Checking, if the message was saved
 	std::ifstream log_file(TEST_LOG_FILE);
 	REQUIRE(log_file.is_open());

@@ -1,14 +1,26 @@
 #include "utils/LoggerFactory.hpp"
 #include "utils/SpdLogger.hpp"
+#include "common/LogLevel.hpp"
 
 
 namespace qga::utils {
 
+    std::shared_ptr<qga::utils::ILogger> LoggerFactory::createLogger(
+        const std::string& name,
+        const std::string& filename,
+        qga::LogLevel level
+        ) {
+            size_t max_size = 10 * 1024 * 1024; // 10 MB
+            size_t max_files = 5;            
+            return createAsyncRotatingLogger(name, filename, level, max_size, max_files);
+    }
+
+    
 
     std::shared_ptr<qga::utils::ILogger> LoggerFactory::createAsyncRotatingLogger(
         const std::string& name,
         const std::string& filename,
-        LogLevel level,
+        qga::LogLevel level,
         size_t max_size,
         size_t max_files
         ) {
@@ -21,7 +33,7 @@ namespace qga::utils {
 
     std::shared_ptr<qga::utils::ILogger> LoggerFactory::createConsoleLogger(
         const std::string& name,
-        LogLevel level
+        qga::LogLevel level
         ) {
         auto sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         auto logger = std::make_shared<qga::utils::SpdLogger>(name, std::vector<spdlog::sink_ptr>{ sink });

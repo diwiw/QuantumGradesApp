@@ -6,6 +6,7 @@
 #pragma once
 
 #include "utils/ILogger.hpp"
+#include "common/LogLevel.hpp"
 #include <memory>
 #include <string>
 #include <spdlog/spdlog.h>
@@ -33,8 +34,8 @@ public:
      */
     SpdLogger(const std::string& logger_name,
                 const std::string& file_path,
-                LogLevel level = LogLevel::Info);
-    
+                qga::LogLevel level = qga::LogLevel::Info);
+
     /**
      * @brief Construct logger with custom sinks (e.g. console, rotating file).
      * @param logger_name Logical name for the logger instance.
@@ -50,7 +51,7 @@ public:
      * @param level LogLevel to use (Trace, Debug, Info, etc.).
      * @param message Message string to log.
      */
-    void log(LogLevel level, const std::string& message) override;
+    void log(qga::LogLevel level, const std::string& message) override;
 
 
     /**
@@ -62,7 +63,7 @@ public:
 
 private:
     std::shared_ptr<spdlog::logger> spd_logger_;  ///< Underlying spdlog instance.
-    static spdlog::level::level_enum toSpdLevel(LogLevel level);  ///< Converts LogLevel to spdlog level.
+    static spdlog::level::level_enum toSpdLevel(qga::LogLevel level);  ///< Converts LogLevel to spdlog level.
 };
 
 

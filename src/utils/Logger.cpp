@@ -6,7 +6,7 @@
 
 namespace qga::utils {
 
-Logger::Logger() : current_level_(LogLevel::INFO) {
+Logger::Logger() : current_level_(qga::LogLevel::Info) {
 	if(!std::filesystem::exists("logs"))
 		std::filesystem::create_directory("logs");
 	logfile_.open("logs/app.log", std::ios::app);
@@ -26,7 +26,7 @@ Logger& Logger::getInstance(){
 	return instance;
 }
 
-void Logger::setLogLevel(LogLevel level){
+void Logger::setLogLevel(qga::LogLevel level){
 	current_level_ = level;
 }
 
@@ -38,16 +38,16 @@ void Logger::setLogFile(const std::string& filename) {
 	}
 }
 
-void Logger::log(LogLevel level, const std::string& message) {
+void Logger::log(qga::LogLevel level, const std::string& message) {
 	if ( level < current_level_) return;
 
 	std::string level_str;
 	switch(level){
-		case LogLevel::DEBUG:	level_str = "[DEBUG]"; break;
-		case LogLevel::INFO:	level_str = "[INFO]"; break;
-		case LogLevel::WARNING: level_str = "[WARNING]"; break;
-		case LogLevel::ERROR:	level_str = "[ERROR]"; break;
-		case LogLevel::CRITICAL: level_str = "[CRITICAL]"; break;
+		case qga::LogLevel::Debug:	level_str = "[DEBUG]"; break;
+		case qga::LogLevel::Info:	level_str = "[INFO]"; break;
+		case qga::LogLevel::Warn: level_str = "[WARNING]"; break;
+		case qga::LogLevel::Err:	level_str = "[ERROR]"; break;
+		case qga::LogLevel::Critical: level_str = "[CRITICAL]"; break;
 		default: level_str = "[UNKNOWN]"; break;
 	}
 
