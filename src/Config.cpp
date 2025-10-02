@@ -41,24 +41,34 @@ void Config::validate(std::vector<std::string>* warnings) {
     
     const unsigned HW = std::max(1u, std::thread::hardware_concurrency());
 
+    // === threads ===
     if (threads_ < 1) {
-        addWarn(warnings, "engine.threads < 1 → set to 1");
+        addWarn(warnings, "engine.threads < 1 → fallback to 1");
         threads_ = 1;
     } else if (threads_ > static_cast<int>(HW)) {
-        addWarn(warnings, "engine.threads > CPU cores → set to " + std::to_string(HW));
+        addWarn(warnings, "engine.threads > CPU cores → fallback to " + std::to_string(HW));
         threads_ = static_cast<int>(HW);
     }
 
+    // === data_dir ===
     if (data_dir_.empty()) {
         addWarn(warnings, "paths.data_dir is empty → 'data'");
         data_dir_ = "data";
     }
 
+    // === log_file ===
     if (log_file_.empty()) {
         addWarn(warnings, "logging.file is empty → 'app.log'");
         log_file_ = "app.log";
     }
 
+    // === log_level ===
+    // already validated during parsing
+    if (log_level_ < LogLevel::Trace || log_level_ > LogLevel::Off) {
+        addWarn(warnings, "logging.level is invalid → INFO");
+        log_level_ = LogLevel::Info;
+    }
+    
     initLogger();
 }
 
