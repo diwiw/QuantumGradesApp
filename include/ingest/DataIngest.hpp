@@ -10,6 +10,8 @@
 
 #include <string>
 #include <optional>
+#include <memory>
+#include "utils/ILogger.hpp"
 #include "domain/backtest/BarSeries.hpp"
 #include "domain/Quote.hpp"
 
@@ -36,6 +38,12 @@ namespace qga::ingest {
  */
 class DataIngest {        
 public:
+    /**
+     * @brief Constructor accepting a logger instance.
+     * 
+     * @param logger Shared pointer to a logger implementing ILogger interface.
+     */
+    explicit DataIngest(std::shared_ptr<utils::ILogger> logger);
 
     /**
      * @brief Load and validate market data from a local CSV file.
@@ -45,7 +53,7 @@ public:
      * @param path Path to the CSV file on disk.
      * @return Optional BarSeries if loading and parsing succeed.
      */
-    static std::optional<qga::domain::backtest::BarSeries> fromCsv(const std::string& path);
+    std::optional<qga::domain::backtest::BarSeries> fromCsv(const std::string& path);
 
     /**
      * @brief Load market data from a remote CSV over HTTP.
@@ -55,7 +63,7 @@ public:
      * @param url Remote URL returning CSV content.
      * @return Optional BarSeries if request and parsing succeed.
      */
-    static std::optional<qga::domain::backtest::BarSeries> fromHttpUrl(const std::string& url);
+    std::optional<qga::domain::backtest::BarSeries> fromHttpUrl(const std::string& url);
 
 private:           
     
@@ -71,7 +79,7 @@ private:
      * @param fields Vector of CSV fields.
      * @return True if row passes validation.
      */
-    static bool validateRow(const std::vector<std::string>& fields);
+    bool validateRow(const std::vector<std::string>& fields);
 
     /**
      * @brief Converts a CSV row (string fields) into a Quote object.
@@ -79,7 +87,16 @@ private:
      * @param fields CSV fields: timestamp, OHLC, volume
      * @return Optional Quote if parsing succeeds.
      */
-    static std::optional<domain::Quote> parseRow(const std::vector<std::string>& fields);
+    std::optional<domain::Quote> parseRow(const std::vector<std::string>& fields);
+
+     /**
+     * @brief Logger instance used for validation, error reporting and tracing.
+     *
+     * This logger is injected via the constructor and can be a production
+     * logger (SpdLogger), a NullLogger for silent mode, or a MockLogger
+     * in tests.
+     */
+    std::shared_ptr<utils::ILogger> logger_;
 };
 
 } // namespace qga::ingest

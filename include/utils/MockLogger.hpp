@@ -31,25 +31,10 @@ public:
     ~MockLogger() override = default;
 
     /// @brief Sets the minimum level for which logs are stored.
-    void setLevel(LogLevel level) {
+    void setLevel(qga::LogLevel level) {
         std::lock_guard<std::mutex> lock(mutex_);
         level_ = level;
     }
-
-    /// @brief Log a debug message.
-    void debug(const std::string& msg) override { log(LogLevel::Debug, msg); }
-
-    /// @brief Log an info message.
-    void info(const std::string& msg) override { log(LogLevel::Info, msg); }
-
-    /// @brief Log a warning message.
-    void warn(const std::string& msg) override { log(LogLevel::Warn, msg); }
-
-    /// @brief Log an error message.
-    void error(const std::string& msg) override { log(LogLevel::Err, msg); }
-
-    /// @brief Log a critical message.
-    void critical(const std::string& msg) override { log(LogLevel::Critical, msg); }
 
     /// @brief Get all captured messages regardless of severity.
     std::vector<std::string> allLogs() const {
@@ -58,7 +43,7 @@ public:
     }
 
     /// @brief Get captured logs by severity.
-    std::vector<std::string> getLogsByLevel(LogLevel level) const {
+    std::vector<std::string> getLogsByLevel(qga::LogLevel level) const {
         std::lock_guard<std::mutex> lock(mutex_);
         std::vector<std::string> result;
         for (const auto& [lvl, msg] : logs_by_level_) {
@@ -71,12 +56,12 @@ public:
 
 private:
     mutable std::mutex mutex_;
-    LogLevel level_ = LogLevel::Debug;
+    qga::LogLevel level_ = qga::LogLevel::Debug;
 
     std::vector<std::string> logs_;
-    std::vector<std::pair<LogLevel, std::string>> logs_by_level_;
+    std::vector<std::pair<qga::LogLevel, std::string>> logs_by_level_;
 
-    void log(LogLevel level, const std::string& msg) override{
+    void log(qga::LogLevel level, const std::string& msg) override{
         if (static_cast<int>(level) < static_cast<int>(level_))
             return;
 

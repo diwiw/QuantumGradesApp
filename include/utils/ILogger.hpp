@@ -11,6 +11,8 @@
 #pragma once
 
 #include <string>
+#include <utility>
+#include <fmt/core.h>
 #include "common/LogLevel.hpp"
 
 namespace qga::utils {
@@ -59,6 +61,39 @@ public:
     /** @brief Log a critical-level message. */
     virtual void critical(const std::string& message) { log(qga::LogLevel::Critical, message); }
 
+    ///@}
+
+     /** @name Convenience Logging Methods with fmt formatting */
+    ///@{
+    template<typename... Args>
+    void trace(fmt::format_string<Args...> message, Args&&... args) { 
+        log(qga::LogLevel::Trace, fmt::format(message, std::forward<Args>(args)...)); 
+    }
+
+    template<typename... Args>
+    void debug(fmt::format_string<Args...> message, Args&&... args) { 
+        log(qga::LogLevel::Debug, fmt::format(message, std::forward<Args>(args)...)); 
+    }
+
+    template<typename... Args>
+    void info(fmt::format_string<Args...> message, Args&&... args) { 
+        log(qga::LogLevel::Info, fmt::format(message, std::forward<Args>(args)...)); 
+    }
+
+    template<typename... Args>
+    void warn(fmt::format_string<Args...> message, Args&&... args) { 
+        log(qga::LogLevel::Warn, fmt::format(message, std::forward<Args>(args)...)); 
+    }
+
+    template<typename... Args>
+    void error(fmt::format_string<Args...> message, Args&&... args) { 
+        log(qga::LogLevel::Err, fmt::format(message, std::forward<Args>(args)...)); 
+    }
+
+    template<typename... Args>
+    void critical(fmt::format_string<Args...> message, Args&&... args) { 
+        log(qga::LogLevel::Critical, fmt::format(message, std::forward<Args>(args)...)); 
+    }
     ///@}
 };
 
