@@ -49,10 +49,13 @@ namespace qga::ingest {
 
 // === PUBLIC ===
 
+DataIngest::DataIngest(std::shared_ptr<utils::ILogger> logger)
+    : logger_(std::move(logger)) {}
+
 std::optional<domain::backtest::BarSeries> DataIngest::fromCsv(const std::string& path) {
     std::ifstream file(path);
     if (!file.is_open()) {
-        std::cerr << "[DataIngest] Failed to open file: " << path << "\n";
+        logger_->error("Failed to open file: {}", path);
         return std::nullopt;
     }
 
@@ -74,7 +77,7 @@ std::optional<domain::backtest::BarSeries> DataIngest::fromCsv(const std::string
     }
 
     if (series.empty()) {
-        std::cerr << "[DataIngest] No valid rows found in file: " << path << "\n";
+        logger_->error("No valid rows found in file: {}", path);
         return std::nullopt;
     }
 
@@ -84,7 +87,7 @@ std::optional<domain::backtest::BarSeries> DataIngest::fromCsv(const std::string
 std::optional<domain::backtest::BarSeries> DataIngest::fromHttpUrl(const std::string& url) {
     auto content = fetchHttpContent(url);
     if (!content.has_value()) {
-        std::cerr << "[DataIngest] Failed to fetch HTTP content from: " << url << "\n";
+        logger_->error("Failed to fetch HTTP content from: {}", url);
         return std::nullopt;
     }
 
@@ -107,7 +110,7 @@ std::optional<domain::backtest::BarSeries> DataIngest::fromHttpUrl(const std::st
     }
 
     if (series.empty()) {
-        std::cerr << "[DataIngest] No valid rows fetched from HTTP source.\n";
+        logger_->error("No valid rows fetched from HTTP source.");
         return std::nullopt;
     }
 
@@ -133,9 +136,9 @@ std::optional<domain::Quote> DataIngest::parseRow(const std::vector<std::string>
 
         return domain::Quote{ ts, open, high, low, close, volume };
     } catch (const std::exception& e) {
-        std::cerr << "[DataIngest] parseRow failed: " << e.what() << "\n";
+        logger_->error("parseRow failed: {}", e.what());
         return std::nullopt;
     }
 }
 
-} // namespace ingest
+} // namespace qga::ingest

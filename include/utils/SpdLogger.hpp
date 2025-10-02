@@ -59,7 +59,7 @@ public:
      * @param level LogLevel value.
      * @return Corresponding spdlog::level::level_enum value.
      */
-    spdlog::level::level_enum setLevel(LogLevel level);
+    spdlog::level::level_enum setLevel(qga::LogLevel level);
 
 private:
     std::shared_ptr<spdlog::logger> spd_logger_;  ///< Underlying spdlog instance.

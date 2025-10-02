@@ -44,10 +44,10 @@ public:
     void critical(const std::string& /*msg*/) override {}
 
     /// @brief Does nothing.
-    void setLevel(LogLevel /*level*/) {}
+    void setLevel(qga::LogLevel /*level*/) {}
 
     /// @brief Does nothing.
-    void log(LogLevel /*level*/, const std::string& /*msg*/)  override{}
+    void log(qga::LogLevel /*level*/, const std::string& /*msg*/)  override{}
 
 };
 
