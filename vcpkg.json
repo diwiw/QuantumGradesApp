@@ -1,0 +1,9 @@
+{
+    "name": "quantumgradesapp",
+    "version-string": "0.6.0",
+    "dependencies": [
+        "curl",
+        "sqlite3",
+        "spdlog"
+    ]
+}
