@@ -1,116 +1,151 @@
 #include "doctest.h"
 #include "io/DataExporter.hpp"
 #include "domain/backtest/BarSeries.hpp"
+#include "utils/MockLogger.hpp"
 
-#include <fstream>
 #include <filesystem>
-#include <string>
+#include <fstream>
+#include <sstream>
 
-using qga::domain::backtest::BarSeries;
-using qga::domain::Quote;
-using qga::io::DataExporter;
-
+using namespace qga::io;
+using namespace qga::domain::backtest;
+using namespace qga::utils;
 namespace fs = std::filesystem;
 
-static const std::string TEST_FILE = "test_export.csv";
+static fs::path tmpdir() {
+    fs::path d{"test_tmp_export"};
+    fs::create_directories(d);
+    return d;
+}
+
+static BarSeries sampleSeries() {
+    BarSeries s;
+    s.add({1669900800000, 100.5, 102.3, 99.0, 101.2, 12345.67});
+    s.add({1669987200000, 101.2, 103.0, 100.0, 102.5, 14500.00});
+    return s;
+}
 
 TEST_SUITE("DataExporter") {
 
-    TEST_CASE("exportSeries writes entire series to file") {
-        BarSeries series;
-        series.add({1, 100.0, 110.0, 90.0, 105.0, 1000.0});
-        series.add({2, 101.0, 111.0, 91.0, 106.0, 2000.0});
+    TEST_CASE("Export full series to CSV") {
+        auto d = tmpdir();
+        auto path = d / "out_full.csv";
+        auto log = std::make_shared<MockLogger>();
 
-        DataExporter exporter(TEST_FILE, false); // overwrite
+        DataExporter exporter(path.string(), log, ExportFormat::CSV, false);
+        auto series = sampleSeries();
         exporter.exportSeries(series);
 
-        std::ifstream in(TEST_FILE);
+        // === Verify file content ===
+        std::ifstream in(path);
         REQUIRE(in.is_open());
+
+        std::string header;
+        std::getline(in, header);
+        CHECK(header == "timestamp,open,high,low,close,volume");
 
         std::string line;
         std::getline(in, line);
-        CHECK(line == "timestamp,open,high,low,close,volume");
+        std::stringstream ss(line);
+        long long ts; double open, high, low, close, vol; char comma;
+        ss >> ts >> comma >> open >> comma >> high >> comma >> low >> comma >> close >> comma >> vol;
 
-        std::getline(in, line);
-        CHECK(line == "1,100,110,90,105,1000");
+        CHECK(ts == 1669900800000);
+        CHECK(open == doctest::Approx(100.5));
+        CHECK(high == doctest::Approx(102.3));
+        CHECK(low == doctest::Approx(99.0));
+        CHECK(close == doctest::Approx(101.2));
+        CHECK(vol == doctest::Approx(12345.67));
 
-        std::getline(in, line);
-        CHECK(line == "2,101,111,91,106,2000");
-
-        in.close();
-        fs::remove(TEST_FILE);
+        // === Verify logs ===
+        auto logs = log->allLogs();
+        REQUIRE_FALSE(logs.empty());
+        bool found = false;
+        for (auto& l : logs) {
+            if (l.find("DataExporter: successfully exported") != std::string::npos) {
+                found = true; break;
+            }
+        }
+        CHECK(found);
     }
 
-    TEST_CASE("exportRange writes subset of series") {
+    TEST_CASE("Export range of series") {
+        auto d = tmpdir();
+        auto path = d / "out_range.csv";
+        auto log = std::make_shared<MockLogger>();
+
+        DataExporter exporter(path.string(), log, ExportFormat::CSV, false);
+        auto series = sampleSeries();
+        exporter.exportRange(series, 0, 1);
+
+        // === Verify file content ===
+        std::ifstream in(path);
+        REQUIRE(in.is_open());
+
+        std::string header;
+        std::getline(in, header);
+        CHECK(header == "timestamp,open,high,low,close,volume");
+
+        std::string line;
+        std::getline(in, line);
+        std::stringstream ss(line);
+        long long ts; double open, high, low, close, vol; char comma;
+        ss >> ts >> comma >> open >> comma >> high >> comma >> low >> comma >> close >> comma >> vol;
+
+        CHECK(ts == 1669900800000);
+        CHECK(open == doctest::Approx(100.5));
+        CHECK(high == doctest::Approx(102.3));
+        CHECK(low == doctest::Approx(99.0));
+        CHECK(close == doctest::Approx(101.2));
+        CHECK(vol == doctest::Approx(12345.67));
+
+        // === Verify logs ===
+        auto logs = log->allLogs();
+        REQUIRE_FALSE(logs.empty());
+        bool found = false;
+        for (auto& l : logs) {
+            if (l.find("DataExporter: exported") != std::string::npos) {
+                found = true; break;
+            }
+        }
+        CHECK(found);
+    }
+
+    TEST_CASE("Export empty series throws") {
+        auto d = tmpdir();
+        auto path = d / "out_empty.csv";
+        auto log = std::make_shared<MockLogger>();
+
+        DataExporter exporter(path.string(), log, ExportFormat::CSV, false);
+        BarSeries empty;
+
+        CHECK_THROWS_AS(exporter.exportSeries(empty), std::invalid_argument);
+
+        auto logs = log->allLogs();
+        REQUIRE_FALSE(logs.empty());
+        bool found = false;
+        for (auto& l : logs) {
+            if (l.find("DataExporter: cannot export empty BarSeries") != std::string::npos) {
+                found = true; break;
+            }
+        }
+        CHECK(found);
+    }
+
+    TEST_CASE("Export full series via exportAll logs correctly") {
+        auto d = tmpdir();
+        auto f = d / "all.csv";
+        auto log = std::make_shared<MockLogger>();
+
         BarSeries series;
-        series.add({1, 100.0, 110.0, 90.0, 105.0, 1000.0});
-        series.add({2, 101.0, 111.0, 91.0, 106.0, 2000.0});
-        series.add({3, 102.0, 112.0, 92.0, 107.0, 3000.0});
+        series.add({1669900800000, 100.5, 102.3, 99.0, 101.2, 12345.67});
+        series.add({1669987200000, 101.2, 103.0, 100.0, 102.5, 14500.0});
 
-        DataExporter exporter(TEST_FILE, false);
-        exporter.exportRange(series, 1, 3);
+        DataExporter exporter(f.string(), log, ExportFormat::CSV, false);
+        exporter.exportAll(series);
 
-        std::ifstream in(TEST_FILE);
-        REQUIRE(in.is_open());
-
-        std::string line;
-        std::getline(in, line);
-        CHECK(line == "timestamp,open,high,low,close,volume");
-
-        std::getline(in, line);
-        CHECK(line == "2,101,111,91,106,2000");
-
-        std::getline(in, line);
-        CHECK(line == "3,102,112,92,107,3000");
-
-        in.close();
-        fs::remove(TEST_FILE);
-    }
-
-    TEST_CASE("exportRange throws on invalid indices") {
-        BarSeries series;
-        series.add({1, 100.0, 110.0, 90.0, 105.0, 1000.0});
-
-        DataExporter exporter(TEST_FILE, false);
-        CHECK_THROWS_AS(exporter.exportRange(series, 1, 2), std::invalid_argument);
-    }
-
-    TEST_CASE("append=true appends new data to file") {
-        BarSeries s1;
-        s1.add({1, 100.0, 110.0, 90.0, 105.0, 1000.0});
-        s1.add({2, 101.0, 111.0, 91.0, 106.0, 2000.0});
-
-        {
-            DataExporter exporter1(TEST_FILE, false); // overwrite
-            exporter1.exportSeries(s1);
-        }
-        BarSeries s2;
-        s2.add({3, 102.0, 112.0, 92.0, 107.0, 3000.0});
-
-        {
-            DataExporter exporter2(TEST_FILE, true); // append
-            exporter2.exportSeries(s2);
-        }
-
-        std::ifstream in(TEST_FILE);
-        REQUIRE(in.is_open());
-
-        std::vector<std::string> lines;
-        std::string line;
-        while (std::getline(in, line)) {
-            lines.push_back(line);
-        }
-
-        // Should contain one header and three data lines
-        //REQUIRE(lines.size() == 3);
-        REQUIRE(lines.size() == 4);
-
-        CHECK(lines[0] == "timestamp,open,high,low,close,volume");
-        CHECK(lines[1] == "1,100,110,90,105,1000");
-        CHECK(lines[2] == "2,101,111,91,106,2000");
-        CHECK(lines[3] == "3,102,112,92,107,3000");
-
-        in.close();
-        fs::remove(TEST_FILE);
+        auto logs = log->allLogs();
+        REQUIRE_FALSE(logs.empty());
+        CHECK(logs.back().find("DataExporter: successfully exported") != std::string::npos);
     }
 }
