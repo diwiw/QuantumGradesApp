@@ -86,6 +86,13 @@ FetchContent_MakeAvailable(nlohmann_json)
 # === HTTP Curl Library ===
 find_package(CURL REQUIRED)
 
+# === fmt ===
+FetchContent_Declare(
+  fmt
+  URL https://github.com/fmtlib/fmt/archive/refs/tags/10.2.1.tar.gz
+)
+FetchContent_MakeAvailable(fmt)
+
 # === spdlog (via FetchContent, portable, with ext fmt) ===
 set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use external fmt library" FORCE)
 FetchContent_Declare(
@@ -94,14 +101,6 @@ FetchContent_Declare(
   GIT_TAG v1.14.1  # stabilna wersja
 )
 FetchContent_MakeAvailable(spdlog)
-
-# === fmt ===
-FetchContent_Declare(
-  fmt
-  URL https://github.com/fmtlib/fmt/archive/refs/tags/10.2.1.tar.gz
-)
-FetchContent_MakeAvailable(fmt)
-
 
 # === SQLite3 ===
 find_package(SQLite3 REQUIRED)
