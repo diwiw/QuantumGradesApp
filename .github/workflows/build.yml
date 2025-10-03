@@ -24,16 +24,17 @@ jobs:
 
       - name: Setup ccache
         run: |
-          mkdir -p ~/.cache/ccache
+          mkdir -p ~/.ccache
           echo 'max_size = 500M' > ~/.ccache/ccache.conf
 
       - name: Cache ccache
         uses: actions/cache@v4
         with:
-          path: ~/.cache/ccache
+          path: ~/.ccache
           key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake', '**/*.hpp', '**/*.h', '**/*.cpp') }}
           restore-keys: |
             ${{ runner.os }}-ccache-
+
 
       - name: Configure
         run: |
@@ -74,7 +75,9 @@ jobs:
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
           doNotCache: false
           doNotUpdateVcpkg: false
-
+      - name: Force vcpkg binary cache
+        run: |
+          echo "VCPKG_BINARY_SOURCES=clear;default" >> $env:GITHUB_ENV
       - name: Configure (Windows)
         run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 ^
           -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake ^
