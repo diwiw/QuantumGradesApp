@@ -15,6 +15,10 @@ if (WIN32)
 		NOMINMAX
 		_CRT_SECURE_NO_WARNINGS
 	)
+	if(DEFINED ENV{VCPKG_INSTALLATION_ROOT})
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        CACHE STRING "Vcpkg toolchain file")
+  	endif()
 endif()
 
 # === Build type ===
