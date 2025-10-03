@@ -1,9 +1,10 @@
 {
     "name": "quantumgradesapp",
-    "version-string": "0.6.0",
+    "version-string": "0.7.0",
     "dependencies": [
         "curl",
         "sqlite3",
+        "fmt",
         "spdlog"
     ],
     "builtin-baseline": "d3d5aeb65f7f7b8a7f9a7e2e2df8fae5d8798c8b"
