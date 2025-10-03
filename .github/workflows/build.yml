@@ -1,4 +1,4 @@
-name: Build (CMake + CTest)
+name: CI Build & Test
 
 on:
   push:
@@ -8,34 +8,26 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: ${{ matrix.os }} • build & test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest, windows-latest ]
+  ubuntu-build:
+    name: Ubuntu • Build & Test
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ---------- Ubuntu ----------
       - name: Install deps (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build cmake build-essential ccache libcurl4-openssl-dev
+          sudo apt-get install -y ninja-build cmake build-essential ccache \
+            libcurl4-openssl-dev pkg-config
 
-      - name: Setup ccache (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Setup ccache
         run: |
           mkdir -p ~/.cache/ccache
-          mkdir -p ~/.ccache
           echo 'max_size = 500M' > ~/.ccache/ccache.conf
 
-      - name: Cache ccache (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Cache ccache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ccache
@@ -43,38 +35,33 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-ccache-
 
-      - name: Configure (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Configure
         run: |
           cmake -S . -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DBUILD_EXAMPLES=ON -DBUILD_DOCS=OFF
 
-      - name: Build (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Build
         run: cmake --build build --parallel
 
-      - name: Test (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Run Tests
         run: ctest --test-dir build --output-on-failure
 
-      - name: ccache stats (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: ccache -s || true
+      - name: Upload Sample Outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-outputs-ubuntu
+          path: |
+            build/examples/*.csv
+            build/examples/*.json
+            build/examples/*.log
+          if-no-files-found: ignore
 
-      - name: Show ccache stats (Ubuntu)
-        if: always() && runner.os == 'Ubuntu'
-        run: |
-          echo "=== CCACHE STATS ==="        
-          ccache --show-stats
-
-      # ---------- Windows ----------
-      build-windows:
+  windows-build:
+    name: Windows • Build & Test
     runs-on: windows-latest
-    env:
-      VCPKG_FEATURE_FLAGS: binarycaching,manifests
-      VCPKG_DEFAULT_TRIPLET: x64-windows-static-md
 
     steps:
       - name: Checkout
@@ -84,39 +71,27 @@ jobs:
         uses: lukka/run-vcpkg@v11
         with:
           vcpkgJsonGlob: '**/vcpkg.json'
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+          doNotCache: false
+          doNotUpdateVcpkg: false
 
       - name: Configure (Windows)
-        run: >
-          cmake -S . -B build -G "Visual Studio 17 2022" -A x64
-          -DCMAKE_TOOLCHAIN_FILE=${env:VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake
-          -DVCPKG_TARGET_TRIPLET=x64-windows-static-md
-          -DCMAKE_BUILD_TYPE=RelWithDebInfo
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 ^
+          -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake ^
+          -DBUILD_EXAMPLES=ON -DBUILD_DOCS=OFF
 
       - name: Build (Windows)
         run: cmake --build build --config RelWithDebInfo --parallel
 
-      - name: Test (Windows)
+      - name: Run Tests (Windows)
         run: ctest --test-dir build -C RelWithDebInfo --output-on-failure
 
-      - name: Upload build artifacts (Windows)
+      - name: Upload Sample Outputs
         uses: actions/upload-artifact@v4
         with:
-          name: build-windows
-          path: build/**
-          if-no-files-found: ignore
-
-      # ---------- Artifacts ----------
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-${{ matrix.os }}
+          name: sample-outputs-windows
           path: |
-            build/**
-          if-no-files-found: ignore
-
-      - name: Upload sample outputs
-        uses: actions/upload-artifact@v4
-        with:
-          name: sample-outputs-${{ matrix.os }}
-          path: examples/outputs/*
+            build/RelWithDebInfo/*.csv
+            build/RelWithDebInfo/*.json
+            build/RelWithDebInfo/*.log
           if-no-files-found: ignore
