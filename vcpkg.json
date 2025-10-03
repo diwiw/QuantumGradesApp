@@ -5,7 +5,14 @@
         "curl",
         "sqlite3",
         "fmt",
-        "spdlog"
+        "spdlog",
+        "zlib"
+    ],
+    "overrides": [
+        {
+            "name": "zlib",
+            "version": "1.2.13"
+        }
     ],
     "builtin-baseline": "5b1214315250939257ef5d62ecdcbca18cf4fb1c"
 }
