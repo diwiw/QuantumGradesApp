@@ -70,13 +70,15 @@ jobs:
 
     - name: Install dependencies (Chocolatey)
       run: |
-        choco install -y cmake ninja git curl openssl
+        choco install cmake --installargs 'ADD_CMAKE_TO_PATH=1' -y
+        choco install ninja git curl openssl sqlite -y
         refreshenv
 
     - name: Configure
       run: cmake -S . -B build -G "Ninja" `
         -DCMAKE_BUILD_TYPE=RelWithDebInfo `
-        -DBUILD_EXAMPLES=ON -DBUILD_DOCS=OFF
+        -DBUILD_EXAMPLES=ON 
+        -DBUILD_DOCS=OFF
 
     - name: Build
       run: cmake --build build --parallel
@@ -84,10 +86,10 @@ jobs:
     - name: Test
       run: ctest --test-dir build --output-on-failure
 
-    - name: Upload Sample Outputs
+    - name: Upload Sample Outputs      
       uses: actions/upload-artifact@v4
       with:
-        name: sample-outputs-windows
+        name: sample-outputs-windows        
         path: |
             build/RelWithDebInfo/*.csv
             build/RelWithDebInfo/*.json
