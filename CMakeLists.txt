@@ -87,6 +87,16 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
+# === CURL (portable source build for Windows CI) ===
+if(WIN32)
+  FetchContent_Declare(
+    curl
+    URL https://github.com/curl/curl/releases/download/curl-8_8_0/curl-8.8.0.tar.gz
+  )
+  FetchContent_MakeAvailable(curl)
+  add_library(CURL::libcurl ALIAS libcurl)
+endif()
+
 # === HTTP Curl Library ===
 find_package(CURL REQUIRED)
 # --- Fix for broken CURL::libcurl target on Ubuntu GitHub runners ---
