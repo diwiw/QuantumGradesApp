@@ -1,57 +1,95 @@
-name: CI Build & Test
+name: CI • Build & Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: [ main, develop ]
 
 jobs:
+
   ubuntu-build:
-    name: Ubuntu • Build & Test
+    name: 🐧 Ubuntu • Build & Test (with ccache)
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install deps (Ubuntu)
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            cmake ninja-build \
-            pkg-config \
-            libcurl4-openssl-dev \
-            libsqlite3-dev \
-            libspdlog-dev \
-            libfmt-dev\
-            ccache 
-      - name: Verify CURL installation
-        run: |
-          pkg-config --exists libcurl && echo "libcurl found ✅" || echo "libcurl missing ❌"
-          pkg-config --clags --libs libcurl || true
+            cmake ninja-build pkg-config ccache \
+            libcurl4-openssl-dev libsqlite3-dev \
+            libspdlog-dev libfmt-dev
+
       - name: Setup ccache
         run: |
-          mkdir -p ~/.ccache
-          echo 'max_size = 500M' > ~/.ccache/ccache.conf
+          echo "max_size = 1G" | sudo tee /etc/ccache.conf
+          export PATH="/usr/lib/ccache:$PATH"
+          echo "PATH=/usr/lib/ccache:$PATH" >> $GITHUB_ENV
 
       - name: Cache ccache
         uses: actions/cache@v4
         with:
-          path: ~/.ccache
-          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake', '**/*.hpp', '**/*.h', '**/*.cpp') }}
+          path: ~/.cache/ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt', '**/*.cpp', '**/*.hpp') }}
           restore-keys: |
             ${{ runner.os }}-ccache-
 
+      - name: Verify libcurl
+        run: |
+          pkg-config --cflags --libs libcurl || true
+          ls -l /usr/include/curl || true
+          ls -l /usr/lib/x86_64-linux-gnu/libcurl* || true
 
       - name: Configure
         run: |
           cmake -S . -B build -G Ninja \
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DBUILD_EXAMPLES=ON \
+            -DBUILD_DOCS=OFF \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-            -DBUILD_EXAMPLES=ON -DBUILD_DOCS=OFF
+            -DCURL_LIBRARY=/usr/lib/x86_64-linux-gnu/libcurl.so \
+            -DCURL_INCLUDE_DIR=/usr/include/curl
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Show ccache stats
+        if: always()
+        run: ccache -s || true
+
+      - name: Upload Sample Outputs
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SampleOutputs-Ubuntu
+          path: build/sample_outputs/*.csv
+
+
+  windows-build:
+    name: 🪟 Windows • Build & Test
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies via Chocolatey
+        run: |
+          choco install cmake --installargs 'ADD_CMAKE_TO_PATH=1' -y
+          choco install ninja git curl openssl sqlite spdlog -y
+
+      - name: Configure
+        run: cmake -S . -B build -G "Ninja" `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DBUILD_EXAMPLES=ON `
+          -DBUILD_DOCS=OFF
 
       - name: Build
         run: cmake --build build --parallel
@@ -60,47 +98,11 @@ jobs:
         run: ctest --test-dir build --output-on-failure
 
       - name: Upload Sample Outputs
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: sample-outputs-ubuntu
-          path: |
-            build/examples/*.csv
-            build/examples/*.json
-            build/examples/*.log
-          if-no-files-found: ignore
+          name: SampleOutputs-Windows
+          path: build/sample_outputs/*.csv
 
-  windows-build:
-  name: Windows • Build & Test
-  runs-on: windows-latest
-
-  steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Install dependencies (Chocolatey)
-      run: |
-        choco install cmake --installargs 'ADD_CMAKE_TO_PATH=1' -y
-        choco install ninja git curl openssl sqlite -y
-        refreshenv
-
-    - name: Configure
-      run: cmake -S . -B build -G "Ninja" `
-        -DCMAKE_BUILD_TYPE=RelWithDebInfo `
-        -DBUILD_EXAMPLES=ON 
-        -DBUILD_DOCS=OFF
-
-    - name: Build
-      run: cmake --build build --parallel
-
-    - name: Test
-      run: ctest --test-dir build --output-on-failure
-
-    - name: Upload Sample Outputs      
-      uses: actions/upload-artifact@v4
-      with:
-        name: sample-outputs-windows        
-        path: |
-            build/RelWithDebInfo/*.csv
-            build/RelWithDebInfo/*.json
-            build/RelWithDebInfo/*.log
-          if-no-files-found: ignore
+      # TODO: Add sccache (Windows equivalent of ccache) later
+      # using https://github.com/mozilla/sccache
