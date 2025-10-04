@@ -19,9 +19,18 @@ jobs:
       - name: Install deps (Ubuntu)
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build cmake build-essential ccache \
-            libcurl4-openssl-dev pkg-config
-
+          sudo apt-get install -y \
+            cmake ninja-build \
+            pkg-config \
+            libcurl4-openssl-dev \
+            libsqlite3-dev \
+            libspdlog-dev \
+            libfmt-dev\
+            ccache 
+      - name: Verify CURL installation
+        run: |
+          pkg-config --exists libcurl && echo "libcurl found ✅" || echo "libcurl missing ❌"
+          pkg-config --clags --libs libcurl || true
       - name: Setup ccache
         run: |
           mkdir -p ~/.ccache
