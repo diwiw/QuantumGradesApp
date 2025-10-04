@@ -83,7 +83,7 @@ jobs:
       - name: Install dependencies via Chocolatey
         run: |
           choco install cmake --installargs 'ADD_CMAKE_TO_PATH=1' -y
-          choco install ninja git curl openssl sqlite spdlog -y
+          choco install ninja git curl openssl sqlite -y
 
       - name: Configure
         run: cmake -S . -B build -G "Ninja" `
