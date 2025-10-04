@@ -89,6 +89,15 @@ FetchContent_MakeAvailable(nlohmann_json)
 
 # === HTTP Curl Library ===
 find_package(CURL REQUIRED)
+# --- Fix for broken CURL::libcurl target on Ubuntu GitHub runners ---
+if (TARGET CURL::libcurl)
+    get_target_property(_curl_includes CURL::libcurl INTERFACE_INCLUDE_DIRECTORIES)
+    if (NOT EXISTS "/usr/include/curl" AND EXISTS "/usr/include/x86_64-linux-gnu/curl")
+        message(WARNING "Patching CURL::libcurl include path for GitHub Actions Ubuntu runner")
+        set_property(TARGET CURL::libcurl PROPERTY INTERFACE_INCLUDE_DIRECTORIES "/usr/include/x86_64-linux-gnu/curl")
+    endif()
+endif()
+
 
 # === fmt ===
 FetchContent_Declare(
