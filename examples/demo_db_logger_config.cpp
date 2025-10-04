@@ -38,28 +38,29 @@ int main() {
     // ===== 3. Ingest Data =====
     qga::ingest::DataIngest ingest(logger);
 
-    auto series = ingest.fromCsv("tests/data/test_http.csv"); // deliberately missing
+    auto series = ingest.fromCsv("data/demo.csv");
     if (!series.has_value()) {
         logger->error("Failed to ingest data from CSV");
+        return 1;
     } else {
         logger->info("Ingested {} bars", series->size());
+    }
     
 
-        // ===== 4. Export Data =====
-        io::DataExporter csv_exporter("export_demo.csv", logger, io::ExportFormat::CSV, false);
-        csv_exporter.exportSeries(*series);
-        
-        // ===== 5. Export Subset (Range) =====
-        if(series->size() > 1) {
-            io::DataExporter csv_range_exporter("export_demo_range.csv", logger, io::ExportFormat::CSV, false);
-            csv_range_exporter.exportRange(*series, 0, 1); // export first bar
-        }
+    // ===== 4. Export Data =====
+    try {
+        io::DataExporter exporter_csv("demo_out.csv", logger, io::ExportFormat::CSV, false);
+        exporter_csv.exportAll(*series);
 
-        // ===== 6. Export Full Series as JSON =====
-        io::DataExporter json_exporter("export_demo.json", logger, io::ExportFormat::JSON, false);
-        json_exporter.exportSeries(*series);
+        io::DataExporter exporter_json("demo_out.json", logger, io::ExportFormat::JSON, false);
+        exporter_json.exportAll(*series);
+
+        logger->info("Exported series to CSV and JSON");
+    } catch (const std::exception& ex) {
+        logger->error("Exporter exception: {}", ex.what());
     }
-        logger->info("Demo finished.");
+
+    logger->info("Demo finished.");
     return 0;
     
 }

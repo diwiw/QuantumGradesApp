@@ -15,6 +15,10 @@ if (WIN32)
 		NOMINMAX
 		_CRT_SECURE_NO_WARNINGS
 	)
+	if(DEFINED ENV{VCPKG_INSTALLATION_ROOT})
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        CACHE STRING "Vcpkg toolchain file")
+  	endif()
 endif()
 
 # === Build type ===
@@ -75,19 +79,53 @@ list(FILTER SRC_FILES EXCLUDE REGEX ".*/main\\.cpp$")
 # === External libraries === === ===
 
 include(FetchContent)
+
+# JSON
 FetchContent_Declare(
 	nlohmann_json
 	URL https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.tar.gz
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
+# === CURL (portable source build for Windows CI) ===
+if(WIN32)
+  FetchContent_Declare(
+    curl
+    URL https://github.com/curl/curl/releases/download/curl-8_8_0/curl-8.8.0.tar.gz
+  )
+  FetchContent_MakeAvailable(curl)
+  add_library(CURL::libcurl ALIAS libcurl)
+endif()
+
 # === HTTP Curl Library ===
 find_package(CURL REQUIRED)
+# --- Fix for broken CURL::libcurl target on Ubuntu GitHub runners ---
+if (TARGET CURL::libcurl)
+    get_target_property(_curl_includes CURL::libcurl INTERFACE_INCLUDE_DIRECTORIES)
+    if (NOT EXISTS "/usr/include/curl" AND EXISTS "/usr/include/x86_64-linux-gnu/curl")
+        message(WARNING "Patching CURL::libcurl include path for GitHub Actions Ubuntu runner")
+        set_property(TARGET CURL::libcurl PROPERTY INTERFACE_INCLUDE_DIRECTORIES "/usr/include/x86_64-linux-gnu/curl")
+    endif()
+endif()
 
-# === spdlog ===
-find_package(spdlog REQUIRED)
 
-# === spdlog ===
+# === fmt ===
+FetchContent_Declare(
+  fmt
+  URL https://github.com/fmtlib/fmt/archive/refs/tags/10.2.1.tar.gz
+)
+FetchContent_MakeAvailable(fmt)
+
+# === spdlog (via FetchContent, portable, with ext fmt) ===
+set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use external fmt library" FORCE)
+FetchContent_Declare(
+  spdlog
+  GIT_REPOSITORY https://github.com/gabime/spdlog.git
+  GIT_TAG v1.14.1  # stabilna wersja
+)
+FetchContent_MakeAvailable(spdlog)
+
+# === SQLite3 ===
 find_package(SQLite3 REQUIRED)
 
 

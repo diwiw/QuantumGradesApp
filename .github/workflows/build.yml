@@ -1,92 +1,108 @@
-name: Build (CMake + CTest)
+name: CI • Build & Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: [ main, develop ]
 
 jobs:
-  build:
-    name: ${{ matrix.os }} • build & test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest, windows-latest ]
+
+  ubuntu-build:
+    name: 🐧 Ubuntu • Build & Test (with ccache)
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ---------- Ubuntu ----------
-      - name: Install deps (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build cmake build-essential ccache libcurl4-openssl-dev
+          sudo apt-get install -y \
+            cmake ninja-build pkg-config ccache \
+            libcurl4-openssl-dev libsqlite3-dev \
+            libspdlog-dev libfmt-dev
 
-      - name: Setup ccache (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Setup ccache
         run: |
-          mkdir -p ~/.cache/ccache
-          mkdir -p ~/.ccache
-          echo 'max_size = 500M' > ~/.ccache/ccache.conf
+          echo "max_size = 1G" | sudo tee /etc/ccache.conf
+          export PATH="/usr/lib/ccache:$PATH"
+          echo "PATH=/usr/lib/ccache:$PATH" >> $GITHUB_ENV
 
-      - name: Cache ccache (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Cache ccache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ccache
-          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake', '**/*.hpp', '**/*.h', '**/*.cpp') }}
+          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt', '**/*.cpp', '**/*.hpp') }}
           restore-keys: |
             ${{ runner.os }}-ccache-
 
-      - name: Configure (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Verify libcurl
+        run: |
+          pkg-config --cflags --libs libcurl || true
+          ls -l /usr/include/curl || true
+          ls -l /usr/lib/x86_64-linux-gnu/libcurl* || true
+
+      - name: Configure
         run: |
           cmake -S . -B build -G Ninja \
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DBUILD_EXAMPLES=ON \
+            -DBUILD_DOCS=OFF \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache
+            -DCURL_LIBRARY=/usr/lib/x86_64-linux-gnu/libcurl.so \
+            -DCURL_INCLUDE_DIR=/usr/include/curl
 
-      - name: Build (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Build
         run: cmake --build build --parallel
 
-      - name: Test (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Test
         run: ctest --test-dir build --output-on-failure
 
-      - name: ccache stats (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Show ccache stats
+        if: always()
         run: ccache -s || true
 
-      - name: Show ccache stats (Ubuntu)
-        if: always() && runner.os == 'Ubuntu'
-        run: |
-          echo "=== CCACHE STATS ==="        
-          ccache --show-stats
-
-      # ---------- Windows ----------
-      - name: Configure (Windows)
-        if: matrix.os == 'windows-latest'
-        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
-
-      - name: Build (Windows)
-        if: matrix.os == 'windows-latest'
-        run: cmake --build build --config RelWithDebInfo --parallel
-
-      - name: Test (Windows)
-        if: matrix.os == 'windows-latest'
-        run: ctest --test-dir build -C RelWithDebInfo --output-on-failure
-
-      # ---------- Artifacts ----------
-      - name: Upload build artifacts
+      - name: Upload Sample Outputs
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: build-${{ matrix.os }}
-          path: |
-            build/**
-          if-no-files-found: ignore
+          name: SampleOutputs-Ubuntu
+          path: build/sample_outputs/*.csv
+
+
+  windows-build:
+    name: 🪟 Windows • Build & Test
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies via Chocolatey
+        run: |
+          choco install cmake --installargs 'ADD_CMAKE_TO_PATH=1' -y
+          choco install ninja git curl openssl sqlite -y
+
+      - name: Configure
+        run: cmake -S . -B build -G "Ninja" `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DBUILD_EXAMPLES=ON `
+          -DBUILD_DOCS=OFF
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run Tests
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Upload Sample Outputs
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SampleOutputs-Windows
+          path: build/sample_outputs/*.csv
+
+      # TODO: Add sccache (Windows equivalent of ccache) later
+      # using https://github.com/mozilla/sccache
