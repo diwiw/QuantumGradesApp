@@ -61,39 +61,34 @@ jobs:
           if-no-files-found: ignore
 
   windows-build:
-    name: Windows • Build & Test
-    runs-on: windows-latest
+  name: Windows • Build & Test
+  runs-on: windows-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
 
-      - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgJsonGlob: '**/vcpkg.json'
-          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-          doNotCache: false
-          doNotUpdateVcpkg: false
-      - name: Force vcpkg binary cache
-        run: |
-          echo "VCPKG_BINARY_SOURCES=clear;default" >> $env:GITHUB_ENV
-      - name: Configure (Windows)
-        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64 `
-          -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake `
-          -DVCPKG_TARGET_TRIPLET=x64-windows-static
+    - name: Install dependencies (Chocolatey)
+      run: |
+        choco install -y cmake ninja git curl openssl
+        refreshenv
 
-      - name: Build (Windows)
-        run: cmake --build build --config RelWithDebInfo --parallel
+    - name: Configure
+      run: cmake -S . -B build -G "Ninja" `
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+        -DBUILD_EXAMPLES=ON -DBUILD_DOCS=OFF
 
-      - name: Run Tests (Windows)
-        run: ctest --test-dir build -C RelWithDebInfo --output-on-failure
+    - name: Build
+      run: cmake --build build --parallel
 
-      - name: Upload Sample Outputs
-        uses: actions/upload-artifact@v4
-        with:
-          name: sample-outputs-windows
-          path: |
+    - name: Test
+      run: ctest --test-dir build --output-on-failure
+
+    - name: Upload Sample Outputs
+      uses: actions/upload-artifact@v4
+      with:
+        name: sample-outputs-windows
+        path: |
             build/RelWithDebInfo/*.csv
             build/RelWithDebInfo/*.json
             build/RelWithDebInfo/*.log
