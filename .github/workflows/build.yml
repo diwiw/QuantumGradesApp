@@ -80,32 +80,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-    # 🧩 Cache Chocolatey packages
-      - name: Cache Chocolatey packages
-        uses: actions/cache@v4
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
         with:
-          path: C:\ProgramData\chocolatey\lib
-          key: choco-${{ runner.os }}-${{ hashFiles('.github/workflows/*.yml') }}
-          restore-keys: |
-            choco-${{ runner.os }}-
+          vcpkgJsonGlob: '**/vcpkg.json'
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+          doNotCache: false
+          doNotUpdateVcpkg: false
 
-      - name: Install dependencies via Chocolatey
-        run: |
-          choco install cmake --installargs 'ADD_CMAKE_TO_PATH=1' -y
-          choco install ninja git curl openssl sqlite -y
-
-    # ⚙️ (Optional) Cache build directory
-      - name: Cache build artifacts
-        uses: actions/cache@v4
-        with:
-          path: build
-          key: build-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
-          restore-keys: |
-            build-${{ runner.os }}-
-
-      - name: Configure
+      - name: Configure (Windows)
         run: cmake -S . -B build -G "Ninja" `
           -DCMAKE_BUILD_TYPE=Release `
+          -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake `
           -DBUILD_EXAMPLES=ON `
           -DBUILD_DOCS=OFF
 
@@ -121,6 +107,7 @@ jobs:
         with:
           name: SampleOutputs-Windows
           path: build/sample_outputs/*.csv
+
 
 # 🚀 (optional) Sccache — compilation acceleration (future-proofing)
 # - name: Setup sccache

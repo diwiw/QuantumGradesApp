@@ -4,7 +4,8 @@
     "dependencies": [
         "curl",
         "spdlog",
-        "sqlite3"
+        "sqlite3",
+        "fmt"
     ],
     "builtin-baseline": "5b1214315250939257ef5d62ecdcbca18cf4fb1c"
 }

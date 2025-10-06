@@ -71,20 +71,30 @@ include(FetchContent)
 # === CURL (cross-platform, auto-detect or FetchContent for Windows CI) ===
 
 # === CURL detection and fallback ===
-if(WIN32)
-    # Chocolatey installs CURL to ProgramData\chocolatey\lib\curl\tools
-    set(CMAKE_PREFIX_PATH "C:/ProgramData/chocolatey/lib/CURL/tools" ${CMAKE_PREFIX_PATH})
+if (WIN32)
+    message(STATUS "🔧 Windows detected — expecting CURL from vcpkg")
+    # vcpkg dostarcza libcurl automatycznie przez toolchain
+    find_package(CURL REQUIRED)
+else()
+    message(STATUS "🐧 Linux/macOS detected — using system libcurl")
+    find_package(CURL REQUIRED)
+
+    # --- Patch for GitHub Actions Ubuntu runners ---
+    if (TARGET CURL::libcurl)
+        get_target_property(_curl_includes CURL::libcurl INTERFACE_INCLUDE_DIRECTORIES)
+        if (NOT EXISTS "/usr/include/curl" AND EXISTS "/usr/include/x86_64-linux-gnu/curl")
+            message(WARNING "Patching CURL::libcurl include path for Ubuntu runner")
+            set_property(TARGET CURL::libcurl PROPERTY INTERFACE_INCLUDE_DIRECTORIES "/usr/include/x86_64-linux-gnu/curl")
+        endif()
+    endif()
 endif()
 
-find_package(CURL REQUIRED)
-
-# --- Fix for GitHub Ubuntu runners path mismatch ---
-if (TARGET CURL::libcurl)
-    get_target_property(_curl_includes CURL::libcurl INTERFACE_INCLUDE_DIRECTORIES)
-    if (NOT EXISTS "/usr/include/curl" AND EXISTS "/usr/include/x86_64-linux-gnu/curl")
-        message(WARNING "Patching CURL::libcurl include path for Ubuntu runner")
-        set_property(TARGET CURL::libcurl PROPERTY INTERFACE_INCLUDE_DIRECTORIES "/usr/include/x86_64-linux-gnu/curl")
-    endif()
+# Log final detection info
+if (CURL_FOUND)
+    message(STATUS "✅ Found CURL: ${CURL_LIBRARIES}")
+    message(STATUS "    Includes: ${CURL_INCLUDE_DIRS}")
+else()
+    message(FATAL_ERROR "❌ CURL not found — please install libcurl or use vcpkg")
 endif()
 
 # JSON
