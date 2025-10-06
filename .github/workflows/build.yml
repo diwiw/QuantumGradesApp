@@ -79,32 +79,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Force MSYS2 stable mirror (Windows)
+      - name: Force latest vcpkg
         shell: pwsh
         run: |
-          Write-Host "Using mirror.msys2.org to avoid 404s"
-          $msysDir = "$env:VCPKG_ROOT\downloads\tools\msys2"
-          if (Test-Path $msysDir) {
-            Get-ChildItem -Directory $msysDir | ForEach-Object {
-              $pacmanDir = Join-Path $_.FullName "etc\pacman.d"
-              if (Test-Path $pacmanDir) {
-                Write-Host "Fixing mirrors in $pacmanDir"
-                @"
-          Server = https://mirror.msys2.org/mingw/i686
-          "@ | Out-File -Encoding ASCII -FilePath (Join-Path $pacmanDir "mirrorlist.mingw32") -Force
-                        @"
-          Server = https://mirror.msys2.org/mingw/x86_64
-          "@ | Out-File -Encoding ASCII -FilePath (Join-Path $pacmanDir "mirrorlist.mingw64") -Force
-                        @"
-          Server = https://mirror.msys2.org/msys/$arch
-          "@ | Out-File -Encoding ASCII -FilePath (Join-Path $pacmanDir "mirrorlist.msys") -Force
-                      }
-                    }
-                  } else {
-                    Write-Host "MSYS2 not yet installed by vcpkg — skipping mirror fix."
-                  }
+          Write-Host "Updating vcpkg to latest version..."
+          $vcpkgDir = "${{ github.workspace }}\vcpkg"
+          if (Test-Path $vcpkgDir) {
+            cd $vcpkgDir
+            git fetch origin
+            git checkout master
+            git pull
+          } else {
+            git clone https://github.com/microsoft/vcpkg.git $vcpkgDir
+          }
+          cd $vcpkgDir
+          .\bootstrap-vcpkg.bat
+          Write-Host "vcpkg updated successfully!"
 
-      - name: Setup vcpkg
+      - name: Setup vcpkg (static, no MSYS2)
         uses: lukka/run-vcpkg@v11
         with:
           vcpkgJsonGlob: '**/vcpkg.json'
@@ -116,6 +108,7 @@ jobs:
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
           VCPKG_DOWNLOAD_MSYS2: 0
           VCPKG_DISABLE_METRICS: 1
+
 
       - name: Configure (Windows)
         run: cmake -S . -B build -G "Ninja" `
