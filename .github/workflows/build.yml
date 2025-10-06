@@ -132,10 +132,21 @@ jobs:
         run: |
           Write-Host "🛠 Configuring CMake..."
           $toolchain = Join-Path "${{ github.workspace }}" "vcpkg\scripts\buildsystems\vcpkg.cmake"
-          cmake -S . -B build -G "Ninja" `
+          
+          $vsPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC"
+          if (Test-Path $vsPath) {
+            Write-Host "✅ MSVC toolchain found at $vsPath"
+          } else {
+            Write-Host "⚠️ MSVC toolchain not found — using default PATH"
+          }
+
+          cmake -S . -B build -G "Ninja Multi-Config" `
             -DCMAKE_BUILD_TYPE=Release `
             -DCMAKE_TOOLCHAIN_FILE="$toolchain" `
             -DVCPKG_TARGET_TRIPLET=x64-windows-static `
+            -DCMAKE_C_COMPILER=cl `
+            -DCMAKE_CXX_COMPILER=cl `
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache `
             -DBUILD_EXAMPLES=ON `
             -DBUILD_DOCS=OFF
 
