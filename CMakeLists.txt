@@ -9,18 +9,6 @@ if(POLICY CMP0135)
   cmake_policy(SET CMP0135 NEW)
 endif()
 
-if (WIN32)
-	add_compile_definitions(
-		WIN32_LEAN_AND_MEAN
-		NOMINMAX
-		_CRT_SECURE_NO_WARNINGS
-	)
-	if(DEFINED ENV{VCPKG_INSTALLATION_ROOT})
-    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake"
-        CACHE STRING "Vcpkg toolchain file")
-  	endif()
-endif()
-
 # === Build type ===
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
@@ -79,6 +67,36 @@ list(FILTER SRC_FILES EXCLUDE REGEX ".*/main\\.cpp$")
 # === External libraries === === ===
 
 include(FetchContent)
+
+# === CURL dependency (portable handling) ===
+include(FetchContent)
+
+if(WIN32)
+  message(STATUS "Using portable cURL build for Windows CI...")
+  set(BUILD_CURL_EXE OFF CACHE BOOL "" FORCE)
+  set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+  set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+  # Build cURL from source (no alias — libcurl target will exist automatically)
+  FetchContent_Declare(
+    curl
+    URL https://github.com/curl/curl/releases/download/curl-8_8_0/curl-8.8.0.tar.gz
+  )
+  FetchContent_MakeAvailable(curl)
+
+else()
+  message(STATUS "Using system-provided cURL (Linux/macOS)...")
+  find_package(CURL REQUIRED)
+
+  # --- Fix for Ubuntu GitHub runners ---
+  if (TARGET CURL::libcurl)
+      get_target_property(_curl_includes CURL::libcurl INTERFACE_INCLUDE_DIRECTORIES)
+      if (NOT EXISTS "/usr/include/curl" AND EXISTS "/usr/include/x86_64-linux-gnu/curl")
+          message(WARNING "Patching CURL::libcurl include path for GitHub Actions Ubuntu runner")
+          set_property(TARGET CURL::libcurl PROPERTY INTERFACE_INCLUDE_DIRECTORIES "/usr/include/x86_64-linux-gnu/curl")
+      endif()
+  endif()
+endif()
 
 # JSON
 FetchContent_Declare(
