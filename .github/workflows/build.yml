@@ -80,15 +80,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 🔧 FIX: wymuszenie działającego mirroru MSYS2
-      - name: Force MSYS2 stable mirror
-        shell: bash
+      - name: Force MSYS2 stable mirror (Windows)
+        shell: pwsh
         run: |
-          echo "Using mirror.msys2.org to avoid 404s"
-          mkdir -p /etc/pacman.d
-          echo "Server = https://mirror.msys2.org/mingw/i686" | sudo tee /etc/pacman.d/mirrorlist.mingw32
-          echo "Server = https://mirror.msys2.org/mingw/x86_64" | sudo tee /etc/pacman.d/mirrorlist.mingw64
-          echo "Server = https://mirror.msys2.org/msys/$arch" | sudo tee /etc/pacman.d/mirrorlist.msys
+          Write-Host "Using mirror.msys2.org to avoid 404s"
+          $msysDir = "$env:VCPKG_ROOT\downloads\tools\msys2"
+          if (Test-Path $msysDir) {
+            Get-ChildItem -Directory $msysDir | ForEach-Object {
+              $pacmanDir = Join-Path $_.FullName "etc\pacman.d"
+              if (Test-Path $pacmanDir) {
+                Write-Host "Fixing mirrors in $pacmanDir"
+                @"
+                Server = https://mirror.msys2.org/mingw/i686
+                "@ | Out-File -Encoding ASCII -FilePath (Join-Path $pacmanDir "mirrorlist.mingw32") -Force
+                        @"
+                Server = https://mirror.msys2.org/mingw/x86_64
+                "@ | Out-File -Encoding ASCII -FilePath (Join-Path $pacmanDir "mirrorlist.mingw64") -Force
+                        @"
+                Server = https://mirror.msys2.org/msys/$arch
+                "@ | Out-File -Encoding ASCII -FilePath (Join-Path $pacmanDir "mirrorlist.msys") -Force
+                      }
+                    }
+                  } else {
+                    Write-Host "MSYS2 not yet installed by vcpkg — skipping mirror fix."
+                  }
+
 
       # 🔧 FIX: Użycie vcpkg w trybie static triplet (bez MSYS2)
       - name: Setup vcpkg
