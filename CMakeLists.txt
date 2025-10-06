@@ -70,29 +70,21 @@ include(FetchContent)
 
 # === CURL (cross-platform, auto-detect or FetchContent for Windows CI) ===
 
+# === CURL detection and fallback ===
 if(WIN32)
-  find_package(CURL QUIET)
-  if(NOT CURL_FOUND)
-    message(STATUS "CURL not found, fetching portable source for Windows CI")
-    FetchContent_Declare(
-      curl
-      URL https://github.com/curl/curl/releases/download/curl-8_8_0/curl-8.8.0.tar.gz
-    )
-    FetchContent_MakeAvailable(curl)
-    if(NOT TARGET CURL::libcurl)
-      add_library(CURL::libcurl ALIAS libcurl)
+    # Chocolatey installs CURL to ProgramData\chocolatey\lib\curl\tools
+    set(CMAKE_PREFIX_PATH "C:/ProgramData/chocolatey/lib/CURL/tools" ${CMAKE_PREFIX_PATH})
+endif()
+
+find_package(CURL REQUIRED)
+
+# --- Fix for GitHub Ubuntu runners path mismatch ---
+if (TARGET CURL::libcurl)
+    get_target_property(_curl_includes CURL::libcurl INTERFACE_INCLUDE_DIRECTORIES)
+    if (NOT EXISTS "/usr/include/curl" AND EXISTS "/usr/include/x86_64-linux-gnu/curl")
+        message(WARNING "Patching CURL::libcurl include path for Ubuntu runner")
+        set_property(TARGET CURL::libcurl PROPERTY INTERFACE_INCLUDE_DIRECTORIES "/usr/include/x86_64-linux-gnu/curl")
     endif()
-  endif()
-else()
-  # On Linux/macOS: use system package
-  find_package(CURL REQUIRED)
-  if (TARGET CURL::libcurl)
-      get_target_property(_curl_includes CURL::libcurl INTERFACE_INCLUDE_DIRECTORIES)
-      if (NOT EXISTS "/usr/include/curl" AND EXISTS "/usr/include/x86_64-linux-gnu/curl")
-          message(WARNING "Patching CURL::libcurl include path for Ubuntu runner")
-          set_property(TARGET CURL::libcurl PROPERTY INTERFACE_INCLUDE_DIRECTORIES "/usr/include/x86_64-linux-gnu/curl")
-      endif()
-  endif()
 endif()
 
 # JSON

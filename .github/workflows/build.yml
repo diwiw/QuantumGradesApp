@@ -80,10 +80,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+    # 🧩 Cache Chocolatey packages
+      - name: Cache Chocolatey packages
+        uses: actions/cache@v4
+        with:
+          path: C:\ProgramData\chocolatey\lib
+          key: choco-${{ runner.os }}-${{ hashFiles('.github/workflows/*.yml') }}
+          restore-keys: |
+            choco-${{ runner.os }}-
+
       - name: Install dependencies via Chocolatey
         run: |
           choco install cmake --installargs 'ADD_CMAKE_TO_PATH=1' -y
           choco install ninja git curl openssl sqlite -y
+
+    # ⚙️ (Optional) Cache build directory
+      - name: Cache build artifacts
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: build-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            build-${{ runner.os }}-
 
       - name: Configure
         run: cmake -S . -B build -G "Ninja" `
@@ -104,5 +122,6 @@ jobs:
           name: SampleOutputs-Windows
           path: build/sample_outputs/*.csv
 
-      # TODO: Add sccache (Windows equivalent of ccache) later
-      # using https://github.com/mozilla/sccache
+# 🚀 (optional) Sccache — compilation acceleration (future-proofing)
+# - name: Setup sccache
+#   uses: mozilla-actions/sccache-action@v0.0.4
