@@ -89,17 +89,17 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # ✅ Checkout repo
+      # Checkout repo
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ✅ Aktywuj MSVC (Visual Studio Developer Command Prompt)
+      # Setup MSVC (Visual Studio Developer Command Prompt)
       - name: Setup MSVC environment
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
 
-      # ✅ Setup sccache
+      # Setup sccache
       - name: Setup sccache
         shell: pwsh
         run: |
@@ -109,7 +109,7 @@ jobs:
           echo "SCCACHE_CACHE_SIZE=1G" >> $env:GITHUB_ENV
           echo "CMAKE_CXX_COMPILER_LAUNCHER=sccache" >> $env:GITHUB_ENV
 
-      # ✅ Cache dla sccache
+      # Cache sccache
       - name: Cache sccache
         uses: actions/cache@v4
         with:
@@ -118,7 +118,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-sccache-
 
-      # ✅ Cache vcpkg (buildtrees, downloads, installed)
+      # Cache vcpkg (buildtrees, downloads, installed)
       - name: Cache vcpkg
         uses: actions/cache@v4
         with:
@@ -130,15 +130,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-vcpkg-
 
-      # ✅ Setup vcpkg using run-vcpkg@v11
+      # Setup vcpkg using run-vcpkg@v11
       - name: Setup vcpkg (Manifest Mode)
         uses: lukka/run-vcpkg@v11
         with:
           vcpkgJsonGlob: '**/vcpkg.json'
           runVcpkgInstall: true
-          runVcpkgFormatString: 'install --recurse'
+          runVcpkgFormatString: install --recurse
 
-      # ✅ Konfiguracja projektu
+      # Configure (Windows)
       - name: Configure (Windows)
         shell: pwsh
         run: |
@@ -150,20 +150,20 @@ jobs:
             -DBUILD_EXAMPLES=ON `
             -DBUILD_DOCS=OFF
 
-      # ✅ Budowanie
+      # Build
       - name: Build
         run: cmake --build build --config Release --parallel
 
-      # ✅ Testy jednostkowe
+      # Run Tests
       - name: Run Tests
         run: ctest --test-dir build --config Release --output-on-failure
 
-      # ✅ Statystyki sccache
+      # Show sccache stats
       - name: Show sccache stats
         if: always()
         run: sccache --show-stats
 
-      # ✅ Upload artefaktów (np. CSV z przykładów)
+      # Upload artifacts
       - name: Upload Sample Outputs
         if: success()
         uses: actions/upload-artifact@v4
