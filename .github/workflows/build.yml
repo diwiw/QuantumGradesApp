@@ -115,23 +115,22 @@ jobs:
           runVcpkgInstall: true
         env:
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
+          VCPKG_PLATFORM_TOOLSET: v142
+          VCPKG_VISUAL_STUDIO_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
           VCPKG_DISABLE_METRICS: 1
+          VCPKG_KEEP_ENV_VARS: "VSCMD_ARG_TGT_ARCH,VSCMD_ARG_HOST_ARCH"
+          VCPKG_DOWNLOAD_MSYS2: 0
 
-      # ✅ Setup MSVC Environment
-      - name: Setup MSVC Environment
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
-
-      # ✅ Setup sccache
       - name: Setup sccache
         shell: pwsh
         run: |
           Write-Host "📦 Installing sccache..."
           choco install sccache -y
-          echo "SCCACHE_DIR=${{ runner.temp }}\.sccache" >> $env:GITHUB_ENV
+          echo "C:\\ProgramData\\chocolatey\\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "SCCACHE_DIR=${{ runner.temp }}\\.sccache" >> $env:GITHUB_ENV
           echo "SCCACHE_CACHE_SIZE=1G" >> $env:GITHUB_ENV
           echo "CMAKE_CXX_COMPILER_LAUNCHER=sccache" >> $env:GITHUB_ENV
+
 
       # ✅ Cache sccache
       - name: Cache sccache
