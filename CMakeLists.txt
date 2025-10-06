@@ -68,8 +68,6 @@ list(FILTER SRC_FILES EXCLUDE REGEX ".*/main\\.cpp$")
 
 include(FetchContent)
 
-# === CURL (cross-platform, auto-detect or FetchContent for Windows CI) ===
-
 # === CURL detection and fallback ===
 if (WIN32)
     message(STATUS "🔧 Windows detected — expecting CURL from vcpkg")
@@ -104,18 +102,22 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
-# === CURL (portable source build for Windows CI) ===
-if(WIN32)
-  FetchContent_Declare(
-    curl
-    URL https://github.com/curl/curl/releases/download/curl-8_8_0/curl-8.8.0.tar.gz
-  )
-  FetchContent_MakeAvailable(curl)
-  add_library(CURL::libcurl ALIAS libcurl)
+# === CURL (prefer vcpkg/system; fallback to source build) ===
+find_package(CURL QUIET)
+
+if (NOT CURL_FOUND)
+    message(WARNING "libcurl not found — using portable source build (Windows CI fallback)")
+    include(FetchContent)
+    FetchContent_Declare(
+        curl
+        URL https://github.com/curl/curl/releases/download/curl-8_8_0/curl-8.8.0.tar.gz
+    )
+    FetchContent_MakeAvailable(curl)
+    add_library(CURL::libcurl ALIAS libcurl)
+else()
+    message(STATUS "✅ Using system/vcpkg libcurl: ${CURL_VERSION_STRING}")
 endif()
 
-# === HTTP Curl Library ===
-find_package(CURL REQUIRED)
 # --- Fix for broken CURL::libcurl target on Ubuntu GitHub runners ---
 if (TARGET CURL::libcurl)
     get_target_property(_curl_includes CURL::libcurl INTERFACE_INCLUDE_DIRECTORIES)
@@ -124,6 +126,7 @@ if (TARGET CURL::libcurl)
         set_property(TARGET CURL::libcurl PROPERTY INTERFACE_INCLUDE_DIRECTORIES "/usr/include/x86_64-linux-gnu/curl")
     endif()
 endif()
+
 
 
 # === fmt ===

@@ -7,7 +7,6 @@ on:
     branches: [ main, develop ]
 
 jobs:
-
   ubuntu-build:
     name: 🐧 Ubuntu • Build & Test (with ccache)
     runs-on: ubuntu-latest
@@ -16,6 +15,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # -------------------------------------------
+      # Step 1: Cache apt packages (optional but fast)
+      # -------------------------------------------
+      - name: Cache APT packages
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: ${{ runner.os }}-apt-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
+
+      # -------------------------------------------
+      # Step 2: Install dependencies
+      # -------------------------------------------
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -24,12 +37,19 @@ jobs:
             libcurl4-openssl-dev libsqlite3-dev \
             libspdlog-dev libfmt-dev
 
+      # -------------------------------------------
+      # Step 3: Setup ccache
+      # -------------------------------------------
       - name: Setup ccache
         run: |
-          echo "max_size = 1G" | sudo tee /etc/ccache.conf
+          echo "max_size = 2G" | sudo tee /etc/ccache.conf
           export PATH="/usr/lib/ccache:$PATH"
           echo "PATH=/usr/lib/ccache:$PATH" >> $GITHUB_ENV
+          ccache --zero-stats
 
+      # -------------------------------------------
+      # Step 4: Cache ccache results
+      # -------------------------------------------
       - name: Cache ccache
         uses: actions/cache@v4
         with:
@@ -38,32 +58,36 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-ccache-
 
-      - name: Verify libcurl
-        run: |
-          pkg-config --cflags --libs libcurl || true
-          ls -l /usr/include/curl || true
-          ls -l /usr/lib/x86_64-linux-gnu/libcurl* || true
-
+      # -------------------------------------------
+      # Step 5: Configure (no manual CURL paths)
+      # -------------------------------------------
       - name: Configure
         run: |
           cmake -S . -B build -G Ninja \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DBUILD_EXAMPLES=ON \
             -DBUILD_DOCS=OFF \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -DCURL_LIBRARY=/usr/lib/x86_64-linux-gnu/libcurl.so \
-            -DCURL_INCLUDE_DIR=/usr/include/curl
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
+      # -------------------------------------------
+      # Step 6: Build and test
+      # -------------------------------------------
       - name: Build
         run: cmake --build build --parallel
 
       - name: Test
         run: ctest --test-dir build --output-on-failure
 
+      # -------------------------------------------
+      # Step 7: Show ccache statistics
+      # -------------------------------------------
       - name: Show ccache stats
         if: always()
-        run: ccache -s || true
+        run: ccache --show-stats
 
+      # -------------------------------------------
+      # Step 8: Upload artifacts
+      # -------------------------------------------
       - name: Upload Sample Outputs
         if: success()
         uses: actions/upload-artifact@v4
