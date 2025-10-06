@@ -68,31 +68,28 @@ list(FILTER SRC_FILES EXCLUDE REGEX ".*/main\\.cpp$")
 
 include(FetchContent)
 
-# === CURL dependency (portable handling) ===
-include(FetchContent)
+# === CURL (cross-platform, auto-detect or FetchContent for Windows CI) ===
 
 if(WIN32)
-  message(STATUS "Using portable cURL build for Windows CI...")
-  set(BUILD_CURL_EXE OFF CACHE BOOL "" FORCE)
-  set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
-  set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-
-  # Build cURL from source (no alias — libcurl target will exist automatically)
-  FetchContent_Declare(
-    curl
-    URL https://github.com/curl/curl/releases/download/curl-8_8_0/curl-8.8.0.tar.gz
-  )
-  FetchContent_MakeAvailable(curl)
-
+  find_package(CURL QUIET)
+  if(NOT CURL_FOUND)
+    message(STATUS "CURL not found, fetching portable source for Windows CI")
+    FetchContent_Declare(
+      curl
+      URL https://github.com/curl/curl/releases/download/curl-8_8_0/curl-8.8.0.tar.gz
+    )
+    FetchContent_MakeAvailable(curl)
+    if(NOT TARGET CURL::libcurl)
+      add_library(CURL::libcurl ALIAS libcurl)
+    endif()
+  endif()
 else()
-  message(STATUS "Using system-provided cURL (Linux/macOS)...")
+  # On Linux/macOS: use system package
   find_package(CURL REQUIRED)
-
-  # --- Fix for Ubuntu GitHub runners ---
   if (TARGET CURL::libcurl)
       get_target_property(_curl_includes CURL::libcurl INTERFACE_INCLUDE_DIRECTORIES)
       if (NOT EXISTS "/usr/include/curl" AND EXISTS "/usr/include/x86_64-linux-gnu/curl")
-          message(WARNING "Patching CURL::libcurl include path for GitHub Actions Ubuntu runner")
+          message(WARNING "Patching CURL::libcurl include path for Ubuntu runner")
           set_property(TARGET CURL::libcurl PROPERTY INTERFACE_INCLUDE_DIRECTORIES "/usr/include/x86_64-linux-gnu/curl")
       endif()
   endif()
