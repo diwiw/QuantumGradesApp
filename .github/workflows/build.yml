@@ -80,6 +80,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 🔧 FIX: wymuszenie działającego mirroru MSYS2
+      - name: Force MSYS2 stable mirror
+        shell: bash
+        run: |
+          echo "Using mirror.msys2.org to avoid 404s"
+          mkdir -p /etc/pacman.d
+          echo "Server = https://mirror.msys2.org/mingw/i686" | sudo tee /etc/pacman.d/mirrorlist.mingw32
+          echo "Server = https://mirror.msys2.org/mingw/x86_64" | sudo tee /etc/pacman.d/mirrorlist.mingw64
+          echo "Server = https://mirror.msys2.org/msys/$arch" | sudo tee /etc/pacman.d/mirrorlist.msys
+
+      # 🔧 FIX: Użycie vcpkg w trybie static triplet (bez MSYS2)
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
         with:
@@ -87,11 +98,15 @@ jobs:
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
           doNotCache: false
           doNotUpdateVcpkg: false
+          runVcpkgInstall: true
+        env:
+          VCPKG_DEFAULT_TRIPLET: x64-windows-static
 
       - name: Configure (Windows)
         run: cmake -S . -B build -G "Ninja" `
           -DCMAKE_BUILD_TYPE=Release `
           -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake `
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static `
           -DBUILD_EXAMPLES=ON `
           -DBUILD_DOCS=OFF
 
@@ -107,8 +122,3 @@ jobs:
         with:
           name: SampleOutputs-Windows
           path: build/sample_outputs/*.csv
-
-
-# 🚀 (optional) Sccache — compilation acceleration (future-proofing)
-# - name: Setup sccache
-#   uses: mozilla-actions/sccache-action@v0.0.4
