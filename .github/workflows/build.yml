@@ -71,69 +71,69 @@ jobs:
           name: SampleOutputs-Ubuntu
           path: build/sample_outputs/*.csv
 
-windows-build:
-  name: 🪟 Windows • Build & Test
-  runs-on: windows-latest
+  windows-build:
+    name: 🪟 Windows • Build & Test
+    runs-on: windows-latest
 
-  steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Force MSYS2 stable mirror (Windows)
-      shell: pwsh
-      run: |
-        Write-Host "Using mirror.msys2.org to avoid 404s"
-        $msysDir = "$env:VCPKG_ROOT\downloads\tools\msys2"
-        if (Test-Path $msysDir) {
-          Get-ChildItem -Directory $msysDir | ForEach-Object {
-            $pacmanDir = Join-Path $_.FullName "etc\pacman.d"
-            if (Test-Path $pacmanDir) {
-              Write-Host "Fixing mirrors in $pacmanDir"
-              @"
-        Server = https://mirror.msys2.org/mingw/i686
-        "@ | Out-File -Encoding ASCII -FilePath (Join-Path $pacmanDir "mirrorlist.mingw32") -Force
-                      @"
-        Server = https://mirror.msys2.org/mingw/x86_64
-        "@ | Out-File -Encoding ASCII -FilePath (Join-Path $pacmanDir "mirrorlist.mingw64") -Force
-                      @"
-        Server = https://mirror.msys2.org/msys/$arch
-        "@ | Out-File -Encoding ASCII -FilePath (Join-Path $pacmanDir "mirrorlist.msys") -Force
+      - name: Force MSYS2 stable mirror (Windows)
+        shell: pwsh
+        run: |
+          Write-Host "Using mirror.msys2.org to avoid 404s"
+          $msysDir = "$env:VCPKG_ROOT\downloads\tools\msys2"
+          if (Test-Path $msysDir) {
+            Get-ChildItem -Directory $msysDir | ForEach-Object {
+              $pacmanDir = Join-Path $_.FullName "etc\pacman.d"
+              if (Test-Path $pacmanDir) {
+                Write-Host "Fixing mirrors in $pacmanDir"
+                @"
+          Server = https://mirror.msys2.org/mingw/i686
+          "@ | Out-File -Encoding ASCII -FilePath (Join-Path $pacmanDir "mirrorlist.mingw32") -Force
+                        @"
+          Server = https://mirror.msys2.org/mingw/x86_64
+          "@ | Out-File -Encoding ASCII -FilePath (Join-Path $pacmanDir "mirrorlist.mingw64") -Force
+                        @"
+          Server = https://mirror.msys2.org/msys/$arch
+          "@ | Out-File -Encoding ASCII -FilePath (Join-Path $pacmanDir "mirrorlist.msys") -Force
+                      }
                     }
+                  } else {
+                    Write-Host "MSYS2 not yet installed by vcpkg — skipping mirror fix."
                   }
-                } else {
-                  Write-Host "MSYS2 not yet installed by vcpkg — skipping mirror fix."
-                }
 
-    - name: Setup vcpkg
-      uses: lukka/run-vcpkg@v11
-      with:
-        vcpkgJsonGlob: '**/vcpkg.json'
-        vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-        doNotCache: false
-        doNotUpdateVcpkg: false
-        runVcpkgInstall: true
-      env:
-        VCPKG_DEFAULT_TRIPLET: x64-windows-static
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgJsonGlob: '**/vcpkg.json'
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+          doNotCache: false
+          doNotUpdateVcpkg: false
+          runVcpkgInstall: true
+        env:
+          VCPKG_DEFAULT_TRIPLET: x64-windows-static
 
-    - name: Configure (Windows)
-      run: cmake -S . -B build -G "Ninja" `
-        -DCMAKE_BUILD_TYPE=Release `
-        -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake `
-        -DVCPKG_TARGET_TRIPLET=x64-windows-static `
-        -DBUILD_EXAMPLES=ON `
-        -DBUILD_DOCS=OFF
+      - name: Configure (Windows)
+        run: cmake -S . -B build -G "Ninja" `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake `
+          -DVCPKG_TARGET_TRIPLET=x64-windows-static `
+          -DBUILD_EXAMPLES=ON `
+          -DBUILD_DOCS=OFF
 
-    - name: Build
-      run: cmake --build build --parallel
+      - name: Build
+        run: cmake --build build --parallel
 
-    - name: Run Tests
-      run: ctest --test-dir build --output-on-failure
+      - name: Run Tests
+        run: ctest --test-dir build --output-on-failure
 
-    - name: Upload Sample Outputs
-      if: success()
-      uses: actions/upload-artifact@v4
-      with:
-        name: SampleOutputs-Windows
-        path: build/sample_outputs/*.csv
+      - name: Upload Sample Outputs
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SampleOutputs-Windows
+          path: build/sample_outputs/*.csv
 
-  
+    
