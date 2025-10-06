@@ -104,20 +104,18 @@ jobs:
                     Write-Host "MSYS2 not yet installed by vcpkg — skipping mirror fix."
                   }
 
-      - name: Setup vcpkg (skip MSYS2)
-        shell: pwsh
-        run: |
-          Write-Host "⚙️ Updating vcpkg and skipping MSYS2..."
-          cd $env:GITHUB_WORKSPACE/vcpkg
-          git pull
-          .\bootstrap-vcpkg.bat
-          # disable MSYS2 fetching logic in scripts
-          (Get-Content "scripts\cmake\vcpkg_acquire_msys.cmake") |
-            ForEach-Object { $_ -replace 'z_vcpkg_acquire_msys_download_package', '# disabled in CI' } |
-            Set-Content "scripts\cmake\vcpkg_acquire_msys.cmake"
-          .\vcpkg install --triplet x64-windows-static --clean-after-build --disable-metrics --x-skip-msys
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgJsonGlob: '**/vcpkg.json'
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+          doNotCache: false
+          doNotUpdateVcpkg: false
+          runVcpkgInstall: true
         env:
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
+          VCPKG_DOWNLOAD_MSYS2: 0
+          VCPKG_DISABLE_METRICS: 1
 
       - name: Configure (Windows)
         run: cmake -S . -B build -G "Ninja" `
