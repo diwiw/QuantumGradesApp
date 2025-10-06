@@ -79,36 +79,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Force latest vcpkg
+      - name: Setup and install dependencies (manual vcpkg)
         shell: pwsh
         run: |
-          Write-Host "Updating vcpkg to latest version..."
+          Write-Host "🧩 Updating vcpkg to latest and installing dependencies..."
           $vcpkgDir = "${{ github.workspace }}\vcpkg"
-          if (Test-Path $vcpkgDir) {
-            cd $vcpkgDir
-            git fetch origin
-            git checkout master
-            git pull
-          } else {
+          if (!(Test-Path $vcpkgDir)) {
             git clone https://github.com/microsoft/vcpkg.git $vcpkgDir
           }
           cd $vcpkgDir
+          git fetch origin
+          git checkout master
+          git pull
           .\bootstrap-vcpkg.bat
-          Write-Host "vcpkg updated successfully!"
+          Write-Host "✅ vcpkg bootstrapped."
 
-      - name: Setup vcpkg (static, no MSYS2)
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgJsonGlob: '**/vcpkg.json'
-          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-          doNotCache: false
-          doNotUpdateVcpkg: false
-          runVcpkgInstall: true
-        env:
-          VCPKG_DEFAULT_TRIPLET: x64-windows-static
-          VCPKG_DOWNLOAD_MSYS2: 0
-          VCPKG_DISABLE_METRICS: 1
-
+          Write-Host "Installing dependencies from vcpkg.json..."
+          .\vcpkg install --triplet x64-windows-static --clean-after-build --disable-metrics --x-skip-msys
+          Write-Host "✅ Dependencies installed successfully."
 
       - name: Configure (Windows)
         run: cmake -S . -B build -G "Ninja" `
