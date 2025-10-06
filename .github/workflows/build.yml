@@ -100,14 +100,21 @@ jobs:
           .\vcpkg install --triplet x64-windows-static --clean-after-build
           Write-Host "✅ Dependencies installed successfully."
 
+      - name: Ensure Ninja is installed
+        run: choco install ninja -y
 
       - name: Configure (Windows)
-        run: cmake -S . -B build -G "Ninja" `
-          -DCMAKE_BUILD_TYPE=Release `
-          -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake `
-          -DVCPKG_TARGET_TRIPLET=x64-windows-static `
-          -DBUILD_EXAMPLES=ON `
-          -DBUILD_DOCS=OFF
+        shell: pwsh
+        run: |
+          Write-Host "🛠 Configuring CMake..."
+          $toolchain = Join-Path "${{ github.workspace }}" "vcpkg\scripts\buildsystems\vcpkg.cmake"
+          cmake -S . -B build -G "Ninja" `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_TOOLCHAIN_FILE="$toolchain" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
+            -DBUILD_EXAMPLES=ON `
+            -DBUILD_DOCS=OFF
+
 
       - name: Build
         run: cmake --build build --parallel
