@@ -95,8 +95,11 @@ jobs:
           Write-Host "✅ vcpkg bootstrapped."
 
           Write-Host "Installing dependencies from vcpkg.json..."
-          .\vcpkg install --triplet x64-windows-static --clean-after-build --disable-metrics --x-skip-msys
+          $env:VCPKG_DOWNLOAD_MSYS2 = "0"
+          $env:VCPKG_DISABLE_METRICS = "1"
+          .\vcpkg install --triplet x64-windows-static --clean-after-build
           Write-Host "✅ Dependencies installed successfully."
+
 
       - name: Configure (Windows)
         run: cmake -S . -B build -G "Ninja" `
