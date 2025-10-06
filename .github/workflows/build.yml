@@ -89,10 +89,11 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      # === Checkout źródeł ===
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ✅ Cache for vcpkg
+      # === Cache vcpkg ===
       - name: Cache vcpkg
         uses: actions/cache@v4
         with:
@@ -104,7 +105,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-vcpkg-
 
-      # ✅ Setup vcpkg (manifest mode)
+      # === Setup vcpkg (manifest mode) ===
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
         with:
@@ -115,12 +116,26 @@ jobs:
           runVcpkgInstall: true
         env:
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
-          VCPKG_PLATFORM_TOOLSET: v142
-          VCPKG_VISUAL_STUDIO_PATH: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
           VCPKG_DISABLE_METRICS: 1
-          VCPKG_KEEP_ENV_VARS: "VSCMD_ARG_TGT_ARCH,VSCMD_ARG_HOST_ARCH"
           VCPKG_DOWNLOAD_MSYS2: 0
+          VCPKG_KEEP_ENV_VARS: "VSCMD_ARG_TGT_ARCH,VSCMD_ARG_HOST_ARCH"
 
+      # === Aktywacja środowiska MSVC (Developer Command Prompt) ===
+      - name: Force MSVC Environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      # === Weryfikacja toolchaina MSVC ===
+      - name: Verify MSVC
+        shell: pwsh
+        run: |
+          cl /Bv
+          where cl
+          echo "CXX=cl.exe" >> $env:GITHUB_ENV
+          echo "CC=cl.exe" >> $env:GITHUB_ENV
+
+      # === Instalacja i konfiguracja sccache ===
       - name: Setup sccache
         shell: pwsh
         run: |
@@ -131,8 +146,7 @@ jobs:
           echo "SCCACHE_CACHE_SIZE=1G" >> $env:GITHUB_ENV
           echo "CMAKE_CXX_COMPILER_LAUNCHER=sccache" >> $env:GITHUB_ENV
 
-
-      # ✅ Cache sccache
+      # === Cache dla sccache ===
       - name: Cache sccache
         uses: actions/cache@v4
         with:
@@ -141,39 +155,39 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-sccache-
 
-      # ✅ Configure project (CMake)
+      # === Konfiguracja projektu (CMake + MSVC) ===
       - name: Configure (Windows)
         shell: pwsh
         run: |
           Write-Host "🛠 Configuring CMake with MSVC toolchain..."
-          $toolchain = Join-Path "${{ github.workspace }}" "vcpkg\scripts\buildsystems\vcpkg.cmake"
-          cmake -S . -B build -G "Ninja Multi-Config" `
+          $toolchain = Join-Path "${{ github.workspace }}" "vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
+          cmake -S . -B build -G "Ninja" `
             -DCMAKE_BUILD_TYPE=Release `
             -DCMAKE_TOOLCHAIN_FILE="$toolchain" `
             -DVCPKG_TARGET_TRIPLET=x64-windows-static `
+            -DCMAKE_C_COMPILER=cl `
+            -DCMAKE_CXX_COMPILER=cl `
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache `
             -DBUILD_EXAMPLES=ON `
             -DBUILD_DOCS=OFF
 
-      # ✅ Budowanie
+      # === Budowanie (Release) ===
       - name: Build
         run: cmake --build build --config Release --parallel
 
-      # ✅ Testy jednostkowe
+      # === Uruchamianie testów jednostkowych ===
       - name: Run Tests
         run: ctest --test-dir build --config Release --output-on-failure
 
-      # ✅ Statystyki sccache
+      # === Statystyki cache kompilacji ===
       - name: Show sccache stats
         if: always()
         run: sccache --show-stats
 
-      # ✅ Artefakty (np. CSV z przykładów)
+      # === Upload artefaktów (np. wyniki CSV z przykładów) ===
       - name: Upload Sample Outputs
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: SampleOutputs-Windows
           path: build/sample_outputs/*.csv
-
-    
