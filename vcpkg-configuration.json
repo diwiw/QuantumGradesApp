@@ -1,0 +1,17 @@
+{
+    "default-triplet": "x64-windows-static",
+    "overlay-ports": [],
+    "overlay-triplets": [],
+    "binarySources": [],
+    "featureFlags": [
+        "manifests",
+        "registries",
+        "versions"
+    ],
+    "dependencies": [],
+    "custom": {
+        "VCPKG_FORCE_SYSTEM_BINARIES": "1",
+        "VCPKG_NO_DOWNLOADS": "0",
+        "VCPKG_USE_SYSTEM_BASH": "0"
+    }
+}
