@@ -85,47 +85,46 @@ jobs:
           path: build/sample_outputs/*.csv
 
   windows-build:
-    name: 🪟 Windows • Build & Test (MSVC + vcpkg + sccache)
+    name: 🪟 Windows • Build & Test (MSVC + sccache)
     runs-on: windows-latest
 
     steps:
-      # === Checkout źródeł ===
+      # === Source Checkout ===
       - name: Checkout
         uses: actions/checkout@v4
 
-      # === Cache dla vcpkg ===
+      # === Cache vcpkg ===
       - name: Cache vcpkg
         uses: actions/cache@v4
         with:
           path: |
-            vcpkg/downloads
             vcpkg/installed
             vcpkg/buildtrees
-          key: ${{ runner.os }}-vcpkg-v2-${{ hashFiles('vcpkg.json') }}
+            vcpkg/downloads
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('vcpkg.json') }}
           restore-keys: |
             ${{ runner.os }}-vcpkg-
 
-      # === Aktywacja MSVC ===
-      - name: Setup MSVC environment
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
-
-      # === Setup vcpkg ===
-      - name: Setup vcpkg (manifest mode)
+      # === Setup vcpkg (manifest mode) ===
+      - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
         with:
           vcpkgJsonGlob: '**/vcpkg.json'
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-          runVcpkgInstall: true
-          vcpkgGitURL: https://github.com/microsoft/vcpkg.git
-          vcpkgGitCommitId: c5e98c81430a8a7482b7c8742e9b2475aab65165
+          runVcpkgFormatString: >
+            ["install", "--recurse", "--clean-after-build", "--triplet", "x64-windows-static"]
         env:
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
           VCPKG_DISABLE_METRICS: "1"
           VCPKG_DOWNLOAD_MSYS2: "0"
 
-      # === Setup sccache ===
+      # === MSVC Environment Setup ===
+      - name: Setup MSVC Environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      # === Install and Configure sccache ===
       - name: Setup sccache
         shell: pwsh
         run: |
@@ -135,7 +134,7 @@ jobs:
           echo "SCCACHE_CACHE_SIZE=1G" >> $env:GITHUB_ENV
           echo "CMAKE_CXX_COMPILER_LAUNCHER=sccache" >> $env:GITHUB_ENV
 
-      # === Cache dla sccache ===
+      # === Cache for sccache ===
       - name: Cache sccache
         uses: actions/cache@v4
         with:
@@ -144,8 +143,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-sccache-
 
-      # === Configure (CMake) ===
-      - name: Configure (CMake)
+      # === Project Configuration (CMake + MSVC) ===
+      - name: Configure (Windows)
         shell: pwsh
         run: |
           $toolchain = Join-Path "${{ github.workspace }}" "vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
@@ -159,20 +158,20 @@ jobs:
             -DBUILD_EXAMPLES=ON `
             -DBUILD_DOCS=OFF
 
-      # === Build ===
+      # === Build (Release) ===
       - name: Build
         run: cmake --build build --config Release --parallel
 
-      # === Tests ===
+      # === Unit Tests ===
       - name: Run Tests
         run: ctest --test-dir build --config Release --output-on-failure
 
-      # === Cache stats ===
+      # === Cache Compilation Statistics ===
       - name: Show sccache stats
         if: always()
         run: sccache --show-stats
 
-      # === Artefakty (np. CSV z wyników) ===
+      # === Artifacts (e.g. CSV from examples) ===
       - name: Upload Sample Outputs
         if: success()
         uses: actions/upload-artifact@v4
