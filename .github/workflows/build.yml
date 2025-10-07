@@ -119,7 +119,7 @@ jobs:
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
           runVcpkgInstall: true
           vcpkgGitURL: https://github.com/microsoft/vcpkg.git
-          vcpkgGitCommitId: 3f22e0ea069d183f00b9ab3874a72c87b0d4ebea
+          vcpkgGitCommitId: 8e0ebe2d10c63b04d4968c85e058ecb2fd6cd156
         env:
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
           VCPKG_DISABLE_METRICS: "1"
