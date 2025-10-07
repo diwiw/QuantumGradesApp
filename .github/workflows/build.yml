@@ -111,7 +111,7 @@ jobs:
         with:
           vcpkgJsonGlob: '**/vcpkg.json'
           vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-          vcpkgGitCommitId: 30d7c1678dd973501ff5e7a786b014ded607860  # verified master
+          vcpkgGitCommitId: 62324000504cdd27282f8275c99135cfb2bd1dc0  # verified master
           runVcpkgInstall: true
         env:
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
