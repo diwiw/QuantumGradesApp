@@ -111,8 +111,9 @@ jobs:
           cmd /c "cl /Bv & exit /b 0"
 
           # Export C/C++ compiler for downstream steps (CMake, vcpkg, etc.)
-          Add-Content $env:GITHUB_ENV "CC=cl.exe"
-          Add-Content $env:GITHUB_ENV "CXX=cl.exe"
+          "CC=cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "CXX=cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
 
 
       # === Cache for vcpkg ===
