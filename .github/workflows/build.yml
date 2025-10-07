@@ -103,10 +103,17 @@ jobs:
       - name: Verify MSVC compiler
         shell: pwsh
         run: |
-          cl /Bv
+          # Show where the compiler comes from (this returns exit code 0)
           where cl
-          echo "CXX=cl.exe" >> $env:GITHUB_ENV
-          echo "CC=cl.exe" >> $env:GITHUB_ENV
+
+          # Print full compiler banner but force success even if cl returns non-zero
+          # (cl /Bv ends with D8003 by design when no source file is provided)
+          cmd /c "cl /Bv & exit /b 0"
+
+          # Export C/C++ compiler for downstream steps (CMake, vcpkg, etc.)
+          Add-Content $env:GITHUB_ENV "CC=cl.exe"
+          Add-Content $env:GITHUB_ENV "CXX=cl.exe"
+
 
       # === Cache for vcpkg ===
       - name: Cache vcpkg
