@@ -141,7 +141,8 @@ jobs:
           .\bootstrap-vcpkg.bat -disableMetrics
 
           Write-Host "📦 Installing dependencies from manifest..."
-          .\vcpkg.exe install --triplet x64-windows-static
+          cmd /c '"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && .\vcpkg.exe install --triplet x64-windows-static'
+
         env:
           VCPKG_DISABLE_METRICS: 1
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
