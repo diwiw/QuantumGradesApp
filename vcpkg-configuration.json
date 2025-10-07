@@ -1,17 +1,16 @@
 {
-    "default-triplet": "x64-windows-static",
-    "overlay-ports": [],
-    "overlay-triplets": [],
-    "binarySources": [],
-    "featureFlags": [
-        "manifests",
-        "registries",
-        "versions"
+    "default-registry": {
+        "kind": "git",
+        "repository": "https://github.com/microsoft/vcpkg.git",
+        "baseline": "30d7c1678d97d8301ff5e7a786b014ed607860"
+    },
+    "overlay-triplets": [
+        "vcpkg_triplets"
     ],
-    "dependencies": [],
-    "custom": {
-        "VCPKG_FORCE_SYSTEM_BINARIES": "1",
-        "VCPKG_NO_DOWNLOADS": "0",
-        "VCPKG_USE_SYSTEM_BASH": "0"
-    }
+    "binaryCache": {
+        "kind": "local",
+        "path": "build/.vcpkg-cache"
+    },
+    "registries": [],
+    "allow-unsupported-host": false
 }
