@@ -147,27 +147,32 @@ jobs:
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
 
   # === Configure (CMake + Ninja + MSVC) ===
+        # === Configure (CMake + Ninja + MSVC) ===
       - name: Configure (Windows)
-        shell: pwsh
+        shell: cmd
         run: |
-          Write-Host "🛠 Configuring CMake with MSVC + vcpkg toolchain..."
-          $toolchain = Join-Path "${{ github.workspace }}" "vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
-          cmake -S . -B build -G "Ninja" `
-            -DCMAKE_BUILD_TYPE=Release `
-            -DCMAKE_TOOLCHAIN_FILE="$toolchain" `
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
-            -DCMAKE_CXX_COMPILER=cl `
-            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache `
-            -DBUILD_EXAMPLES=ON `
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cmake -S . -B build -G "Ninja" ^
+            -DCMAKE_BUILD_TYPE=Release ^
+            -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake" ^
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static ^
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ^
+            -DBUILD_EXAMPLES=ON ^
             -DBUILD_DOCS=OFF
 
-      # === Build ===
-      - name: Build (Release)
-        run: cmake --build build --config Release --parallel
 
-      # === Run Tests ===
+      - name: Build (Release)
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cmake --build build --config Release --parallel
+
       - name: Run Tests
-        run: ctest --test-dir build --output-on-failure -V
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          ctest --test-dir build --output-on-failure -V
+
 
       # === Show sccache stats ===
       - name: Show sccache stats
