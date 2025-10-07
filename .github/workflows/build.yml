@@ -114,6 +114,12 @@ jobs:
           # "CC=cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           # "CXX=cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
+      - name: Install Ninja (manual fallback)
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip -OutFile ninja.zip
+          Expand-Archive ninja.zip -DestinationPath $env:USERPROFILE\ninja
+          Add-Content $env:GITHUB_PATH "$env:USERPROFILE\ninja"
 
 
       # === Cache for vcpkg ===
