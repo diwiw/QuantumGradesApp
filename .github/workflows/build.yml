@@ -128,14 +128,56 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-vcpkg-
 
-      # === Setup vcpkg (manifest mode) ===
-      - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgJsonGlob: '**/vcpkg.json'
-          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-          vcpkgGitCommitId: 62324000504cdd27282f8275c99135cfb2bd1dc0
-          runVcpkgInstall: true
+      # === Setup vcpkg manually (verified commit) ===
+      - name: Setup vcpkg manually
+        shell: pwsh
+        run: |
+          Write-Host "📥 Cloning vcpkg..."
+          git clone https://github.com/microsoft/vcpkg.git
+          cd vcpkg
+          git checkout 62324000504cdd27282f8275c99135cfb2bd1dc0
+
+          Write-Host "⚙️ Bootstrapping vcpkg..."
+          .\bootstrap-vcpkg.bat -disableMetrics
+
+          Write-Host "📦 Installing dependencies from manifest..."
+          .\vcpkg.exe install --triplet x64-windows-static
         env:
-          VCPKG_DEFAULT_TRIPLET: x64-windows-static
           VCPKG_DISABLE_METRICS: 1
+          VCPKG_DEFAULT_TRIPLET: x64-windows-static
+
+  # === Configure (CMake + Ninja + MSVC) ===
+      - name: Configure (Windows)
+        shell: pwsh
+        run: |
+          Write-Host "🛠 Configuring CMake with MSVC + vcpkg toolchain..."
+          $toolchain = Join-Path "${{ github.workspace }}" "vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
+          cmake -S . -B build -G "Ninja" `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_TOOLCHAIN_FILE="$toolchain" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
+            -DCMAKE_CXX_COMPILER=cl `
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache `
+            -DBUILD_EXAMPLES=ON `
+            -DBUILD_DOCS=OFF
+
+      # === Build ===
+      - name: Build (Release)
+        run: cmake --build build --config Release --parallel
+
+      # === Run Tests ===
+      - name: Run Tests
+        run: ctest --test-dir build --output-on-failure -V
+
+      # === Show sccache stats ===
+      - name: Show sccache stats
+        if: always()
+        run: sccache --show-stats
+
+      # === Upload artifacts (e.g. CSV results) ===
+      - name: Upload Sample Outputs
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SampleOutputs-Windows
+          path: build/sample_outputs/*.csv
