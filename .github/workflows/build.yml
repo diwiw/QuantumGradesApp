@@ -85,21 +85,47 @@ jobs:
           path: build/sample_outputs/*.csv
 
   windows-build:
-    name: 🪟 Windows • Build & Test (MSVC + sccache)
+    name: 🪟 Windows • Build & Test (MSVC + vcpkg + sccache)
     runs-on: windows-latest
 
     steps:
-      # Checkout repo
+      # === Checkout źródeł ===
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Setup MSVC (Visual Studio Developer Command Prompt)
+      # === Cache dla vcpkg ===
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            vcpkg/downloads
+            vcpkg/installed
+            vcpkg/buildtrees
+          key: ${{ runner.os }}-vcpkg-v2-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-
+
+      # === Aktywacja MSVC ===
       - name: Setup MSVC environment
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
 
-      # Setup sccache
+      # === Setup vcpkg ===
+      - name: Setup vcpkg (manifest mode)
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgJsonGlob: '**/vcpkg.json'
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+          runVcpkgInstall: true
+          vcpkgGitURL: https://github.com/microsoft/vcpkg.git
+          vcpkgGitCommitId: 3f22e0ea069d183f00b9ab3874a72c87b0d4ebea
+        env:
+          VCPKG_DEFAULT_TRIPLET: x64-windows-static
+          VCPKG_DISABLE_METRICS: "1"
+          VCPKG_DOWNLOAD_MSYS2: "0"
+
+      # === Setup sccache ===
       - name: Setup sccache
         shell: pwsh
         run: |
@@ -109,7 +135,7 @@ jobs:
           echo "SCCACHE_CACHE_SIZE=1G" >> $env:GITHUB_ENV
           echo "CMAKE_CXX_COMPILER_LAUNCHER=sccache" >> $env:GITHUB_ENV
 
-      # Cache sccache
+      # === Cache dla sccache ===
       - name: Cache sccache
         uses: actions/cache@v4
         with:
@@ -118,51 +144,35 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-sccache-
 
-      # Cache vcpkg (buildtrees, downloads, installed)
-      - name: Cache vcpkg
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.vcpkg/installed
-            ~/.vcpkg/buildtrees
-            ~/.vcpkg/downloads
-          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
-          restore-keys: |
-            ${{ runner.os }}-vcpkg-
-
-      # Setup vcpkg using run-vcpkg@v11
-      - name: Setup vcpkg (Manifest Mode)
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgJsonGlob: '**/vcpkg.json'
-          runVcpkgInstall: true          
-
-      # Configure (Windows)
-      - name: Configure (Windows)
+      # === Configure (CMake) ===
+      - name: Configure (CMake)
         shell: pwsh
         run: |
+          $toolchain = Join-Path "${{ github.workspace }}" "vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
           cmake -S . -B build -G "Ninja" `
             -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_TOOLCHAIN_FILE="$toolchain" `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static `
             -DCMAKE_C_COMPILER=cl `
             -DCMAKE_CXX_COMPILER=cl `
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache `
             -DBUILD_EXAMPLES=ON `
             -DBUILD_DOCS=OFF
 
-      # Build
+      # === Build ===
       - name: Build
         run: cmake --build build --config Release --parallel
 
-      # Run Tests
+      # === Tests ===
       - name: Run Tests
         run: ctest --test-dir build --config Release --output-on-failure
 
-      # Show sccache stats
+      # === Cache stats ===
       - name: Show sccache stats
         if: always()
         run: sccache --show-stats
 
-      # Upload artifacts
+      # === Artefakty (np. CSV z wyników) ===
       - name: Upload Sample Outputs
         if: success()
         uses: actions/upload-artifact@v4
