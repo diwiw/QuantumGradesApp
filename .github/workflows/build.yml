@@ -176,6 +176,19 @@ jobs:
         run: |
           echo 🧩 Configuring project with MSVC + Ninja + vcpkg...
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+
+           REM === Ustawienia po aktywacji MSVC ===
+          set VCPKG_ROOT=%GITHUB_WORKSPACE%\vcpkg
+          set VCTOOLS_BIN=%VCToolsInstallDir%bin\Hostx64\x64
+          set PATH=%VCTOOLS_BIN%;%VCPKG_ROOT%;C:\ninja;%PATH%
+          echo ✅ Updated PATH:
+          echo %PATH%
+          where cl
+          where link
+          where ninja
+          link /?
+          echo =====================
+
           cmake -S . -B build -G "Ninja" ^
             -DCMAKE_BUILD_TYPE=Release ^
             -DCMAKE_VERBOSE_MAKEFILE=ON ^
