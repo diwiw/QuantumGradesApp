@@ -20,3 +20,4 @@ set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE "")
 # Optional tweaks for speed and determinism
 set(VCPKG_BUILD_TYPE release)
 set(VCPKG_DEP_INFO_OVERRIDE_VARS "CMAKE_SYSTEM_NAME")
+set(VCPKG_MAKE_PROGRAM "C:/ninja/ninja.exe")
