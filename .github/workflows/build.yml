@@ -150,7 +150,7 @@ jobs:
           cmake -S . -B build -G "Ninja" ^
             -DCMAKE_BUILD_TYPE=Release ^
             -DCMAKE_MAKE_PROGRAM=C:/ninja/ninja.exe
-            -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake" ^
+            -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake" ^
             -DVCPKG_TARGET_TRIPLET=x64-windows-static ^
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ^
             -DBUILD_EXAMPLES=ON ^
