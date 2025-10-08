@@ -102,6 +102,12 @@ jobs:
           Expand-Archive ninja.zip -DestinationPath $ninjaDir
           echo "$ninjaDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
+      # === Activate MSVC environment BEFORE vcpkg ===
+      - name: Activate MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
       # === Verify tools in PATH ===
       - name: Verify tools
         shell: pwsh
@@ -109,13 +115,6 @@ jobs:
           Get-Command ninja
           Get-Command pwsh
           Get-Command cl
-
-
-      # === Activate MSVC environment BEFORE vcpkg ===
-      - name: Activate MSVC environment
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
 
       # === Verify MSVC toolchain ===
       - name: Verify MSVC compiler
