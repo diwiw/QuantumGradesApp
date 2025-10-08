@@ -88,6 +88,17 @@ jobs:
     name: 🪟 Windows • Build & Test (MSVC + vcpkg + sccache)
     runs-on: windows-latest
 
+    env:
+      VCPKG_FORCE_SYSTEM_BINARIES: 1
+      VCPKG_USE_SYSTEM_NINJA: 1
+      VCPKG_DISABLE_METRICS: 1
+      VCPKG_DEFAULT_TRIPLET: x64-windows-static
+      CMAKE_BUILD_TYPE: Release
+      VCPKG_TARGET_TRIPLET: x64-windows-static
+      CMAKE_MAKE_PROGRAM: C:\ninja\ninja.exe
+      SCCACHE_LOG: error
+      SCCACHE_DIR: C:\sccache
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -133,43 +144,36 @@ jobs:
           git clone https://github.com/microsoft/vcpkg.git
           cd vcpkg
           git checkout 62324000504cdd27282f8275c99135cfb2bd1dc0          
-          set VCPKG_FORCE_SYSTEM_BINARIES=1
-          set VCPKG_NINJA_PATH=C:\ninja\ninja.exe
-          set PATH=C:\ninja;%PATH%
+          echo ⚙️ Bootstrapping vcpkg...          
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          echo ⚙️ Bootstrapping vcpkg...
+          set PATH=C:\ninja;%PATH%
           .\bootstrap-vcpkg.bat -disableMetrics
+          echo vcpkg bootstrapped successfully.
 
-
-        env:
-          VCPKG_DEFAULT_TRIPLET: x64-windows-static          
-          VCPKG_DISABLE_METRICS: 1
-          VCPKG_FORCE_SYSTEM_BINARIES: 1
-          VCPKG_NINJA_PATH: C:/ninja/ninja.exe          
-
-      - name: Check Compiler and Ninja
-        shell: pwsh
+       # === Verify tools ===
+      - name: 🔍 Verify compiler and Ninja
+        shell: cmd
         run: |
-          Get-Command cl
-          Get-Command ninja
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          where cl
+          cl /Bv
+          where ninja
           ninja --version
 
 
       - name: Configure (Windows)
         shell: cmd
         run: |
+          echo 🧩 Configuring project with MSVC + Ninja + vcpkg...
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           cmake -S . -B build -G "Ninja" ^
             -DCMAKE_BUILD_TYPE=Release ^
             -DCMAKE_MAKE_PROGRAM=C:\\ninja\\ninja.exe ^
-            -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%/vcpkg/scripts/buildsystems/vcpkg.cmake ^
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static ^
-            -DCMAKE_C_COMPILER=cl.exe ^
-            -DCMAKE_CXX_COMPILER=cl.exe ^
+            -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake ^
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static ^            
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ^
             -DBUILD_EXAMPLES=ON ^
             -DBUILD_DOCS=OFF
-
 
       - name: Debug toolchain (MSVC + Ninja)
         shell: cmd
