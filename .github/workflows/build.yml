@@ -141,6 +141,16 @@ jobs:
         env:
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
           VCPKG_DISABLE_METRICS: 1
+          VCPKG_FORCE_SYSTEM_BINARIES: 1
+          PATH: C:\ninja;${{ env.PATH }}
+
+      - name: Check Compiler and Ninja
+        shell: pwsh
+        run: |
+          Get-Command cl
+          Get-Command ninja
+          ninja --version
+
 
       # === Configure (CMake + Ninja + MSVC) ===
       - name: Configure (Windows)
@@ -173,3 +183,11 @@ jobs:
         with:
           name: SampleOutputs-Windows
           path: build/sample_outputs/*.csv
+          
+      - name: Upload Compiler Detection Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: CompilerDetectionLogs
+          path: |
+            vcpkg/buildtrees/detect_compiler/**/*.log
