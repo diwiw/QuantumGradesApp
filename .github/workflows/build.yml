@@ -89,49 +89,30 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # === Source Checkout ===
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Ninja (manual)
-        shell: pwsh
-        run: |
-          $ninjaDir = "C:\ninja"
-          Invoke-WebRequest -Uri https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip -OutFile ninja.zip
-          Expand-Archive ninja.zip -DestinationPath $ninjaDir
-          echo "C:\ninja" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-
-      # === Activate MSVC environment BEFORE vcpkg ===
+      # === Activate MSVC environment ===
       - name: Activate MSVC environment
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
 
-      # === Verify tools in PATH ===
-      - name: Verify tools
-        shell: pwsh
+      # === Install & Verify tools (in cmd) ===
+      - name: Install + Verify tools
+        shell: cmd
         run: |
-          Get-Command ninja
-          Get-Command pwsh
-          Get-Command cl
+          echo 🛠️ Installing Ninja...
+          curl -L -o ninja.zip https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip
+          mkdir C:\ninja
+          tar -xf ninja.zip -C C:\ninja
+          setx PATH "C:\ninja;%PATH%" >nul
 
-      # === Verify MSVC toolchain ===
-      - name: Verify MSVC compiler
-        shell: pwsh
-        run: |
-          # Show where the compiler comes from (this returns exit code 0)
+          echo 🔎 Verifying tools...
           where cl
-
-          # Print full compiler banner but force success even if cl returns non-zero
-          # (cl /Bv ends with D8003 by design when no source file is provided)
-          cmd /c "cl /Bv & exit /b 0"
-
-          # Export C/C++ compiler for downstream steps (CMake, vcpkg, etc.)
-          # "CC=cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          # "CXX=cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-      
+          cl /Bv || exit 0
+          where ninja
+          ninja --version
 
       # === Cache for vcpkg ===
       - name: Cache vcpkg
@@ -149,22 +130,19 @@ jobs:
       - name: Setup vcpkg manually
         shell: cmd
         run: |
-          Write-Host "📥 Cloning vcpkg..."
+          echo 📥 Cloning vcpkg...
           git clone https://github.com/microsoft/vcpkg.git
           cd vcpkg
           git checkout 62324000504cdd27282f8275c99135cfb2bd1dc0
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          Write-Host "⚙️ Bootstrapping vcpkg..."
+          echo ⚙️ Bootstrapping vcpkg...
           .\bootstrap-vcpkg.bat -disableMetrics
-
           .\vcpkg.exe install --triplet x64-windows-static
-          
 
         env:
           VCPKG_DEFAULT_TRIPLET: x64-windows-static
-          VCPKG_DISABLE_METRICS: 1         
+          VCPKG_DISABLE_METRICS: 1
 
-  
       # === Configure (CMake + Ninja + MSVC) ===
       - name: Configure (Windows)
         shell: cmd
@@ -178,7 +156,6 @@ jobs:
             -DBUILD_EXAMPLES=ON ^
             -DBUILD_DOCS=OFF
 
-
       - name: Build (Release)
         shell: cmd
         run: |
@@ -191,13 +168,11 @@ jobs:
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           ctest --test-dir build --output-on-failure -V
 
-
-      # === Show sccache stats ===
       - name: Show sccache stats
         if: always()
+        shell: pwsh
         run: sccache --show-stats
 
-      # === Upload artifacts (e.g. CSV results) ===
       - name: Upload Sample Outputs
         if: success()
         uses: actions/upload-artifact@v4
