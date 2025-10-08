@@ -93,14 +93,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-        # === Install Ninja (manual) ===
       - name: Install Ninja (manual)
         shell: pwsh
         run: |
-          $ninjaDir = "$env:USERPROFILE\ninja"
+          $ninjaDir = "C:\ninja"
           Invoke-WebRequest -Uri https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip -OutFile ninja.zip
           Expand-Archive ninja.zip -DestinationPath $ninjaDir
-          echo "$ninjaDir" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "C:\ninja" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
 
       # === Activate MSVC environment BEFORE vcpkg ===
       - name: Activate MSVC environment
