@@ -157,7 +157,7 @@ jobs:
         shell: cmd
         run: |
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          cmake -S . -B build -G "NMake" -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=C:/ninja/ninja.exe -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DBUILD_EXAMPLES=ON -DBUILD_DOCS=OFF
+          cmake -S . -B build -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=C:/ninja/ninja.exe -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DBUILD_EXAMPLES=ON -DBUILD_DOCS=OFF
 
       - name: Debug toolchain (MSVC + Ninja)
         shell: cmd
