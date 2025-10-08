@@ -7,10 +7,10 @@
     "overlay-triplets": [
         "vcpkg_triplets"
     ],
-    "binaryCache": {
-        "kind": "local",
-        "path": "build/.vcpkg-cache"
-    },
+    "binarySources": [
+        "clear",
+        "files,build/.vcpkg-cache,readwrite"
+    ],
     "registries": [],
-    "allow-unsupported-host": false
+    "allowUnsupportedHosts": false
 }
