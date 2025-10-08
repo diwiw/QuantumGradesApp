@@ -143,6 +143,7 @@ jobs:
           VCPKG_DISABLE_METRICS: 1
           VCPKG_FORCE_SYSTEM_BINARIES: 1
           VCPKG_NINJA_PATH: C:/ninja/ninja.exe
+          VCPKG_USE_SYSTEM_NINJA: 1 
 
       - name: Check Compiler and Ninja
         shell: pwsh
