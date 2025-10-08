@@ -73,22 +73,33 @@ find_package(CURL QUIET)
 
 if (NOT CURL_FOUND)
     message(WARNING "libcurl not found — using portable source build (Windows CI fallback)")
-    include(FetchContent)
+
     FetchContent_Declare(
         curl
         URL https://github.com/curl/curl/releases/download/curl-8_8_0/curl-8.8.0.tar.gz
     )
     FetchContent_MakeAvailable(curl)
-    add_library(CURL::libcurl ALIAS libcurl)
+
+    # Define alias only if missing (prevents 'ALIAS already exists' errors)
+    if (NOT TARGET CURL::libcurl AND TARGET libcurl)
+        add_library(CURL::libcurl ALIAS libcurl)
+    endif()
 else()
     message(STATUS "✅ CURL found (version: ${CURL_VERSION_STRING})")
     message(STATUS "    Include dirs: ${CURL_INCLUDE_DIRS}")
     message(STATUS "    Libraries   : ${CURL_LIBRARIES}")
 endif()
 
+# === Fix for Ubuntu CI runner include path ===
+if (TARGET CURL::libcurl)
+    get_target_property(_curl_includes CURL::libcurl INTERFACE_INCLUDE_DIRECTORIES)
+    if (NOT EXISTS "/usr/include/curl" AND EXISTS "/usr/include/x86_64-linux-gnu/curl")
+        message(WARNING "⚠️ Patching CURL::libcurl include path for GitHub Actions Ubuntu runner")
+        set_property(TARGET CURL::libcurl PROPERTY INTERFACE_INCLUDE_DIRECTORIES "/usr/include/x86_64-linux-gnu/curl")
+    endif()
+endif()
 
-# Log final detection info
-# Final validation
+# === Final validation ===
 if (NOT TARGET CURL::libcurl)
     message(FATAL_ERROR "❌ No CURL::libcurl target — setup failed")
 endif()
@@ -99,33 +110,6 @@ FetchContent_Declare(
 	URL https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.tar.gz
 )
 FetchContent_MakeAvailable(nlohmann_json)
-
-# === CURL (prefer vcpkg/system; fallback to source build) ===
-find_package(CURL QUIET)
-
-if (NOT CURL_FOUND)
-    message(WARNING "libcurl not found — using portable source build (Windows CI fallback)")
-    include(FetchContent)
-    FetchContent_Declare(
-        curl
-        URL https://github.com/curl/curl/releases/download/curl-8_8_0/curl-8.8.0.tar.gz
-    )
-    FetchContent_MakeAvailable(curl)
-    add_library(CURL::libcurl ALIAS libcurl)
-else()
-    message(STATUS "✅ Using system/vcpkg libcurl: ${CURL_VERSION_STRING}")
-endif()
-
-# --- Fix for broken CURL::libcurl target on Ubuntu GitHub runners ---
-if (TARGET CURL::libcurl)
-    get_target_property(_curl_includes CURL::libcurl INTERFACE_INCLUDE_DIRECTORIES)
-    if (NOT EXISTS "/usr/include/curl" AND EXISTS "/usr/include/x86_64-linux-gnu/curl")
-        message(WARNING "Patching CURL::libcurl include path for GitHub Actions Ubuntu runner")
-        set_property(TARGET CURL::libcurl PROPERTY INTERFACE_INCLUDE_DIRECTORIES "/usr/include/x86_64-linux-gnu/curl")
-    endif()
-endif()
-
-
 
 # === fmt ===
 FetchContent_Declare(
@@ -143,8 +127,24 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(spdlog)
 
-# === SQLite3 ===
+# === SQLite3 (via vcpkg or fallback) ===
 find_package(SQLite3 REQUIRED)
+
+if (SQLite3_FOUND)
+    message(STATUS "✅ SQLite3 found")
+    message(STATUS "    Include dirs: ${SQLite3_INCLUDE_DIRS}")
+    message(STATUS "    Libraries   : ${SQLite3_LIBRARIES}")
+else()
+    message(FATAL_ERROR "❌ SQLite3 not found — please install it or use vcpkg")
+endif()
+
+# Add alias target if missing
+if (NOT TARGET SQLite::SQLite3 AND TARGET SQLite::sqlite3)
+    # Some systems name it sqlite3, not SQLite3
+    add_library(SQLite::SQLite3 ALIAS SQLite::sqlite3)
+elseif (NOT TARGET SQLite::SQLite3 AND TARGET sqlite3)
+    add_library(SQLite::SQLite3 ALIAS sqlite3)
+endif()
 
 
 
