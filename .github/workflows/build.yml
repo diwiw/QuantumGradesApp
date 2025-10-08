@@ -106,7 +106,8 @@ jobs:
           curl -L -o ninja.zip https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip
           mkdir C:\ninja
           tar -xf ninja.zip -C C:\ninja
-          setx PATH "C:\ninja;%PATH%" >nul
+          
+          echo C:\ninja>>%GITHUB_PATH%
 
           echo 🔎 Verifying tools...
           where cl
