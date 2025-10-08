@@ -102,7 +102,8 @@ jobs:
       CMAKE_MESSAGE_LOG_LEVEL: VERBOSE
       VCPKG_FEATURE_FLAGS: "manifests,versions,registries"
       VCPKG_LOG_LEVEL: trace
-      VCPKG_KEEP_ENV_VARS: PATH;INCLUDE;LIB;LIBPATH;VSCMD_ARG_TGT_ARCH;VSCMD_VER
+      VCPKG_KEEP_ENV_VARS: PATH;INCLUDE;LIB;LIBPATH;VSCMD_ARG_TGT_ARCH;VSCMD_VER;Platform
+      VCPKG_ENV_PASSTHROUGH: PATH;INCLUDE;LIB;LIBPATH
       CMAKE_BUILD_PARALLEL_LEVEL: 2
 
     steps:
@@ -185,7 +186,12 @@ jobs:
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ^
             -DVCPKG_LOG_LEVEL=trace ^
             -DBUILD_EXAMPLES=ON ^
+            -DVCPKG_CMAKE_SYSTEM_NAME=Windows ^
+            -DCMAKE_C_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" ^
+            -DCMAKE_CXX_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" ^
             -DBUILD_DOCS=OFF --log-level=VERBOSE"
+            
+
           echo === CMAKE CACHE DUMP ===
           type build\CMakeCache.txt || echo (no cache found)
 
@@ -195,7 +201,7 @@ jobs:
           echo === PATH ===
           echo %PATH%
           where cl
-          cl / Bv 
+          cl /Bv 
           where ninja          
           ninja --version
 
