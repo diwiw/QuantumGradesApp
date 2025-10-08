@@ -145,8 +145,7 @@ jobs:
           VCPKG_DEFAULT_TRIPLET: x64-windows-static          
           VCPKG_DISABLE_METRICS: 1
           VCPKG_FORCE_SYSTEM_BINARIES: 1
-          VCPKG_NINJA_PATH: C:/ninja/ninja.exe
-          VCPKG_USE_SYSTEM_NINJA: 1 
+          VCPKG_NINJA_PATH: C:/ninja/ninja.exe          
 
       - name: Check Compiler and Ninja
         shell: pwsh
@@ -162,7 +161,7 @@ jobs:
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           cmake -S . -B build -G "Ninja" ^
             -DCMAKE_BUILD_TYPE=Release ^
-            -DCMAKE_MAKE_PROGRAM=C:/ninja/ninja.exe ^
+            -DCMAKE_MAKE_PROGRAM=C:\\ninja\\ninja.exe ^
             -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%/vcpkg/scripts/buildsystems/vcpkg.cmake ^
             -DVCPKG_TARGET_TRIPLET=x64-windows-static ^
             -DCMAKE_C_COMPILER=cl.exe ^
@@ -213,3 +212,11 @@ jobs:
           name: CompilerDetectionLogs
           path: |
             vcpkg/buildtrees/detect_compiler/**/*.log
+
+      - name: Upload vcpkg logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vcpkg-logs
+          path: vcpkg/buildtrees/**/*.log
+
