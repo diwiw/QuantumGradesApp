@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(QuantumGradesApp VERSION 0.6.0 LANGUAGES CXX)
+project(QuantumGradesApp VERSION 0.6.5 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -68,31 +68,29 @@ list(FILTER SRC_FILES EXCLUDE REGEX ".*/main\\.cpp$")
 
 include(FetchContent)
 
-# === CURL detection and fallback ===
-if (WIN32)
-    message(STATUS "🔧 Windows detected — expecting CURL from vcpkg")
-    # vcpkg dostarcza libcurl automatycznie przez toolchain
-    find_package(CURL REQUIRED)
-else()
-    message(STATUS "🐧 Linux/macOS detected — using system libcurl")
-    find_package(CURL REQUIRED)
+# === CURL (prefer vcpkg/system; fallback to source build) ===
+find_package(CURL QUIET)
 
-    # --- Patch for GitHub Actions Ubuntu runners ---
-    if (TARGET CURL::libcurl)
-        get_target_property(_curl_includes CURL::libcurl INTERFACE_INCLUDE_DIRECTORIES)
-        if (NOT EXISTS "/usr/include/curl" AND EXISTS "/usr/include/x86_64-linux-gnu/curl")
-            message(WARNING "Patching CURL::libcurl include path for Ubuntu runner")
-            set_property(TARGET CURL::libcurl PROPERTY INTERFACE_INCLUDE_DIRECTORIES "/usr/include/x86_64-linux-gnu/curl")
-        endif()
-    endif()
+if (NOT CURL_FOUND)
+    message(WARNING "libcurl not found — using portable source build (Windows CI fallback)")
+    include(FetchContent)
+    FetchContent_Declare(
+        curl
+        URL https://github.com/curl/curl/releases/download/curl-8_8_0/curl-8.8.0.tar.gz
+    )
+    FetchContent_MakeAvailable(curl)
+    add_library(CURL::libcurl ALIAS libcurl)
+else()
+    message(STATUS "✅ CURL found (version: ${CURL_VERSION_STRING})")
+    message(STATUS "    Include dirs: ${CURL_INCLUDE_DIRS}")
+    message(STATUS "    Libraries   : ${CURL_LIBRARIES}")
 endif()
 
+
 # Log final detection info
-if (CURL_FOUND)
-    message(STATUS "✅ Found CURL: ${CURL_LIBRARIES}")
-    message(STATUS "    Includes: ${CURL_INCLUDE_DIRS}")
-else()
-    message(FATAL_ERROR "❌ CURL not found — please install libcurl or use vcpkg")
+# Final validation
+if (NOT TARGET CURL::libcurl)
+    message(FATAL_ERROR "❌ No CURL::libcurl target — setup failed")
 endif()
 
 # JSON
