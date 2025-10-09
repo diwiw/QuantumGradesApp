@@ -169,6 +169,8 @@ jobs:
           cl /Bv
           where ninja
           ninja --version
+          where link
+          link /?
 
 
       - name: Configure (Windows)
@@ -177,15 +179,18 @@ jobs:
           echo 🧩 Configuring project with MSVC + Ninja + vcpkg...
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
 
-           REM === Ustawienia po aktywacji MSVC ===
+          REM === Settings after MSVC activation ===
           set VCPKG_ROOT=%GITHUB_WORKSPACE%\vcpkg
           set VCTOOLS_BIN=%VCToolsInstallDir%bin\Hostx64\x64
-          set PATH=%VCTOOLS_BIN%;%VCPKG_ROOT%;C:\ninja;%PATH%
+          set PATH=C:\ninja;%VCTOOLS_BIN%;%VCPKG_ROOT%;%PATH%
+          set VCPKG_NINJA_PATH=C:\ninja\ninja.exe
+          set VCPKG_USE_SYSTEM_NINJA=1
           echo ✅ Updated PATH:
           echo %PATH%
           where cl
           where link
           where ninja
+          ninja --version
           link /?
           echo =====================
 
@@ -196,12 +201,13 @@ jobs:
             -DCMAKE_MAKE_PROGRAM=C:\\ninja\\ninja.exe ^
             -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake ^
             -DVCPKG_TARGET_TRIPLET=x64-windows-static ^            
+            -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\toolchains\\windows.cmake ^
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ^
-            -DVCPKG_LOG_LEVEL=trace ^
-            -DBUILD_EXAMPLES=ON ^
-            -DVCPKG_CMAKE_SYSTEM_NAME=Windows ^
             -DCMAKE_C_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" ^
-            -DCMAKE_CXX_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" ^
+            -DCMAKE_CXX_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" ^            
+            -DVCPKG_LOG_LEVEL=trace ^
+            -DVCPKG_CMAKE_SYSTEM_NAME=Windows ^
+            -DBUILD_EXAMPLES=ON ^           
             -DBUILD_DOCS=OFF --log-level=VERBOSE"
             
 
