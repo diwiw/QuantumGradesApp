@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(QuantumGradesApp VERSION 0.6.0 LANGUAGES CXX)
+project(QuantumGradesApp VERSION 0.6.5 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -7,14 +7,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(POLICY CMP0135)
   cmake_policy(SET CMP0135 NEW)
-endif()
-
-if (WIN32)
-	add_compile_definitions(
-		WIN32_LEAN_AND_MEAN
-		NOMINMAX
-		_CRT_SECURE_NO_WARNINGS
-	)
 endif()
 
 # === Build type ===
@@ -75,20 +67,84 @@ list(FILTER SRC_FILES EXCLUDE REGEX ".*/main\\.cpp$")
 # === External libraries === === ===
 
 include(FetchContent)
+
+# === CURL (prefer vcpkg/system; fallback to source build) ===
+find_package(CURL QUIET)
+
+if (NOT CURL_FOUND)
+    message(WARNING "libcurl not found — using portable source build (Windows CI fallback)")
+
+    FetchContent_Declare(
+        curl
+        URL https://github.com/curl/curl/releases/download/curl-8_8_0/curl-8.8.0.tar.gz
+    )
+    FetchContent_MakeAvailable(curl)
+
+    # Define alias only if missing (prevents 'ALIAS already exists' errors)
+    if (NOT TARGET CURL::libcurl AND TARGET libcurl)
+        add_library(CURL::libcurl ALIAS libcurl)
+    endif()
+else()
+    message(STATUS "✅ CURL found (version: ${CURL_VERSION_STRING})")
+    message(STATUS "    Include dirs: ${CURL_INCLUDE_DIRS}")
+    message(STATUS "    Libraries   : ${CURL_LIBRARIES}")
+endif()
+
+# === Fix for Ubuntu CI runner include path ===
+if (TARGET CURL::libcurl)
+    get_target_property(_curl_includes CURL::libcurl INTERFACE_INCLUDE_DIRECTORIES)
+    if (NOT EXISTS "/usr/include/curl" AND EXISTS "/usr/include/x86_64-linux-gnu/curl")
+        message(WARNING "⚠️ Patching CURL::libcurl include path for GitHub Actions Ubuntu runner")
+        set_property(TARGET CURL::libcurl PROPERTY INTERFACE_INCLUDE_DIRECTORIES "/usr/include/x86_64-linux-gnu/curl")
+    endif()
+endif()
+
+# === Final validation ===
+if (NOT TARGET CURL::libcurl)
+    message(FATAL_ERROR "❌ No CURL::libcurl target — setup failed")
+endif()
+
+# JSON
 FetchContent_Declare(
 	nlohmann_json
 	URL https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.tar.gz
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
-# === HTTP Curl Library ===
-find_package(CURL REQUIRED)
+# === fmt ===
+FetchContent_Declare(
+  fmt
+  URL https://github.com/fmtlib/fmt/archive/refs/tags/10.2.1.tar.gz
+)
+FetchContent_MakeAvailable(fmt)
 
-# === spdlog ===
-find_package(spdlog REQUIRED)
+# === spdlog (via FetchContent, portable, with ext fmt) ===
+set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use external fmt library" FORCE)
+FetchContent_Declare(
+  spdlog
+  GIT_REPOSITORY https://github.com/gabime/spdlog.git
+  GIT_TAG v1.14.1  # stabilna wersja
+)
+FetchContent_MakeAvailable(spdlog)
 
-# === spdlog ===
+# === SQLite3 (via vcpkg or fallback) ===
 find_package(SQLite3 REQUIRED)
+
+if (SQLite3_FOUND)
+    message(STATUS "✅ SQLite3 found")
+    message(STATUS "    Include dirs: ${SQLite3_INCLUDE_DIRS}")
+    message(STATUS "    Libraries   : ${SQLite3_LIBRARIES}")
+else()
+    message(FATAL_ERROR "❌ SQLite3 not found — please install it or use vcpkg")
+endif()
+
+# Add alias target if missing
+if (NOT TARGET SQLite::SQLite3 AND TARGET SQLite::sqlite3)
+    # Some systems name it sqlite3, not SQLite3
+    add_library(SQLite::SQLite3 ALIAS SQLite::sqlite3)
+elseif (NOT TARGET SQLite::SQLite3 AND TARGET sqlite3)
+    add_library(SQLite::SQLite3 ALIAS sqlite3)
+endif()
 
 
 

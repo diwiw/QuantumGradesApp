@@ -1,92 +1,357 @@
-name: Build (CMake + CTest)
+name: CI • Build & Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: [ main, develop ]
 
 jobs:
-  build:
-    name: ${{ matrix.os }} • build & test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest, windows-latest ]
+  ubuntu-build:
+    name: 🐧 Ubuntu • Build & Test (with ccache)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      # Cache apt packages (optional but fast)
+
+      - name: Cache APT packages
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/apt/archives
+          key: ${{ runner.os }}-apt-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
+
+      # Install dependencies
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake ninja-build pkg-config ccache \
+            libcurl4-openssl-dev libsqlite3-dev \
+            libspdlog-dev libfmt-dev
+
+      # Cache ccache
+      - name: Setup ccache
+        run: |
+          echo "max_size = 2G" | sudo tee /etc/ccache.conf
+          export PATH="/usr/lib/ccache:$PATH"
+          echo "PATH=/usr/lib/ccache:$PATH" >> $GITHUB_ENV
+          ccache --zero-stats
+
+      # Cache ccache results
+      - name: Cache ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt', '**/*.cpp', '**/*.hpp') }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
+
+      # Configure (no manual CURL paths)
+      
+      - name: Configure
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DBUILD_EXAMPLES=ON \
+            -DBUILD_DOCS=OFF \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+     
+      # Build and test
+      
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      # Show ccache statistics
+      - name: Show ccache stats
+        if: always()
+        run: ccache --show-stats
+      
+        # Generate sample outputs 
+      - name: Generate sample outputs
+        run: |
+          if [ -f ./build/QuantumGradesApp ]; then
+            ./build/QuantumGradesApp --export build/sample_outputs/
+          else
+            echo "⚠️ Skipping sample output generation (no QuantumGradesApp binary yet)"
+          fi
+
+
+      # Upload artifacts
+      - name: Upload Sample Outputs
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: SampleOutputs-Ubuntu
+          path: build/sample_outputs/*.csv
+          if-no-files-found: ignore
+
+  windows-build:
+    name: 🪟 Windows • Build & Test (MSVC + vcpkg + sccache)
+    runs-on: windows-latest
+
+    env:
+      VCPKG_FORCE_SYSTEM_BINARIES: 1
+      VCPKG_USE_SYSTEM_NINJA: 1
+      VCPKG_DISABLE_METRICS: 1
+      VCPKG_DEFAULT_TRIPLET: x64-windows-static
+      CMAKE_BUILD_TYPE: Release
+      VCPKG_TARGET_TRIPLET: x64-windows-static
+      CMAKE_MAKE_PROGRAM: C:\ninja\ninja.exe
+      SCCACHE_LOG: error
+      SCCACHE_DIR: C:\sccache
+      CMAKE_VERBOSE_MAKEFILE: 1
+      CMAKE_MESSAGE_LOG_LEVEL: VERBOSE
+      VCPKG_FEATURE_FLAGS: "manifests,versions,registries"
+      VCPKG_LOG_LEVEL: trace
+      VCPKG_KEEP_ENV_VARS: PATH;INCLUDE;LIB;LIBPATH;VSCMD_ARG_TGT_ARCH;VSCMD_VER;Platform
+      VCPKG_ENV_PASSTHROUGH: PATH;INCLUDE;LIB;LIBPATH
+      CMAKE_BUILD_PARALLEL_LEVEL: 2
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ---------- Ubuntu ----------
-      - name: Install deps (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build cmake build-essential ccache libcurl4-openssl-dev
+      # === Activate MSVC environment ===
+      - name: Activate MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
 
-      - name: Setup ccache (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      # === Install & Verify tools (in cmd) ===
+      - name: Install + Verify tools
+        shell: cmd
         run: |
-          mkdir -p ~/.cache/ccache
-          mkdir -p ~/.ccache
-          echo 'max_size = 500M' > ~/.ccache/ccache.conf
+          echo 🛠️ Installing Ninja...
+          curl -L -o ninja.zip https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-win.zip
+          mkdir C:\ninja
+          tar -xf ninja.zip -C C:\ninja
+          echo PATH=C:\ninja;%PATH%>> %GITHUB_ENV%
+          echo 🔎 Verifying tools...
+          where cl
+          cl /Bv || exit 0
+          C:\ninja\ninja.exe --version
+      
+      - name: 🧩 Install sccache (Windows)
+        shell: cmd
+        run: |
+          echo 📦 Installing sccache...
+          curl -L -o sccache.zip https://github.com/mozilla/sccache/releases/download/v0.8.2/sccache-v0.8.2-x86_64-pc-windows-msvc.zip
+          mkdir C:\sccache
+          tar -xf sccache.zip -C C:\sccache
+          REM --- move binary one level up if unpacked into subfolder ---
+          for /d %%D in (C:\sccache\sccache-v*) do (
+              move %%D\sccache.exe C:\sccache\sccache.exe >nul 2>&1
+          )
+          echo PATH=C:\sccache;%PATH%>> %GITHUB_ENV%
+          echo ✅ sccache installed at C:\sccache
+          dir C:\sccache
+          C:\sccache\sccache.exe --version
 
-      - name: Cache ccache (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+          rmdir /s /q C:\sccache\sccache-v0.8.2-x86_64-pc-windows-msvc || echo (no subfolder to remove)
+
+      
+      # === Cache for vcpkg ===
+      - name: Cache vcpkg
         uses: actions/cache@v4
         with:
-          path: ~/.cache/ccache
-          key: ${{ runner.os }}-ccache-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake', '**/*.hpp', '**/*.h', '**/*.cpp') }}
+          path: |
+            vcpkg/installed
+            vcpkg/buildtrees
+            vcpkg/downloads
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('vcpkg.json') }}
           restore-keys: |
-            ${{ runner.os }}-ccache-
+            ${{ runner.os }}-vcpkg-
 
-      - name: Configure (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
+      # === Setup vcpkg manually (verified commit) ===
+      - name: Setup vcpkg manually
+        shell: cmd
         run: |
-          cmake -S . -B build -G Ninja \
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache
+          echo 📥 Preparing vcpkg...
 
-      - name: Build (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: cmake --build build --parallel
+          REM === Check for existing vcpkg directory ===
+          if exist vcpkg (
+            echo ⚠️ Found existing vcpkg directory, cleaning it before fresh clone...
+            rmdir /s /q vcpkg
+          )
 
-      - name: Test (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: ctest --test-dir build --output-on-failure
+          REM === Clone and checkout specific commit ===
+          git clone https://github.com/microsoft/vcpkg.git
+          if %ERRORLEVEL% NEQ 0 (
+            echo ❌ Git clone failed!
+            exit /b %ERRORLEVEL%
+          )
+          cd vcpkg
+          git checkout 62324000504cdd27282f8275c99135cfb2bd1dc0
+          if %ERRORLEVEL% NEQ 0 (
+            echo ❌ Git checkout failed!
+            exit /b %ERRORLEVEL%
+          )
 
-      - name: ccache stats (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: ccache -s || true
+          REM === Prepare environment for bootstrap ===
+          echo ⚙️ Bootstrapping vcpkg...
+          set VCPKG_FORCE_SYSTEM_BINARIES=1
+          set VCPKG_USE_SYSTEM_NINJA=1
+          set PATH=C:\ninja;%PATH%
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
 
-      - name: Show ccache stats (Ubuntu)
-        if: always() && runner.os == 'Ubuntu'
+          REM === Run bootstrap script ===
+          .\bootstrap-vcpkg.bat -disableMetrics -verbose
+          if %ERRORLEVEL% NEQ 0 (
+            echo ❌ vcpkg bootstrap failed!
+            exit /b %ERRORLEVEL%
+          )
+
+          echo ✅ vcpkg bootstrapped successfully.
+          dir /b
+          echo === VCPKG version check ===
+          .\vcpkg version
+
+
+       # === Verify tools ===
+      - name: 🔍 Verify compiler and Ninja
+        shell: cmd
         run: |
-          echo "=== CCACHE STATS ==="        
-          ccache --show-stats
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          where cl
+          cl /Bv
+          where ninja
+          ninja --version
+          where link
+          link /? || exit 0
+          where sccache
 
-      # ---------- Windows ----------
+
       - name: Configure (Windows)
-        if: matrix.os == 'windows-latest'
-        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+        shell: cmd
+        run: |
+          echo 🧩 Configuring project with MSVC + Ninja + vcpkg...
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
 
-      - name: Build (Windows)
-        if: matrix.os == 'windows-latest'
-        run: cmake --build build --config RelWithDebInfo --parallel
+          REM === Settings after MSVC activation ===
+          set VCPKG_ROOT=%GITHUB_WORKSPACE%\vcpkg
+          set VCTOOLS_BIN=%VCToolsInstallDir%bin\Hostx64\x64
+          set PATH=C:\ninja;%VCTOOLS_BIN%;%VCPKG_ROOT%;%PATH%
+          set VCPKG_NINJA_PATH=C:\ninja\ninja.exe
+          set VCPKG_USE_SYSTEM_NINJA=1
+          echo ✅ Updated PATH:
+          echo %PATH%
+          where cl
+          where link
+          where ninja
+          ninja --version
+          link /? || exit 0
+          echo =====================
 
-      - name: Test (Windows)
-        if: matrix.os == 'windows-latest'
-        run: ctest --test-dir build -C RelWithDebInfo --output-on-failure
+          cmake -S . -B build -G "Ninja" ^
+            -DCMAKE_BUILD_TYPE=Release ^
+            -DCMAKE_VERBOSE_MAKEFILE=ON ^
+            -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE ^
+            -DCMAKE_MAKE_PROGRAM=C:\\ninja\\ninja.exe ^
+            -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake ^
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static ^            
+            -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\toolchains\\windows.cmake ^
+            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ^
+            -DCMAKE_C_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" ^
+            -DCMAKE_CXX_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" ^            
+            -DVCPKG_LOG_LEVEL=trace ^
+            -DVCPKG_CMAKE_SYSTEM_NAME=Windows ^
+            -DBUILD_EXAMPLES=ON ^           
+            -DBUILD_DOCS=OFF --log-level=VERBOSE"
+            
 
-      # ---------- Artifacts ----------
-      - name: Upload build artifacts
+          echo === CMAKE CACHE DUMP ===
+          type build\CMakeCache.txt || echo (no cache found)
+
+      - name: Debug toolchain (MSVC + Ninja)
+        shell: cmd
+        run: |
+          echo === PATH ===
+          echo %PATH%
+          where cl
+          cl /Bv 
+          where ninja          
+          ninja --version
+
+      - name: Build (Release)
+        shell: cmd
+        run: |
+          echo 🏗️ Building QuantumGradesApp...
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          if not exist build (
+            echo ⚠️ Build folder not found, running CMake configure first...
+            cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
+          )
+          cmake --build build --config Release --parallel
+
+      - name: Run Tests
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          ctest --test-dir build --output-on-failure -V
+
+      - name: Show sccache stats
+        if: always()
+        shell: pwsh
+        run: |
+          if (Get-Command sccache -ErrorAction SilentlyContinue) {
+            sccache --show-stats
+          } else {
+            Write-Host "⚠️ sccache not found in PATH."
+          }
+      
+      # Generate sample outputs
+      - name: Generate sample outputs
+        shell: cmd
+        run: |
+          if exist build\QuantumGradesApp.exe (
+            build\QuantumGradesApp.exe --export build\sample_outputs\
+          ) else (
+            echo ⚠️ Skipping sample output generation (no QuantumGradesApp binary yet)
+          )
+
+
+      - name: Upload Sample Outputs
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: build-${{ matrix.os }}
-          path: |
-            build/**
+          name: SampleOutputs-Windows
+          path: build/sample_outputs/*.csv
           if-no-files-found: ignore
+
+      - name: Upload Compiler Detection Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: CompilerDetectionLogs
+          path: |
+            vcpkg/buildtrees/detect_compiler/**/*.log
+
+      - name: Upload vcpkg logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vcpkg-logs
+          path: vcpkg/buildtrees/**/*.log
+      - name: Dump vcpkg + CMake logs (if failure)
+        if: failure()
+        shell: cmd
+        run: |
+          echo === vcpkg logs ===
+          dir /s /b vcpkg\buildtrees\detect_compiler
+          echo === detect_compiler logs ===
+          type vcpkg\buildtrees\detect_compiler\config-x64-windows-static-rel-CMakeCache.txt.log || echo (missing)
+          type vcpkg\buildtrees\detect_compiler\config-x64-windows-static-out.log || echo (missing)
+          echo === cmake error logs ===
+          type build\CMakeFiles\CMakeOutput.log || echo (no CMakeOutput.log)
+          type build\CMakeFiles\CMakeError.log || echo (no CMakeError.log)
+

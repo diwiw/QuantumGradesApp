@@ -1,0 +1,16 @@
+{
+    "default-registry": {
+        "kind": "git",
+        "repository": "https://github.com/microsoft/vcpkg.git",
+        "baseline": "62324000504cdd27282f8275c99135cfb2bd1dc0"
+    },
+    "overlay-triplets": [
+        "vcpkg_triplets"
+    ],
+    "binarySources": [
+        "clear",
+        "files,build/.vcpkg-cache,readwrite"
+    ],
+    "registries": [],
+    "allowUnsupportedHosts": false
+}
