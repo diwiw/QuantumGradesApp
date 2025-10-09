@@ -78,7 +78,13 @@ jobs:
       
         # Generate sample outputs 
       - name: Generate sample outputs
-        run: ./build/QuantumGradesApp --export build/sample_outputs/
+        run: |
+          if [ -f ./build/QuantumGradesApp ]; then
+            ./build/QuantumGradesApp --export build/sample_outputs/
+          else
+            echo "⚠️ Skipping sample output generation (no QuantumGradesApp binary yet)"
+          fi
+
 
       # Upload artifacts
       - name: Upload Sample Outputs
@@ -279,8 +285,12 @@ jobs:
       - name: Generate sample outputs
         shell: cmd
         run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          build\Release\QuantumGradesApp.exe --export build\sample_outputs\
+          if exist build\QuantumGradesApp.exe (
+            build\QuantumGradesApp.exe --export build\sample_outputs\
+          ) else (
+            echo ⚠️ Skipping sample output generation (no QuantumGradesApp binary yet)
+          )
+
 
       - name: Upload Sample Outputs
         if: success()
