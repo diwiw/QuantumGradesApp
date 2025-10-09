@@ -137,9 +137,16 @@ jobs:
           curl -L -o sccache.zip https://github.com/mozilla/sccache/releases/download/v0.8.2/sccache-v0.8.2-x86_64-pc-windows-msvc.zip
           mkdir C:\sccache
           tar -xf sccache.zip -C C:\sccache
+          REM --- move binary one level up if unpacked into subfolder ---
+          for /d %%D in (C:\sccache\sccache-v*) do (
+              move %%D\sccache.exe C:\sccache\sccache.exe >nul 2>&1
+          )
           echo PATH=C:\sccache;%PATH%>> %GITHUB_ENV%
           echo ✅ sccache installed at C:\sccache
+          dir C:\sccache
           C:\sccache\sccache.exe --version
+
+          rmdir /s /q C:\sccache\sccache-v0.8.2-x86_64-pc-windows-msvc || echo (no subfolder to remove)
 
       
       # === Cache for vcpkg ===
