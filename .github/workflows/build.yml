@@ -87,6 +87,7 @@ jobs:
         with:
           name: SampleOutputs-Ubuntu
           path: build/sample_outputs/*.csv
+          if-no-files-found: ignore
 
   windows-build:
     name: 🪟 Windows • Build & Test (MSVC + vcpkg + sccache)
@@ -287,6 +288,7 @@ jobs:
         with:
           name: SampleOutputs-Windows
           path: build/sample_outputs/*.csv
+          if-no-files-found: ignore
 
       - name: Upload Compiler Detection Logs
         if: failure()
