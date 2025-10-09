@@ -246,7 +246,12 @@ jobs:
       - name: Build (Release)
         shell: cmd
         run: |
+          echo 🏗️ Building QuantumGradesApp...
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          if not exist build (
+            echo ⚠️ Build folder not found, running CMake configure first...
+            cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
+          )
           cmake --build build --config Release --parallel
 
       - name: Run Tests
