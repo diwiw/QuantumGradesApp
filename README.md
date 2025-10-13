@@ -1,6 +1,6 @@
 # 📊 QuantumGradesApp
 
-> **Current Version:** `v0.6.5`  
+> **Current Version:** `v0.7.0`  
 > **Build System:** CMake  
 > **IDE Support:** Visual Studio Code (fully configured)  
 > **Documentation:** Auto-generated with Doxygen  
@@ -11,38 +11,41 @@ C++20 project evolving from a simple grades/statistics demo into a **quantitativ
 ---
 
 
-## Features (current – v0.6.x)
+## 🧠 Features (current – v0.7.0)
 
-- **Config system**: JSON + ENV overrides, validation. // fully functional with release 0.7.0
-- **Statistics**: basic metrics (avg, variance, percentiles).
-- **FileManager**: simple I/O utilities.
-- **Logger**: prepared for `spdlog` (coming in 0.7.0).
+- **Config system**: JSON + ENV overrides, validation (fully functional)
+- **Statistics**: basic metrics (avg, variance, percentiles)
+- **FileManager**: lightweight I/O utilities
+- **Logger**: integrated with async `spdlog`
+- **DataIngest**: CSV + HTTP ingestion
 - **Domain models**:
-  - Backtest: Engine, BarSeries, Portfolio, Orders, Trades, Execution.
-  - Strategies: Buy & Hold, Moving Average Crossover.
-- **Tests**: doctest-based, modular (separate test main).
-- **Docs**: Doxygen + optional Graphviz diagrams.
-- **Data**: sample CSVs in `/data/`.
+  - Backtest: `Engine`, `BarSeries`, `Portfolio`, `Orders`, `Trades`, `Execution`
+  - Strategies: `Buy & Hold`, `Moving Average Crossover`
+- **Tests**: `doctest`-based, modular with separate `test_main.cpp`
+- **Docs**: Doxygen + optional Graphviz/Mermaid diagrams
+- **CI**: Ubuntu (`ccache`), Windows (`sccache`), optional ThreadSanitizer build
 
 ---
 
 ## Roadmap
 
 
-### v0.7.0
-- Config JSON validation + error handling.
-- **spdlog** integration (async, rolling file).
-- Reporters (CSV/JSON).
-- Data ingest (CSV/HTTP), SQLite persistence.
+### v0.7.1
+- Implement CSV/JSON Reporters.
+- Add 'IReporter' interface and observer notifications.
+- Archive legacy demos (examples/) and update Doxygen diagrams.
+- Cleanup & refactor documentation structure.
 
 ### v0.8.0
 - CLI for scenario runs.
 - Scenario profiles in Config.
 - End-to-end flow tests.
+- - Automated test validation scripts.
 
 ### v0.9.0
 - Metrics: MDD, Sharpe, Sortino, CAGR.
 - clang-format/tidy integration in CI.
+- Add benchmark and profiling support.
 
 ### v1.x
 - Stable MVP + REST API.
@@ -102,25 +105,30 @@ QuantumGradesApp/
 │ ├─ Logger.hpp
 │ ├─ Statistics.hpp
 │ └─ domain/
-│ └─ backtest/
-│ ├─ Engine.hpp
-│ ├─ BarSeries.hpp
-│ ├─ Order.hpp
-│ ├─ Portfolio.hpp
-│ ├─ Trade.hpp
-│ └─ Execution.hpp
-│ └─ strategy/
-│ ├─ IStrategy.hpp
-│ ├─ BuyHold.hpp
-│ └─ MACrossover.hpp
+│    ├─ backtest/
+│    │  ├─ Engine.hpp
+│    │  ├─ BarSeries.hpp
+│    │  ├─ Order.hpp
+│    │  ├─ Portfolio.hpp
+│    │  ├─ Trade.hpp
+│    │  └─ Execution.hpp
+│    └─ strategy/
+│       ├─ IStrategy.hpp
+│       ├─ BuyHold.hpp
+│       └─ MACrossover.hpp
 ├─ src/
-│ └─ domain/
-│ └─ backtest/
-│ └─ strategy/
+│  ├─ Config.cpp
+│  ├─ Logger/
+│  ├─ DataIngest/
+│  ├─ FileManager.cpp
+│  └─ domain/
+│     ├─ backtest/
+│     └─ strategy/
 ├─ tests/
-│ │ └─ test_http.csv
-│ ├─ test_main.cpp
-│ └─ test_*.cpp
+│  ├─ test_main.cpp
+│  ├─ test_data_ingest.cpp
+│  ├─ test_logger.cpp
+│  └─ data/test_http.csv
 ├─ CMakeLists.txt
 ├─ Doxyfile
 ├─ README.md
@@ -141,24 +149,32 @@ QuantumGradesApp/
 - C++20 toolchain
 - (Optional) Doxygen for docs
 
-### Build & run
+### Build & Test
+## Linux (Ubuntu)
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build -j
+sudo apt install cmake ninja-build pkg-config libcurl4-openssl-dev libsqlite3-dev libspdlog-dev libfmt-dev ccache
+cmake -S . -B build -G Ninja -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
 ```
-Run example (Config):
-```bash
-./build/examples/examples_config
-```
-Run example (Backtest):
-```bash
-./build/examples/examples_backtest
-```
+## Windows (MSVC + Ninja + vcpkg)
+cmake -S . -B build -G "Ninja" ^
+  -DCMAKE_TOOLCHAIN_FILE=%CD%\vcpkg\scripts\buildsystems\vcpkg.cmake ^
+  -DVCPKG_TARGET_TRIPLET=x64-windows-static ^
+  -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+cmake --build build --config Release
+ctest --test-dir build --output-on-failure
+
+## Optional ThreadSanitizer (Linux only)
+sudo apt install clang
+cmake -S . -B build-tsan -DENABLE_TSAN=ON -DCMAKE_CXX_COMPILER=clang++
+cmake --build build-tsan
+ctest --test-dir build-tsan --output-on-failure
 
 ### 🧪 Run Tests
 
 ```bash
-./bin/tests
+. /build/bin/tests
 ```
 For testing HTTP in file test_data_ingest, there should be server locally started, before start test:
 
@@ -203,6 +219,19 @@ cmake --build build --target docs
 
 ---
 
+## 📦 CI/CD Status
+
+| Platform   | Build  | Cache             | Sanitizer                    |
+| ---------- | ------ | ----------------- | ---------------------------- |
+| 🐧 Ubuntu  | ✅     | `ccache`          | `ThreadSanitizer` (optional) |
+| 🪟 Windows | ✅     | `sccache + vcpkg` | —                            |
+| 📚 Docs    | ✅     | —                 | —                            |
+
+[CI/CD](https://github.com/diwiw/QuantumGradesApp/actions/workflows/build.yml)
+[Releases](https://github.com/diwiw/QuantumGradesApp/releases)
+
+---
+
 ## 🙌 Contributors
 
 Project created and maintained by [diwiw](https://github.com/diwiw)
@@ -212,4 +241,4 @@ with focus on C++ mastery, quantitative programming, and CI/CD practices.
 
 ## ⚖️ License
 
-MIT License – see [`LICENSE.txt`](LICENSE.txt)
+MIT License – see [LICENSE](https://github.com/diwiw/QuantumGradesApp/blob/main/LICENSE.txt)

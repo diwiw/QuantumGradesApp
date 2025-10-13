@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(QuantumGradesApp VERSION 0.6.5 LANGUAGES CXX)
+project(QuantumGradesApp VERSION 0.7.0 LANGUAGES CXX)
 
 # ============================================================
 # 🔬 Optional ThreadSanitizer support (for CI)
