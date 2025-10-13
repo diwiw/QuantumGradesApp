@@ -95,6 +95,83 @@ jobs:
           path: build/sample_outputs/*.csv
           if-no-files-found: ignore
 
+  ubuntu-tsan:
+    name: 🧠 Ubuntu • ThreadSanitizer (TSan)
+    runs-on: ubuntu-latest
+    continue-on-error: true  # Nie blokuje merge'a, raportuje tylko błędy
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # === Install dependencies ===
+      - name: Install dependencies for TSan
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang cmake ninja-build ccache pkg-config \
+            libcurl4-openssl-dev libsqlite3-dev \
+            libspdlog-dev libfmt-dev
+
+      # === Setup ccache ===
+      - name: Setup ccache
+        run: |
+          echo "max_size = 2G" | sudo tee /etc/ccache.conf
+          export PATH="/usr/lib/ccache:$PATH"
+          echo "PATH=/usr/lib/ccache:$PATH" >> $GITHUB_ENV
+          ccache --zero-stats
+
+      # === Cache ccache ===
+      - name: Cache ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ${{ runner.os }}-tsan-ccache-${{ hashFiles('**/CMakeLists.txt', '**/*.cpp', '**/*.hpp') }}
+          restore-keys: |
+            ${{ runner.os }}-tsan-ccache-
+
+      # === Configure build with TSan ===
+      - name: Configure (TSan)
+        run: |
+          cmake -S . -B build-tsan -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DENABLE_TSAN=ON \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DBUILD_EXAMPLES=OFF \
+            -DBUILD_DOCS=OFF
+
+      # === Build project with TSan ===
+      - name: Build (TSan)
+        run: cmake --build build-tsan --parallel
+
+      # === Run tests under TSan ===
+      - name: Run Tests (TSan)
+        run: |
+          echo "🧪 Running tests with ThreadSanitizer..."
+          ASAN_OPTIONS=halt_on_error=0:detect_leaks=0 \
+          TSAN_OPTIONS="halt_on_error=0 second_deadlock_stack=1 suppressions=${{ github.workspace }}/.tsan-suppressions.txt" \
+          ctest --test-dir build-tsan --output-on-failure || echo "TSan run completed with warnings"
+
+      # === Upload logs ===
+      - name: Upload TSan reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ThreadSanitizer-Reports
+          path: |
+            build-tsan/Testing/Temporary/*.log
+            build-tsan/*.tsan
+          if-no-files-found: ignore
+
+      # === Show ccache stats ===
+      - name: Show ccache stats
+        if: always()
+        run: ccache --show-stats
+
+
+
   windows-build:
     name: 🪟 Windows • Build & Test (MSVC + vcpkg + sccache)
     runs-on: windows-latest

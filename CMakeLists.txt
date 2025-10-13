@@ -1,6 +1,18 @@
 cmake_minimum_required(VERSION 3.20)
 project(QuantumGradesApp VERSION 0.6.5 LANGUAGES CXX)
 
+# ============================================================
+# 🔬 Optional ThreadSanitizer support (for CI)
+# ============================================================
+
+option(ENABLE_TSAN "Enable ThreadSanitizer" OFF)
+
+if (ENABLE_TSAN)
+  message(STATUS "🔬 ThreadSanitizer enabled")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=thread -fno-omit-frame-pointer -O1")
+  set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=thread")
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
