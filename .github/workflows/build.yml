@@ -107,8 +107,8 @@ jobs:
       CMAKE_BUILD_TYPE: Release
       VCPKG_TARGET_TRIPLET: x64-windows-static
       CMAKE_MAKE_PROGRAM: C:\ninja\ninja.exe
-      SCCACHE_LOG: error
       SCCACHE_DIR: C:\sccache
+      SCCACHE_LOG: error      
       CMAKE_VERBOSE_MAKEFILE: 1
       CMAKE_MESSAGE_LOG_LEVEL: VERBOSE
       VCPKG_FEATURE_FLAGS: "manifests,versions,registries"
@@ -159,7 +159,21 @@ jobs:
 
           rmdir /s /q C:\sccache\sccache-v0.8.2-x86_64-pc-windows-msvc || echo (no subfolder to remove)
 
-      
+      # === Cache sccache ===
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: C:\sccache
+          key: ${{ runner.os }}-sccache-${{ hashFiles('**/*.cpp', '**/*.hpp', '**/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-sccache-
+
+      # === Reset sccache stats ===
+      - name: Reset sccache stats
+        if: always()
+        shell: cmd
+        run: C:\sccache\sccache.exe --zero-stats || echo (no stats to reset)
+
       # === Cache for vcpkg ===
       - name: Cache vcpkg
         uses: actions/cache@v4
@@ -229,8 +243,9 @@ jobs:
           where link
           link /? || exit 0
           where sccache
-
-
+          C:\sccache\sccache.exe --show-stats
+          w
+      # === Configure ===
       - name: Configure (Windows)
         shell: cmd
         run: |
@@ -293,23 +308,20 @@ jobs:
           )
           cmake --build build --config Release --parallel
 
+      # === Run tests ===
       - name: Run Tests
         shell: cmd
         run: |
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           ctest --test-dir build --output-on-failure -V
 
+       # === Show sccache statistics ===
       - name: Show sccache stats
         if: always()
-        shell: pwsh
-        run: |
-          if (Get-Command sccache -ErrorAction SilentlyContinue) {
-            sccache --show-stats
-          } else {
-            Write-Host "⚠️ sccache not found in PATH."
-          }
+        shell: cmd
+        run: C:\sccache\sccache.exe --show-stats || echo (no sccache found)
       
-      # Generate sample outputs
+      # === Generate sample outputs ===
       - name: Generate sample outputs
         shell: cmd
         run: |
@@ -320,6 +332,7 @@ jobs:
           )
 
 
+      # === Upload sample outputs ===
       - name: Upload Sample Outputs
         if: success()
         uses: actions/upload-artifact@v4
