@@ -51,6 +51,11 @@ class Order {
         double quantity,
         OrderType type = OrderType::Market,
         std::chrono::system_clock::time_point ts = std::chrono::system_clock::now());
+
+    #ifdef UNIT_TEST
+        Order() = default; // only for test mocks
+    #endif
+
     /**
      * @brief Returns instrument metadata.
     */

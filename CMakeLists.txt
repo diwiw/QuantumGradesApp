@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(QuantumGradesApp VERSION 0.7.0 LANGUAGES CXX)
+project(QuantumGradesApp VERSION 0.7.1 LANGUAGES CXX)
 
 # ============================================================
 # 🔬 Optional ThreadSanitizer support (for CI)
@@ -44,6 +44,7 @@ set(TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external)
 set(EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
 set(DATA_DIR ${CMAKE_SOURCE_DIR}/data)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 include_directories(${INCLUDE_DIR} ${EXTERNAL_DIR})
 
@@ -165,7 +166,9 @@ if(BUILD_EXAMPLES)
 	add_executable(demo_db_logger_config ${SRC_FILES} ${EXAMPLES_DIR}/demo_db_logger_config.cpp)
 	target_include_directories(demo_db_logger_config PRIVATE ${INCLUDE_DIR})
 	target_link_libraries(demo_db_logger_config PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog SQLite::SQLite3)
-	target_compile_definitions(demo_db_logger_config PRIVATE USE_CURL)
+	target_compile_definitions(demo_db_logger_config PRIVATE USE_CURL
+		DATA_PATH=\"${CMAKE_SOURCE_DIR}/data\"
+	)
 
 	add_executable(examples_config ${SRC_FILES} ${EXAMPLES_DIR}/main_config_grades.cpp)
 	target_include_directories(examples_config PRIVATE ${INCLUDE_DIR})

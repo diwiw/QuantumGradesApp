@@ -81,4 +81,10 @@ namespace qga::utils {
         }
         
     }
+
+    void SpdLogger::flush() noexcept {
+    if (spd_logger_) {
+        spd_logger_->flush();
+    }
+}
 }   // namespace utils

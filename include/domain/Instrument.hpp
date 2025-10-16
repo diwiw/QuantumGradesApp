@@ -86,6 +86,11 @@ public:
         if(multiplier_ <= 0.0) throw std::invalid_argument("Instrument: multiplier must be positive");
     }
     
+    #ifdef UNIT_TEST
+        Instrument() = default; // only for test mocks
+    #endif
+
+
     /// @name Read-only accessors
     /// @{
     /// @return Ticker/identifier (e.g. "AAPL").
