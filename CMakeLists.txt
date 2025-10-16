@@ -49,7 +49,6 @@ message(STATUS "EXAMPLES_DIR = ${EXAMPLES_DIR}")
 set(DATA_DIR ${CMAKE_SOURCE_DIR}/data)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-
 include_directories(${INCLUDE_DIR} ${EXTERNAL_DIR})
 
 # === Generate Version.hpp ===

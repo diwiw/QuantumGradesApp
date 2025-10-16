@@ -5,7 +5,6 @@
 #include "Version.hpp"
 #include <spdlog/async.h>
 #include <filesystem>
-
 #include <iostream>
 #include <memory>
 
@@ -28,9 +27,9 @@ int main() {
     
     // ===== 2. Setup Logger =====
     if (!spdlog::thread_pool()) {
+
         spdlog::init_thread_pool(8192, 1);  // start async thread pool
     }
-
     auto logger = std::make_shared<SpdLogger>(
         "DemoLogger",
         std::vector<std::shared_ptr<spdlog::sinks::sink>>{
