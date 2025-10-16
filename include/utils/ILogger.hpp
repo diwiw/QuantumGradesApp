@@ -95,6 +95,14 @@ public:
         log(qga::LogLevel::Critical, fmt::format(message, std::forward<Args>(args)...)); 
     }
     ///@}
+    
+    /**
+     * @brief Flushes all buffered log messages to sinks.
+     *
+     * Default implementation does nothing. Concrete loggers (e.g. SpdLogger)
+     * should override it to force write of all pending messages.
+     */
+    virtual void flush() noexcept {}
 };
 
 } // namespace qga::utils

@@ -1,3 +1,3 @@
 #pragma once
-#define APP_VERSION "v0.6.0-121-gcc45c3a-dirty"
-#define APP_BUILD_DATE "2025-10-13 22:07:52"
+#define APP_VERSION "v0.7.0-1-g1aed9f4-dirty"
+#define APP_BUILD_DATE "2025-10-17 00:06:47"

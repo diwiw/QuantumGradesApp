@@ -61,6 +61,21 @@ public:
      */
     double navFor(const domain::Instrument& ins, double mark_price) const;
 
+     /**
+     * @brief Returns the current total portfolio value (placeholder).
+     *
+     * @details
+     * For now, returns 0.0 until full accounting logic is implemented.
+     * In the future, should sum: cash + Σ(position.value()).
+     */
+    double totalValue() const noexcept{
+        double total = cash_;
+        for (const auto& kv : positions_) {
+            total += kv.second.qty() * kv.second.avgPrice();
+        }
+        return total;
+    }
+
 private:
     /**
      * @brief Generates a unique key string for a given instrument.

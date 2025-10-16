@@ -61,6 +61,11 @@ public:
      */
     spdlog::level::level_enum setLevel(qga::LogLevel level);
 
+    /**
+     * @brief Flushes all pending log messages (forces write to sinks).
+    */
+    void flush() noexcept override;
+
 private:
     std::shared_ptr<spdlog::logger> spd_logger_;  ///< Underlying spdlog instance.
     static spdlog::level::level_enum toSpdLevel(qga::LogLevel level);  ///< Converts LogLevel to spdlog level.

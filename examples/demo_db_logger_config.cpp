@@ -3,6 +3,7 @@
 #include "ingest/DataIngest.hpp"
 #include "io/DataExporter.hpp"
 #include "Version.hpp"
+#include <spdlog/async.h>
 
 #include <iostream>
 #include <memory>
@@ -23,8 +24,12 @@ int main() {
     config.loadFromEnv();
 
     auto log_level = config.logLevel();
-
+    
     // ===== 2. Setup Logger =====
+    if (!spdlog::thread_pool()) {
+        spdlog::init_thread_pool(8192, 1);  // uruchom pulę async
+    }
+
     auto logger = std::make_shared<SpdLogger>(
         "DemoLogger",
         std::vector<std::shared_ptr<spdlog::sinks::sink>>{
@@ -34,11 +39,18 @@ int main() {
     );
     logger->setLevel(log_level);
     logger->info("Logger initialized with level {}", toString(log_level));
-
+    std::cout << "Config log level: " << toString(config.logLevel()) << "\n";
     // ===== 3. Ingest Data =====
     qga::ingest::DataIngest ingest(logger);
 
-    auto series = ingest.fromCsv("data/demo.csv");
+    std::filesystem::path cwd = std::filesystem::current_path();
+    logger->debug("Current working directory: {}", cwd.string());
+
+    
+    std::string demo_csv = std::string(DATA_PATH) + "/demo.csv";
+    
+
+    auto series = ingest.fromCsv(demo_csv);
     if (!series.has_value()) {
         logger->error("Failed to ingest data from CSV");
         return 1;
@@ -47,7 +59,8 @@ int main() {
     }
     
 
-    // ===== 4. Export Data =====
+    // ===== 4. Export Data =====   
+
     try {
         io::DataExporter exporter_csv("demo_out.csv", logger, io::ExportFormat::CSV, false);
         exporter_csv.exportAll(*series);
@@ -61,6 +74,9 @@ int main() {
     }
 
     logger->info("Demo finished.");
+    logger->flush();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // 
+    spdlog::shutdown(); // cleanup spdlog
     return 0;
     
 }

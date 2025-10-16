@@ -40,7 +40,7 @@ C++20 project evolving from a simple grades/statistics demo into a **quantitativ
 - CLI for scenario runs.
 - Scenario profiles in Config.
 - End-to-end flow tests.
-- - Automated test validation scripts.
+- Automated test validation scripts.
 
 ### v0.9.0
 - Metrics: MDD, Sharpe, Sortino, CAGR.

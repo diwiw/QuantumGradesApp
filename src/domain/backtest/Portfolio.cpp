@@ -38,4 +38,5 @@ namespace qga::domain::backtest {
         for(auto const& kv : positions_) sum += kv.second.realizedPnl();
         return sum;
     }
+  
 }   // namespace qga::domain::backtest

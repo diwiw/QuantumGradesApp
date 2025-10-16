@@ -82,10 +82,32 @@ private:
     bool validateRow(const std::vector<std::string>& fields);
 
     /**
-     * @brief Converts a CSV row (string fields) into a Quote object.
+     * @brief Parses a single CSV row into a Quote object.
+     *
+     * This function converts a vector of string fields (representing one CSV line)
+     * into a `domain::Quote` instance. It validates the number of columns and
+     * attempts to parse numeric fields (OHLCV) and timestamp values.
+     *
+     * The timestamp parser supports two formats:
+     * - **Epoch milliseconds** (e.g. `1727773200000`)
+     * - **ISO 8601** date-time strings (e.g. `2024-10-01T09:00:00`)
+     *
+     * In case of invalid or malformed input (wrong number of columns, 
+     * non-numeric values, parse errors), the function logs the problem and
+     * returns `std::nullopt` to indicate failure.
+     *
+     * @param fields A vector of string fields from a single CSV line.  
+     * Expected order: `[timestamp, open, high, low, close, volume]`.
+     * @return `std::optional<domain::Quote>`  
+     *         - A fully parsed `Quote` if successful.  
+     *         - `std::nullopt` if parsing failed.
+     *
+     * @note This method is resilient to format variations — it automatically 
+     *       detects ISO timestamps by checking for the presence of `'T'`.
+     * @warning The function assumes decimal point ('.') as the float separator.
+     *          Locale-specific commas (',') will cause parsing errors.
      * 
-     * @param fields CSV fields: timestamp, OHLC, volume
-     * @return Optional Quote if parsing succeeds.
+     * @see qga::domain::Quote
      */
     std::optional<domain::Quote> parseRow(const std::vector<std::string>& fields);
 
