@@ -70,35 +70,41 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --output-on-failure
+      
+      # === Upload demo artifacts (CSV, JSON) ===
 
       # Show ccache statistics
       - name: Show ccache stats
         if: always()
         run: ccache --show-stats
       
-        # Generate sample outputs 
-      - name: Generate sample outputs
+      # === Generate and upload demo outputs (CSV, JSON) ===
+      - name: Generate and Upload Demo Outputs
+        if: success()
         run: |
-          if [ -f ./build/QuantumGradesApp ]; then
-            ./build/QuantumGradesApp --export build/sample_outputs/
+          if [ -f ./build/demo_db_logger_config ]; then
+            echo "🧩 Generating demo output files..."
+            ./build/demo_db_logger_config
           else
-            echo "⚠️ Skipping sample output generation (no QuantumGradesApp binary yet)"
+            echo "⚠️ Skipping demo run (binary not found)"
           fi
+        shell: bash
 
-
-      # Upload artifacts
-      - name: Upload Sample Outputs
+      - name: Upload Demo Outputs
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: SampleOutputs-Ubuntu
-          path: build/sample_outputs/*.csv
-          if-no-files-found: ignore
+          name: DemoOutputs-Ubuntu
+          path: |
+            build/demo_out.csv
+            build/demo_out.json
+          if-no-files-found: warn
+
 
   ubuntu-tsan:
     name: 🧠 Ubuntu • ThreadSanitizer (TSan)
     runs-on: ubuntu-latest
-    continue-on-error: true  # Nie blokuje merge'a, raportuje tylko błędy
+    continue-on-error: true  # doesn't block merge, only reports errors
 
     steps:
       - name: Checkout
@@ -398,25 +404,28 @@ jobs:
         shell: cmd
         run: C:\sccache\sccache.exe --show-stats || echo (no sccache found)
       
-      # === Generate sample outputs ===
-      - name: Generate sample outputs
+      # === Generate and upload demo outputs (CSV, JSON) ===
+      - name: Generate and Upload Demo Outputs
+        if: success()
         shell: cmd
         run: |
-          if exist build\QuantumGradesApp.exe (
-            build\QuantumGradesApp.exe --export build\sample_outputs\
+          if exist build\demo_db_logger_config.exe (
+            echo 🧩 Generating demo output files...
+            build\demo_db_logger_config.exe
           ) else (
-            echo ⚠️ Skipping sample output generation (no QuantumGradesApp binary yet)
+            echo ⚠️ Skipping demo run (binary not found)
           )
 
-
-      # === Upload sample outputs ===
-      - name: Upload Sample Outputs
+      - name: Upload Demo Outputs
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: SampleOutputs-Windows
-          path: build/sample_outputs/*.csv
-          if-no-files-found: ignore
+          name: DemoOutputs-Windows
+          path: |
+            build\demo_out.csv
+            build\demo_out.json
+          if-no-files-found: warn
+
 
       - name: Upload Compiler Detection Logs
         if: failure()
