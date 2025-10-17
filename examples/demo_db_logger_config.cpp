@@ -4,6 +4,7 @@
 #include "io/DataExporter.hpp"
 #include "Version.hpp"
 #include <spdlog/async.h>
+#include <filesystem>
 
 #include <iostream>
 #include <memory>
@@ -62,10 +63,15 @@ int main() {
     // ===== 4. Export Data =====   
 
     try {
-        io::DataExporter exporter_csv("demo_out.csv", logger, io::ExportFormat::CSV, false);
+        namespace fs = std::filesystem;
+        fs::create_directories("build"); // ensure output dir exists
+
+        auto csv_path = fs::path("build/demo_out.csv");
+        auto json_path = fs::path("build/demo_out.json");
+        io::DataExporter exporter_csv(csv_path, logger, io::ExportFormat::CSV, false);
         exporter_csv.exportAll(*series);
 
-        io::DataExporter exporter_json("demo_out.json", logger, io::ExportFormat::JSON, false);
+        io::DataExporter exporter_json(json_path, logger, io::ExportFormat::JSON, false);
         exporter_json.exportAll(*series);
 
         logger->info("Exported series to CSV and JSON");
