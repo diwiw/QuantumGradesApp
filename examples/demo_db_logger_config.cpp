@@ -62,10 +62,10 @@ int main() {
     // ===== 4. Export Data =====   
 
     try {
-        io::DataExporter exporter_csv("demo_out.csv", logger, io::ExportFormat::CSV, false);
+        io::DataExporter exporter_csv("build/demo_out.csv", logger, io::ExportFormat::CSV, false);
         exporter_csv.exportAll(*series);
 
-        io::DataExporter exporter_json("demo_out.json", logger, io::ExportFormat::JSON, false);
+        io::DataExporter exporter_json("build/demo_out.json", logger, io::ExportFormat::JSON, false);
         exporter_json.exportAll(*series);
 
         logger->info("Exported series to CSV and JSON");
