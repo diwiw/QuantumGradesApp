@@ -60,9 +60,14 @@ jobs:
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DBUILD_EXAMPLES=ON \
             -DBUILD_DOCS=OFF \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache 
 
-     
+      # List built targets
+      - name: List built targets
+
+        run: |
+          cmake --build build --target help | grep demo || true
+
       # Build and test
       
       - name: Build
@@ -82,9 +87,9 @@ jobs:
       - name: Generate and Upload Demo Outputs
         if: success()
         run: |
-          if [ -f ./build/examples/demo_db_logger_config ]; then
+          if [ -f ./build/demo_db_logger_config ]; then
             echo "🧩 Generating demo output files..."
-            ./build/examples/demo_db_logger_config
+            ./build/demo_db_logger_config
           else
             echo "⚠️ Skipping demo run (binary not found)"
           fi
