@@ -60,9 +60,14 @@ jobs:
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DBUILD_EXAMPLES=ON \
             -DBUILD_DOCS=OFF \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache 
 
-     
+      # List built targets
+      - name: List built targets
+
+        run: |
+          cmake --build build --target help | grep demo || true
+
       # Build and test
       
       - name: Build
