@@ -28,7 +28,7 @@ int main() {
     
     // ===== 2. Setup Logger =====
     if (!spdlog::thread_pool()) {
-        spdlog::init_thread_pool(8192, 1);  // uruchom pulę async
+        spdlog::init_thread_pool(8192, 1);  // start async thread pool
     }
 
     auto logger = std::make_shared<SpdLogger>(
