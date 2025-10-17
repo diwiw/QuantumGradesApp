@@ -431,6 +431,8 @@ jobs:
           path: |
             build\demo_out.csv
             build\demo_out.json
+            demo_out.csv
+            demo_out.json
           if-no-files-found: warn
 
 
