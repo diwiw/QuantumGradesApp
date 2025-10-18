@@ -414,15 +414,19 @@ jobs:
         run: C:\sccache\sccache.exe --show-stats || echo (no sccache found)
       
       # === Generate and upload demo outputs (CSV, JSON) ===
-      - name: Generate and Upload Demo Outputs
-        if: success()
+      - name: Generate Demo Outputs (Windows)
         shell: cmd
         run: |
+          echo 🧩 Checking demo_db_logger_config.exe...
           if exist build\demo_db_logger_config.exe (
-            echo 🧩 Generating demo output files...
+            echo 🧩 Running demo_db_logger_config.exe from build root...
             build\demo_db_logger_config.exe
+          ) else if exist build\Release\demo_db_logger_config.exe (
+            echo 🧩 Running demo_db_logger_config.exe from Release folder...
+            build\Release\demo_db_logger_config.exe
           ) else (
-            echo ⚠️ Skipping demo run (binary not found)
+            echo ⚠️ Skipping demo run (binary not found in build or build\Release)
+            dir /s /b build\demo_db_logger_config.exe || echo (not found)
           )
 
       - name: Upload Demo Outputs
