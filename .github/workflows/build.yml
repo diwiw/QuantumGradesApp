@@ -373,19 +373,27 @@ jobs:
             -DVCPKG_LOG_LEVEL=trace ^
             -DVCPKG_CMAKE_SYSTEM_NAME=Windows ^
             -DBUILD_EXAMPLES=ON ^
-            -DBUILD_DOCS=OFF ^
-            --log-level=VERBOSE
+            -DBUILD_DOCS=OFF
             
-      - name: 🔎 List build targets
+          echo === CMAKE CACHE DUMP ===
+          if exist build\CMakeCache.txt (
+            type build\CMakeCache.txt
+          ) else (
+            echo ⚠️ No CMakeCache.txt found — configuration likely failed!
+            dir build || echo (no build dir)
+          )
+            
+      - name: Check CMake targets
         shell: cmd
         run: |
-          echo === Available CMake targets ===
-          cmake --build build --target help | findstr demo
+          if exist build (
+            cmake --build build --target help | findstr demo
+          ) else (
+            echo ⚠️ Build directory missing after configure!
+            exit /b 1
+          )
 
-
-          echo === CMAKE CACHE DUMP ===
-          type build\CMakeCache.txt || echo (no cache found)
-
+          
       - name: Debug toolchain (MSVC + Ninja)
         shell: cmd
         run: |
