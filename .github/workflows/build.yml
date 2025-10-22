@@ -344,71 +344,41 @@ jobs:
           echo 🧩 Configuring project with MSVC + Ninja + vcpkg...
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
 
-          REM === Ensure all tools are in PATH ===
-          set "PATH=C:\ninja;C:\sccache;C:\Program Files\CMake\bin;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin;%PATH%"
-
-          echo ✅ Final PATH:
-          where cmake
-          cmake --version
+          REM === Settings after MSVC activation ===
+          set VCPKG_ROOT=%GITHUB_WORKSPACE%\vcpkg
+          set VCTOOLS_BIN=%VCToolsInstallDir%bin\Hostx64\x64
+          set PATH=C:\ninja;%VCTOOLS_BIN%;%VCPKG_ROOT%;%PATH%
+          set VCPKG_NINJA_PATH=C:\ninja\ninja.exe
+          set VCPKG_USE_SYSTEM_NINJA=1
+          echo ✅ Updated PATH:
+          echo %PATH%
           where cl
+          where link
           where ninja
           ninja --version
-
-          set "VCPKG_ROOT=%GITHUB_WORKSPACE%\vcpkg"
-          set "VCPKG_NINJA_PATH=C:\ninja\ninja.exe"
-          set "VCPKG_USE_SYSTEM_NINJA=1"
-          set "VCTOOLS_BIN=%VCToolsInstallDir%bin\Hostx64\x64"
+          link /? || exit 0
+          echo =====================
 
           cmake -S . -B build -G "Ninja" ^
             -DCMAKE_BUILD_TYPE=Release ^
             -DCMAKE_VERBOSE_MAKEFILE=ON ^
+            -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE ^
             -DCMAKE_MAKE_PROGRAM=C:\\ninja\\ninja.exe ^
             -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake ^
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static ^
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static ^            
+            -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\toolchains\\windows.cmake ^
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ^
-            -DCMAKE_C_COMPILER=cl ^
-            -DCMAKE_CXX_COMPILER=cl ^
+            -DCMAKE_C_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" ^
+            -DCMAKE_CXX_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" ^            
             -DVCPKG_LOG_LEVEL=trace ^
             -DVCPKG_CMAKE_SYSTEM_NAME=Windows ^
-            -DBUILD_EXAMPLES=ON ^
-            -DBUILD_DOCS=OFF
-
-          if %ERRORLEVEL% NEQ 0 (
-            echo ❌ CMake configure failed with exit code %ERRORLEVEL%
-            exit /b %ERRORLEVEL%
-          )
+            -DBUILD_EXAMPLES=ON ^           
+            -DBUILD_DOCS=OFF --log-level=VERBOSE"
+            
 
           echo === CMAKE CACHE DUMP ===
-          if exist build\CMakeCache.txt (
-            type build\CMakeCache.txt
-          ) else (
-            echo ⚠️ No CMakeCache.txt found — configuration likely failed!
-            dir build || echo (no build dir)
-          )
+          type build\CMakeCache.txt || echo (no cache found)
 
-      
-      - name: Debug CMake logs
-        if: always()
-        shell: cmd
-        run: |
-          echo === Check if build dir exists ===
-          dir build || echo (no build or missing)
-          echo === CMakeError.log ===
-          type build\CMakeFiles\CMakeError.log || echo (no error log)
-          echo === CMakeOutput.log ===
-          type build\CMakeFiles\CMakeOutput.log || echo (no output log)
-          
-      - name: Check CMake targets
-        shell: cmd
-        run: |
-          if exist build (
-            cmake --build build --target help | findstr demo
-          ) else (
-            echo ⚠️ Build directory missing after configure!
-            exit /b 1
-          )
-
-          
       - name: Debug toolchain (MSVC + Ninja)
         shell: cmd
         run: |
@@ -430,14 +400,6 @@ jobs:
           )
           cmake --build build --config Release --parallel
 
-      # Explicitly build demo executable (not included in ALL)
-      - name: Build demo_db_logger_config
-        shell: cmd
-        run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          cmake --build build --target demo_db_logger_config -- -v
-
-
       # === Run tests ===
       - name: Run Tests
         shell: cmd
@@ -452,31 +414,33 @@ jobs:
         run: C:\sccache\sccache.exe --show-stats || echo (no sccache found)
       
       # === Generate and upload demo outputs (CSV, JSON) ===
-      - name: Generate Demo Outputs (Windows)
+      - name: Generate and Upload Demo Outputs
+        if: success()
         shell: cmd
         run: |
-          echo 🧩 Checking demo_db_logger_config.exe...
           if exist build\demo_db_logger_config.exe (
-            echo 🧩 Running demo_db_logger_config.exe from build root...
+            echo 🧩 Generating demo output files...
             build\demo_db_logger_config.exe
-          ) else if exist build\Release\demo_db_logger_config.exe (
-            echo 🧩 Running demo_db_logger_config.exe from Release folder...
-            build\Release\demo_db_logger_config.exe
           ) else (
-            echo ⚠️ Skipping demo run (binary not found in build or build\Release)
-            dir /s /b build\demo_db_logger_config.exe || echo (not found)
+            echo ⚠️ Skipping demo run (binary not found)
           )
 
-      - name: Upload Demo Outputs
+      # === Upload artefacts (same as Ubuntu) ===
+      - name: Upload Build Artifacts
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: DemoOutputs-Windows
+          name: QuantumGradesApp-Windows
           path: |
+            build\*.exe
+            build\*.pdb
             build\demo_out.csv
             build\demo_out.json
             demo_out.csv
             demo_out.json
+            build\Testing\Temporary\LastTest.log
+            build\CMakeCache.txt
+            build\vcpkg-manifest-install.log
           if-no-files-found: warn
 
 
@@ -506,4 +470,3 @@ jobs:
           echo === cmake error logs ===
           type build\CMakeFiles\CMakeOutput.log || echo (no CMakeOutput.log)
           type build\CMakeFiles\CMakeError.log || echo (no CMakeError.log)
-
