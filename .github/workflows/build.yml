@@ -359,22 +359,7 @@ jobs:
           link /? || exit 0
           echo =====================
 
-          cmake -S . -B build -G "Ninja" ^
-            -DCMAKE_BUILD_TYPE=Release ^
-            -DCMAKE_VERBOSE_MAKEFILE=ON ^
-            -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE ^
-            -DCMAKE_MAKE_PROGRAM=C:\\ninja\\ninja.exe ^
-            -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake ^
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static ^
-            -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\toolchains\\windows.cmake ^
-            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ^
-            -DCMAKE_C_COMPILER=cl ^
-            -DCMAKE_CXX_COMPILER=cl ^
-            -DVCPKG_LOG_LEVEL=trace ^
-            -DVCPKG_CMAKE_SYSTEM_NAME=Windows ^
-            -DBUILD_EXAMPLES=ON ^
-            -DBUILD_DOCS=OFF
-            
+          cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -DCMAKE_MAKE_PROGRAM=C:\\ninja\\ninja.exe -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\toolchains\\windows.cmake -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DVCPKG_LOG_LEVEL=trace -DVCPKG_CMAKE_SYSTEM_NAME=Windows -DBUILD_EXAMPLES=ON -DBUILD_DOCS=OFF
           if %ERRORLEVEL% NEQ 0 (
             echo ❌ CMake configure failed with exit code %ERRORLEVEL%
             exit /b %ERRORLEVEL%
@@ -387,7 +372,18 @@ jobs:
             echo ⚠️ No CMakeCache.txt found — configuration likely failed!
             dir build || echo (no build dir)
           )
-            
+      
+      - name: Debug CMake logs
+        if: always()
+        shell: cmd
+        run: |
+          echo === Check if build dir exists ===
+          dir build || echo (no build)
+          echo === CMakeError.log ===
+          type build\CMakeFiles\CMakeError.log || echo (no error log)
+          echo === CMakeOutput.log ===
+          type build\CMakeFiles\CMakeOutput.log || echo (no output log)
+          
       - name: Check CMake targets
         shell: cmd
         run: |
