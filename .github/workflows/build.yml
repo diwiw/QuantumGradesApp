@@ -368,13 +368,18 @@ jobs:
             -DVCPKG_TARGET_TRIPLET=x64-windows-static ^
             -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\toolchains\\windows.cmake ^
             -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ^
-            -DCMAKE_C_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" ^
-            -DCMAKE_CXX_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" ^
+            -DCMAKE_C_COMPILER=C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe ^
+            -DCMAKE_CXX_COMPILER=C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe ^
             -DVCPKG_LOG_LEVEL=trace ^
             -DVCPKG_CMAKE_SYSTEM_NAME=Windows ^
             -DBUILD_EXAMPLES=ON ^
             -DBUILD_DOCS=OFF
             
+          if %ERRORLEVEL% NEQ 0 (
+            echo ❌ CMake configure failed with exit code %ERRORLEVEL%
+            exit /b %ERRORLEVEL%
+          )
+              
           echo === CMAKE CACHE DUMP ===
           if exist build\CMakeCache.txt (
             type build\CMakeCache.txt
