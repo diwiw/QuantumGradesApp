@@ -345,6 +345,7 @@ jobs:
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
 
           REM === Settings after MSVC activation ===
+          set PATH="C:\Program Files\CMake\bin";"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin";%PATH%
           set VCPKG_ROOT=%GITHUB_WORKSPACE%\vcpkg
           set VCTOOLS_BIN=%VCToolsInstallDir%bin\Hostx64\x64
           set PATH=C:\ninja;%VCTOOLS_BIN%;%VCPKG_ROOT%;%PATH%
@@ -354,8 +355,10 @@ jobs:
           echo %PATH%
           where cl
           where link
-          where ninja
+          where ninja          
           ninja --version
+          where cmake
+          cmake --version          
           link /? || exit 0
           echo =====================
 
