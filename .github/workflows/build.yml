@@ -450,7 +450,7 @@ jobs:
             build\Testing\Temporary\LastTest.log
             build\CMakeCache.txt
             build\vcpkg-manifest-install.log
-          if-no-files-found: warn
+          if-no-files-found: ignore
 
 
       - name: Upload Compiler Detection Logs
@@ -472,10 +472,15 @@ jobs:
         shell: cmd
         run: |
           echo === vcpkg logs ===
-          dir /s /b vcpkg\buildtrees\detect_compiler
+          dir /s /b vcpkg\buildtrees\detect_compiler || echo (no detect_compiler directory)
+
           echo === detect_compiler logs ===
           type vcpkg\buildtrees\detect_compiler\config-x64-windows-static-rel-CMakeCache.txt.log || echo (missing)
           type vcpkg\buildtrees\detect_compiler\config-x64-windows-static-out.log || echo (missing)
+
           echo === cmake error logs ===
           type build\CMakeFiles\CMakeOutput.log || echo (no CMakeOutput.log)
           type build\CMakeFiles\CMakeError.log || echo (no CMakeError.log)
+
+          echo === done ===
+          exit /b 0
