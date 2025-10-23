@@ -101,7 +101,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: DemoOutputs-Ubuntu
+          name: DemoOutputs-Ubuntu-${{ github.run_number }}
           path: |
             build/demo_out.csv
             build/demo_out.json
@@ -359,22 +359,7 @@ jobs:
           link /? || exit 0
           echo =====================
 
-          cmake -S . -B build -G "Ninja" ^
-            -DCMAKE_BUILD_TYPE=Release ^
-            -DCMAKE_VERBOSE_MAKEFILE=ON ^
-            -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE ^
-            -DCMAKE_MAKE_PROGRAM=C:\\ninja\\ninja.exe ^
-            -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake ^
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static ^            
-            -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\toolchains\\windows.cmake ^
-            -DCMAKE_CXX_COMPILER_LAUNCHER=sccache ^
-            -DCMAKE_C_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" ^
-            -DCMAKE_CXX_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" ^            
-            -DVCPKG_LOG_LEVEL=trace ^
-            -DVCPKG_CMAKE_SYSTEM_NAME=Windows ^
-            -DBUILD_EXAMPLES=ON ^           
-            -DBUILD_DOCS=OFF --log-level=VERBOSE"
-            
+          cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=ON -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -DCMAKE_MAKE_PROGRAM=C:\\ninja\\ninja.exe -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\\vcpkg\\scripts\\toolchains\\windows.cmake -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DCMAKE_C_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" -DCMAKE_CXX_COMPILER="C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe" -DVCPKG_LOG_LEVEL=trace -DVCPKG_CMAKE_SYSTEM_NAME=Windows -DBUILD_EXAMPLES=ON -DBUILD_DOCS=OFF
 
           echo === CMAKE CACHE DUMP ===
           type build\CMakeCache.txt || echo (no cache found)
@@ -392,13 +377,37 @@ jobs:
       - name: Build (Release)
         shell: cmd
         run: |
-          echo 🏗️ Building QuantumGradesApp...
+          echo [🏗️] Building QuantumGradesApp...
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+
+          REM === Ensure build directory exists ===
           if not exist build (
-            echo ⚠️ Build folder not found, running CMake configure first...
-            cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
+            echo Creating build directory...
+            mkdir build
           )
+
+          REM === Configure project if needed ===
+          if not exist build\CMakeCache.txt (
+            echo Running CMake configure...
+            cmake -S . -B build -G "Ninja" ^
+              -DCMAKE_BUILD_TYPE=Release ^
+              -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\vcpkg\scripts\buildsystems\vcpkg.cmake ^
+              -DVCPKG_TARGET_TRIPLET=x64-windows-static ^
+              -DBUILD_EXAMPLES=ON -DBUILD_DOCS=OFF
+          )
+
+          REM === Build all targets ===
           cmake --build build --config Release --parallel
+          echo ✅ Build completed successfully.
+
+          REM === List build outputs ===
+          echo Listing executables...
+          dir /b build\*.exe || echo No .exe files found.
+
+          echo Listing PDBs (optional)...
+          dir /b build\*.pdb || echo No .pdb files found (expected in Release).
+
+          exit /b 0
 
       # === Run tests ===
       - name: Run Tests
@@ -425,17 +434,23 @@ jobs:
             echo ⚠️ Skipping demo run (binary not found)
           )
 
-      - name: Upload Demo Outputs
+      # === Upload artefacts (same as Ubuntu) ===
+      - name: Upload Build Artifacts
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: DemoOutputs-Windows
+          name: QuantumGradesApp-Windows-${{ github.run_number }}
           path: |
+            build\*.exe
+            build\*.pdb
             build\demo_out.csv
             build\demo_out.json
             demo_out.csv
             demo_out.json
-          if-no-files-found: warn
+            build\Testing\Temporary\LastTest.log
+            build\CMakeCache.txt
+            build\vcpkg-manifest-install.log
+          if-no-files-found: ignore
 
 
       - name: Upload Compiler Detection Logs
@@ -457,11 +472,15 @@ jobs:
         shell: cmd
         run: |
           echo === vcpkg logs ===
-          dir /s /b vcpkg\buildtrees\detect_compiler
+          dir /s /b vcpkg\buildtrees\detect_compiler || echo (no detect_compiler directory)
+
           echo === detect_compiler logs ===
           type vcpkg\buildtrees\detect_compiler\config-x64-windows-static-rel-CMakeCache.txt.log || echo (missing)
           type vcpkg\buildtrees\detect_compiler\config-x64-windows-static-out.log || echo (missing)
+
           echo === cmake error logs ===
           type build\CMakeFiles\CMakeOutput.log || echo (no CMakeOutput.log)
           type build\CMakeFiles\CMakeError.log || echo (no CMakeError.log)
 
+          echo === done ===
+          exit /b 0

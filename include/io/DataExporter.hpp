@@ -7,6 +7,7 @@
 
 #include <string>
 #include <memory>
+#include <filesystem>
 #include "domain/backtest/BarSeries.hpp"
 #include "utils/ILogger.hpp"
 
@@ -41,6 +42,19 @@ public:
         std::shared_ptr<utils::ILogger> logger,
         ExportFormat format = ExportFormat::CSV,
         bool append = false);
+
+    /**
+     * @brief Constructor overload accepting std::filesystem::path.
+     * @param output_path The file path where data will be exported.
+     * @param logger Logger instance (SpdLogger, MockLogger, NullLogger).
+     * @param format Export format (CSV or JSON).
+     * @param append If true, appends instead of overwriting.
+     */
+    explicit DataExporter(const std::filesystem::path& output_path,
+                          std::shared_ptr<utils::ILogger> logger,
+                          ExportFormat format = ExportFormat::CSV,
+                          bool append = false)
+        : DataExporter(output_path.string(), std::move(logger), format, append) {}
 
     /**
      * @brief Destructor to ensure cleanup if needed.
