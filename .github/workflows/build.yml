@@ -439,7 +439,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: QuantumGradesApp-Windows-${{ github.run_number }}-${{ github.ref_name }}-${{ github.sha }}
+          name: QuantumGradesApp-Windows-${{ github.run_number }}
           path: |
             build\*.exe
             build\*.pdb
