@@ -101,7 +101,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: DemoOutputs-Ubuntu
+          name: DemoOutputs-Ubuntu-${{ github.run_number }}-${{ github.ref_name }}-${{ github.sha }}
           path: |
             build/demo_out.csv
             build/demo_out.json
@@ -174,7 +174,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ThreadSanitizer-Reports
+          name: ThreadSanitizer-Reports-${{ github.run_number }}-${{ github.ref_name }}-${{ github.sha }}
           path: |
             build-tsan/Testing/Temporary/*.log
             build-tsan/*.tsan
@@ -407,7 +407,7 @@ jobs:
           echo Listing PDBs (optional)...
           dir /b build\*.pdb || echo No .pdb files found (expected in Release).
 
-
+          exit /b 0
 
       # === Run tests ===
       - name: Run Tests
@@ -439,7 +439,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: QuantumGradesApp-Windows
+          name: QuantumGradesApp-Windows-${{ github.run_number }}-${{ github.ref_name }}-${{ github.sha }}
           path: |
             build\*.exe
             build\*.pdb
