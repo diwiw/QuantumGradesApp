@@ -101,7 +101,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: DemoOutputs-Ubuntu-${{ github.run_number }}-${{ github.ref_name }}-${{ github.sha }}
+          name: DemoOutputs-Ubuntu-${{ github.run_number }}
           path: |
             build/demo_out.csv
             build/demo_out.json
@@ -174,7 +174,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ThreadSanitizer-Reports-${{ github.run_number }}-${{ github.ref_name }}-${{ github.sha }}
+          name: ThreadSanitizer-Reports
           path: |
             build-tsan/Testing/Temporary/*.log
             build-tsan/*.tsan
