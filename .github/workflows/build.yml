@@ -374,37 +374,36 @@ jobs:
           where ninja          
           ninja --version
 
-      # === Build (Release) ===
       - name: Build (Release)
         shell: cmd
         run: |
-          echo 🏗️ Building QuantumGradesApp...
+          echo [🏗️] Building QuantumGradesApp...
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
 
-          REM --- Make sure build directory exists ---
+          REM === Ensure build directory exists ===
           if not exist build (
-            echo 📁 Creating build directory...
+            echo Creating build directory...
             mkdir build
           )
 
-          REM --- Configure if not done ---
+          REM === Configure project if needed ===
           if not exist build\CMakeCache.txt (
-            echo ⚙️ Running CMake configure (initial)...
-            cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release ^
+            echo Running CMake configure...
+            cmake -S . -B build -G "Ninja" ^
+              -DCMAKE_BUILD_TYPE=Release ^
               -DCMAKE_TOOLCHAIN_FILE=%GITHUB_WORKSPACE%\vcpkg\scripts\buildsystems\vcpkg.cmake ^
               -DVCPKG_TARGET_TRIPLET=x64-windows-static ^
               -DBUILD_EXAMPLES=ON -DBUILD_DOCS=OFF
           )
 
-          REM --- Build all targets ---
+          REM === Build all targets ===
           cmake --build build --config Release --parallel
           echo ✅ Build completed successfully.
 
-          REM --- List build outputs for verification ---
-          echo === BUILD OUTPUTS ===
-          dir /s /b build\*.exe
-          dir /s /b build\*.pdb
-          echo ======================
+          REM === List build outputs ===
+          dir /b build\*.exe
+          dir /b build\*.pdb
+
 
       # === Run tests ===
       - name: Run Tests
@@ -413,22 +412,22 @@ jobs:
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           ctest --test-dir build --output-on-failure -V
 
-      # === Run demo to generate CSV/JSON outputs ===
+       # === Show sccache statistics ===
+      - name: Show sccache stats
+        if: always()
+        shell: cmd
+        run: C:\sccache\sccache.exe --show-stats || echo (no sccache found)
+      
+      # === Generate and upload demo outputs (CSV, JSON) ===
       - name: Generate and Upload Demo Outputs
         if: success()
         shell: cmd
         run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          echo 🧩 Searching for demo_db_logger_config.exe...
           if exist build\demo_db_logger_config.exe (
-              echo ▶ Running from build root...
-              build\demo_db_logger_config.exe
-          ) else if exist build\Release\demo_db_logger_config.exe (
-              echo ▶ Running from build\Release...
-              build\Release\demo_db_logger_config.exe
+            echo 🧩 Generating demo output files...
+            build\demo_db_logger_config.exe
           ) else (
-              echo ⚠️ demo_db_logger_config.exe not found!
-              dir /s /b build\*.exe
+            echo ⚠️ Skipping demo run (binary not found)
           )
 
       # === Upload artefacts (same as Ubuntu) ===
@@ -439,20 +438,15 @@ jobs:
           name: QuantumGradesApp-Windows
           path: |
             build\*.exe
-            build\Release\*.exe
             build\*.pdb
-            build\Release\*.pdb
             build\demo_out.csv
             build\demo_out.json
-            build\Release\demo_out.csv
-            build\Release\demo_out.json
             demo_out.csv
             demo_out.json
             build\Testing\Temporary\LastTest.log
             build\CMakeCache.txt
             build\vcpkg-manifest-install.log
           if-no-files-found: warn
-
 
 
       - name: Upload Compiler Detection Logs
