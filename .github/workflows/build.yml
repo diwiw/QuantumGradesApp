@@ -401,8 +401,12 @@ jobs:
           echo ✅ Build completed successfully.
 
           REM === List build outputs ===
-          dir /b build\*.exe
-          dir /b build\*.pdb
+          echo Listing executables...
+          dir /b build\*.exe || echo No .exe files found.
+
+          echo Listing PDBs (optional)...
+          dir /b build\*.pdb || echo No .pdb files found (expected in Release).
+
 
 
       # === Run tests ===
