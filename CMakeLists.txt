@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.22)
 project(QuantumGradesApp VERSION 0.7.1 LANGUAGES CXX)
 
 # ============================================================
@@ -17,48 +17,158 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# ============================================================
+# 🧱 Build type and policies
+# ============================================================
 if(POLICY CMP0135)
   cmake_policy(SET CMP0135 NEW)
 endif()
 
-# === Build type ===
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
 endif()
 
-# === Compiler flags ===
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 	add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# === clang ===
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# === Options ===
-option(BUILD_DOCS "Build documentation with doxygen" OFF)
-
-# === Directories ===
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+# ============================================================
+# 📂 Directories
+# ============================================================
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
-set(TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external)
-unset(EXAMPLES_DIR CACHE)
 set(EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
-message(STATUS "EXAMPLES_DIR = ${EXAMPLES_DIR}")
+set(TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
 set(DATA_DIR ${CMAKE_SOURCE_DIR}/data)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data)
+file(COPY ${DATA_DIR}/readGrades.txt DESTINATION ${CMAKE_BINARY_DIR}/data)
 
-include_directories(${INCLUDE_DIR} ${EXTERNAL_DIR})
-
-# === Generate Version.hpp ===
+# ============================================================
+# 🧩 Generate Version.hpp
+# ============================================================
 execute_process(
 	COMMAND git describe --tags --always --dirty
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	OUTPUT_VARIABLE GIT_VERSION
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+string(TIMESTAMP BUILD_DATE "%Y-%m-%d %H:%M:%S")
+
+configure_file(
+	${CMAKE_SOURCE_DIR}/cmake/version.h.in
+	${INCLUDE_DIR}/Version.hpp
+	@ONLY
+)
+
+# ============================================================
+# 📦 Dependencies (FetchContent + find_package)
+# ============================================================
+include(FetchContent)
+
+# === CURL ===
+find_package(CURL QUIET)
+if (NOT CURL_FOUND)
+    message(WARNING "⚠️ libcurl not found — using portable source build (fallback)")
+    FetchContent_Declare(
+        curl
+        URL https://github.com/curl/curl/releases/download/curl-8_8_0/curl-8.8.0.tar.gz
+    )
+    FetchContent_MakeAvailable(curl)
+    if (NOT TARGET CURL::libcurl AND TARGET libcurl)
+        add_library(CURL::libcurl ALIAS libcurl)
+    endif()
+else()
+    message(STATUS "✅ CURL found (version: ${CURL_VERSION_STRING})")
+endif()
+
+# === JSON ===
+FetchContent_Declare(
+	nlohmann_json
+	URL https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.tar.gz
+)
+FetchContent_MakeAvailable(nlohmann_json)
+
+# === fmt ===
+FetchContent_Declare(
+	fmt
+	URL https://github.com/fmtlib/fmt/archive/refs/tags/10.2.1.tar.gz
+)
+FetchContent_MakeAvailable(fmt)
+
+# === spdlog ===
+set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use external fmt library" FORCE)
+FetchContent_Declare(
+	spdlog
+	GIT_REPOSITORY https://github.com/gabime/spdlog.git
+	GIT_TAG v1.14.1
+)
+FetchContent_MakeAvailable(spdlog)
+
+# === SQLite3 ===
+find_package(SQLite3 REQUIRED)
+if (SQLite3_FOUND)
+    message(STATUS "✅ SQLite3 found")
+else()
+    message(FATAL_ERROR "❌ SQLite3 not found — please install it or use vcpkg")
+endif()
+
+# ============================================================
+# 🧱 Core, Examples, and Tests
+# ============================================================
+option(BUILD_EXAMPLES "Build example/demo targets" OFF)
+option(BUILD_TESTS "Build unit tests" ON)
+
+add_subdirectory(src)
+
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
+
+if(BUILD_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+
+# ============================================================
+# 📚 Doxygen
+# ============================================================
+option(BUILD_DOCS "Build documentation with Doxygen" OFF)
+
+if(BUILD_DOCS)
+	find_package(Doxygen QUIET)
+	if (DOXYGEN_FOUND)
+		add_custom_target(docs
+			COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_SOURCE_DIR}/Doxyfile
+			WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+			COMMENT "Generating API documentation with Doxygen"
+		)
+	else()
+		message(FATAL_ERROR "Doxygen required when BUILD_DOCS=ON.")
+	endif()
+endif()
+
+# ============================================================
+# 🧹 Clean target
+# ============================================================
+add_custom_target(clean-all
+	COMMAND ${CMAKE_COMMAND} -E rm -rf ${CMAKE_BINARY_DIR}/*
+	COMMENT "Removing all build files and temporary directories..."
+)
+
+# ==================================================================================
+
+# === Options ===
+option(BUILD_DOCS "Build documentation with doxygen" OFF)
+
+
+include_directories(${INCLUDE_DIR} ${EXTERNAL_DIR})
+
+
 
 
 
