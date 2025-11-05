@@ -60,14 +60,14 @@
             ]
         },
         {
-            "label": "Build Debug Example_Config",
+            "label": "Build Debug Grades_Demo",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
                 "build",
                 "--target",
-                "examples_config",
+                "grades_demo",
                 "--config",
                 "Debug",
                 "-j4"
@@ -123,14 +123,14 @@
             ]
         },
         {
-            "label": "Build Release Example_Config",
+            "label": "Build Release Grades_Demo",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
                 "build",
                 "--target",
-                "examples_config",
+                "grades_demo",
                 "--config",
                 "Release",
                 "-j4"
