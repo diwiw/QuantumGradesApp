@@ -164,6 +164,30 @@ elseif (NOT TARGET SQLite::SQLite3 AND TARGET sqlite3)
 endif()
 
 
+# === Project libraries ===
+add_library(qga_logger STATIC
+    src/utils/Logger.cpp
+    src/utils/LoggerFactory.cpp
+	src/utils/SpdLogger.cpp
+)
+target_include_directories(qga_logger PUBLIC include)
+target_link_libraries(qga_logger PUBLIC fmt::fmt spdlog::spdlog)
+
+add_library(qga_statistics STATIC src/Statistics.cpp)
+target_include_directories(qga_statistics PUBLIC include)
+
+add_library(qga_filemanager STATIC src/io/FileManager.cpp)
+target_include_directories(qga_filemanager PUBLIC include)
+
+add_library(qga_config STATIC src/Config.cpp)
+target_include_directories(qga_config PUBLIC include)
+target_link_libraries(qga_config PUBLIC 
+	qga_logger                 
+	fmt::fmt 
+	spdlog::spdlog  
+	nlohmann_json::nlohmann_json
+)
+
 
 # === Optional Examples build ===
 if(BUILD_EXAMPLES)
@@ -174,10 +198,13 @@ if(BUILD_EXAMPLES)
 		DATA_PATH=\"${CMAKE_SOURCE_DIR}/data\"
 	)
 
-	add_executable(examples_config ${SRC_FILES} ${EXAMPLES_DIR}/main_config_grades.cpp)
-	target_include_directories(examples_config PRIVATE ${INCLUDE_DIR})
-	target_link_libraries(examples_config PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog SQLite::SQLite3)
-	target_compile_definitions(examples_config PRIVATE USE_CURL)
+	
+    add_subdirectory(examples/grades_demo)
+
+#	add_executable(examples_config ${SRC_FILES} ${EXAMPLES_DIR}/main_config_grades.cpp)
+#	target_include_directories(examples_config PRIVATE ${INCLUDE_DIR})
+#	target_link_libraries(examples_config PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog SQLite::SQLite3)
+#	target_compile_definitions(examples_config PRIVATE USE_CURL)
 
 	add_executable(examples_backtest ${SRC_FILES} ${EXAMPLES_DIR}/main_backtest.cpp)
 	target_include_directories(examples_backtest PRIVATE ${INCLUDE_DIR})
