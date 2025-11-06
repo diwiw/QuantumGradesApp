@@ -1,6 +1,9 @@
 {
     "version": "2.0.0",
     "tasks": [
+        // =========================
+        // CONFIGURATION
+        // =========================
         {
             "label": "Configure Debug",
             "type": "shell",
@@ -9,7 +12,7 @@
                 "-S",
                 ".",
                 "-B",
-                "build",
+                "build/Debug",
                 "-G",
                 "Ninja",
                 "-DCMAKE_BUILD_TYPE=Debug",
@@ -29,7 +32,7 @@
                 "-S",
                 ".",
                 "-B",
-                "build",
+                "build/Release",
                 "-G",
                 "Ninja",
                 "-DCMAKE_BUILD_TYPE=Release",
@@ -38,18 +41,21 @@
             "group": "build",
             "problemMatcher": []
         },
+        // =========================
+        // DEBUG BUILDS
+        // =========================
         {
-            "label": "Build Debug Logger_Demo (Legacy)",
+            "label": "Build Debug Backtest_Demo",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "build",
+                "build/Debug",
                 "--target",
-                "logger_demo",
+                "backtest_demo",
                 "--config",
                 "Debug",
-                "-j4"
+                "--parallel"
             ],
             "group": "build",
             "problemMatcher": [
@@ -65,12 +71,12 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "build",
+                "build/Debug",
                 "--target",
                 "grades_demo",
                 "--config",
                 "Debug",
-                "-j4"
+                "--parallel"
             ],
             "group": "build",
             "problemMatcher": [
@@ -81,17 +87,17 @@
             ]
         },
         {
-            "label": "Build Debug Backtest_Demo",
+            "label": "Build Debug Logger_Demo (Legacy)",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "build",
+                "build/Debug",
                 "--target",
-                "backtest_demo",
+                "logger_demo",
                 "--config",
                 "Debug",
-                "-j4"
+                "--parallel"
             ],
             "group": "build",
             "problemMatcher": [
@@ -107,12 +113,12 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "build",
+                "build/Debug",
                 "--target",
                 "tests",
                 "--config",
                 "Debug",
-                "-j4"
+                "--parallel"
             ],
             "group": "build",
             "problemMatcher": [
@@ -123,17 +129,43 @@
             ]
         },
         {
-            "label": "Build Release Grades_Demo (Legacy)",
+            "label": "Build Debug All Demos",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "build",
+                "build/Debug",
+                "--config",
+                "Debug",
+                "--parallel",
                 "--target",
-                "grades_demo",
+                "backtest_demo",
+                "logger_demo",
+                "grades_demo"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn": [
+                "Configure Debug"
+            ]
+        },
+        // =========================
+        // RELEASE BUILDS
+        // =========================
+        {
+            "label": "Build Release Backtest_Demo",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/Release",
+                "--target",
+                "backtest_demo",
                 "--config",
                 "Release",
-                "-j4"
+                "--parallel"
             ],
             "group": "build",
             "problemMatcher": [
@@ -144,17 +176,17 @@
             ]
         },
         {
-            "label": "Build Release Backtest_Demo",
+            "label": "Build Release Grades_Demo (Legacy)",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "build",
+                "build/Release",
                 "--target",
-                "backtest_demo",
+                "grades_demo",
                 "--config",
                 "Release",
-                "-j4"
+                "--parallel"
             ],
             "group": "build",
             "problemMatcher": [
@@ -164,6 +196,9 @@
                 "Configure Release"
             ]
         },
+        // =========================
+        // UTILITIES
+        // =========================
         {
             "label": "clang-tidy: fix project",
             "type": "shell",
@@ -171,13 +206,13 @@
             "problemMatcher": []
         },
         {
-            "label": "cmake: build",
+            "label": "cmake: build all",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "build",
-                "-j"
+                "build/Debug",
+                "--parallel"
             ],
             "group": {
                 "kind": "build",
