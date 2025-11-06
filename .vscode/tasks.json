@@ -13,7 +13,7 @@
                 "-G",
                 "Ninja",
                 "-DCMAKE_BUILD_TYPE=Debug",
-                "-DBUILD_EXAMPLES=ON"
+                "-DBUILD_LEGACY_DEMOS=ON"
             ],
             "group": {
                 "kind": "build",
@@ -33,13 +33,13 @@
                 "-G",
                 "Ninja",
                 "-DCMAKE_BUILD_TYPE=Release",
-                "-DBUILD_EXAMPLES=ON"
+                "-DBUILD_LEGACY_DEMOS=ON"
             ],
             "group": "build",
             "problemMatcher": []
         },
         {
-            "label": "Build Debug Logger_Demo",
+            "label": "Build Debug Logger_Demo (Legacy)",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -60,7 +60,7 @@
             ]
         },
         {
-            "label": "Build Debug Grades_Demo",
+            "label": "Build Debug Grades_Demo (Legacy)",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -81,14 +81,14 @@
             ]
         },
         {
-            "label": "Build Debug Example_Backtest",
+            "label": "Build Debug Backtest_Demo",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
                 "build",
                 "--target",
-                "examples_backtest",
+                "backtest_demo",
                 "--config",
                 "Debug",
                 "-j4"
@@ -123,7 +123,7 @@
             ]
         },
         {
-            "label": "Build Release Grades_Demo",
+            "label": "Build Release Grades_Demo (Legacy)",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -144,14 +144,14 @@
             ]
         },
         {
-            "label": "Build Release Example_Backtest",
+            "label": "Build Release Backtest_Demo",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
                 "build",
                 "--target",
-                "examples_backtest",
+                "backtest_demo",
                 "--config",
                 "Release",
                 "-j4"
