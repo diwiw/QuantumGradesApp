@@ -38,3 +38,4 @@ build/tests/
 *.bak
 .DS_Store
 test_spdlog.log
+/include/Version.hpp

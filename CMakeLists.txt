@@ -165,8 +165,7 @@ endif()
 
 
 # === Project libraries ===
-add_library(qga_logger STATIC
-    src/utils/Logger.cpp
+add_library(qga_logger STATIC    
     src/utils/LoggerFactory.cpp
 	src/utils/SpdLogger.cpp
 )
@@ -175,9 +174,11 @@ target_link_libraries(qga_logger PUBLIC fmt::fmt spdlog::spdlog)
 
 add_library(qga_statistics STATIC src/Statistics.cpp)
 target_include_directories(qga_statistics PUBLIC include)
+target_link_libraries(qga_statistics PUBLIC qga_logger fmt::fmt)
 
 add_library(qga_filemanager STATIC src/io/FileManager.cpp)
 target_include_directories(qga_filemanager PUBLIC include)
+target_link_libraries(qga_filemanager PUBLIC qga_logger fmt::fmt spdlog::spdlog)
 
 add_library(qga_config STATIC src/Config.cpp)
 target_include_directories(qga_config PUBLIC include)
@@ -191,13 +192,13 @@ target_link_libraries(qga_config PUBLIC
 
 # === Optional Examples build ===
 if(BUILD_EXAMPLES)
-	add_executable(demo_db_logger_config ${SRC_FILES} ${EXAMPLES_DIR}/demo_db_logger_config.cpp)
-	target_include_directories(demo_db_logger_config PRIVATE ${INCLUDE_DIR})
-	target_link_libraries(demo_db_logger_config PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog SQLite::SQLite3)
-	target_compile_definitions(demo_db_logger_config PRIVATE USE_CURL
-		DATA_PATH=\"${CMAKE_SOURCE_DIR}/data\"
-	)
-
+	#add_executable(demo_db_logger_config ${SRC_FILES} ${EXAMPLES_DIR}/demo_db_logger_config.cpp)
+	#target_include_directories(demo_db_logger_config PRIVATE ${INCLUDE_DIR})
+	#target_link_libraries(demo_db_logger_config PRIVATE nlohmann_json::nlohmann_json CURL::libcurl spdlog::spdlog SQLite::SQLite3)
+	#target_compile_definitions(demo_db_logger_config PRIVATE USE_CURL
+#		DATA_PATH=\"${CMAKE_SOURCE_DIR}/data\"
+#	)
+	add_subdirectory(examples/logger_demo)
 	
     add_subdirectory(examples/grades_demo)
 
