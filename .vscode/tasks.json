@@ -39,14 +39,14 @@
             "problemMatcher": []
         },
         {
-            "label": "Build Debug Demo_DB_Logger_Config",
+            "label": "Build Debug Logger_Demo",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
                 "build",
                 "--target",
-                "demo_db_logger_config",
+                "logger_demo",
                 "--config",
                 "Debug",
                 "-j4"
