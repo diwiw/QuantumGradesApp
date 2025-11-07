@@ -1,7 +1,7 @@
 #include <iostream>
 #include <filesystem>
-#include "Version.hpp"
-#include "Config.hpp"
+#include "core/Version.hpp"
+#include "core/Config.hpp"
 #include "io/FileManager.hpp"
 #include "utils/LoggerFactory.hpp"
 #include "utils/ILogger.hpp"

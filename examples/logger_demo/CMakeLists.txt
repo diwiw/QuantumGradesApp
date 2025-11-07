@@ -24,16 +24,21 @@ target_include_directories(logger_demo PRIVATE
 )
 
 target_link_libraries(logger_demo PRIVATE
-    qga_logger
-    qga_config
-    qga_filemanager
-    qga_statistics
+    qga_core
+    qga_utils
+    qga_io
+    qga_ingest
+    qga_domain
+    qga_strategy
+    qga_persistence
+    qga_reporting
+    fmt::fmt
+    spdlog::spdlog
     nlohmann_json::nlohmann_json
     CURL::libcurl
-    spdlog::spdlog
-    fmt::fmt
     SQLite::SQLite3
 )
+
 
 target_compile_definitions(logger_demo PRIVATE
     USE_CURL

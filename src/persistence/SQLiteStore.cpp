@@ -1,7 +1,6 @@
 #include "persistence/SQLiteStore.hpp"
 #include "persistence/Statement.hpp"
 #include "utils/ILogger.hpp"
-
 #include <stdexcept>
 #include <string>
 #include <vector>

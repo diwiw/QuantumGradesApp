@@ -1,11 +1,10 @@
-#include "Config.hpp"
+#include "core/Config.hpp"
 #include "utils/SpdLogger.hpp"
 #include "ingest/DataIngest.hpp"
 #include "io/DataExporter.hpp"
-#include "Version.hpp"
+#include "core/Version.hpp"
 #include <spdlog/async.h>
 #include <filesystem>
-
 #include <iostream>
 #include <memory>
 

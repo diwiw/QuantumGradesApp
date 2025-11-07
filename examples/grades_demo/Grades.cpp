@@ -1,7 +1,7 @@
 #include "Grades.hpp"
 #include "common/LogLevel.hpp"
 #include "utils/LoggerFactory.hpp"
-#include "Statistics.hpp"
+#include "core/Statistics.hpp"
 #include <iostream>
 #include <numeric>
 #include <algorithm>
