@@ -20,7 +20,7 @@ data/grades.txt
 test_tmp_cfg_json
 
 # Version file
-include/Version.hpp
+include/core/Version.hpp
 
 # Tests
 build/tests/

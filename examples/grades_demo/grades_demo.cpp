@@ -7,11 +7,11 @@
 #include <iostream>
 #include <filesystem>
 #include "Grades.hpp"
-#include "Version.hpp"
+#include "core/Version.hpp"
 #include "io/FileManager.hpp"
 #include "utils/ILogger.hpp"
 #include "utils/LoggerFactory.hpp"
-#include "Config.hpp"
+#include "core/Config.hpp"
 
 using namespace qga;
 

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Platform.hpp" // Ensure platform-specific settings are included first
+#include "core/Platform.hpp" // Ensure platform-specific settings are included first
 #include "common/LogLevel.hpp"
 #include <fstream>
 #include <string>

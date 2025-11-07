@@ -1,4 +1,4 @@
-#include "Config.hpp"
+#include "core/Config.hpp"
 #include "utils/LoggerFactory.hpp"
 #include <algorithm>
 #include <cstdlib>
