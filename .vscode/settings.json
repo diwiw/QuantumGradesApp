@@ -105,5 +105,6 @@
     "C_Cpp.default.defines": [
         "UNIT_TEST",
         "USE_CURL"
-    ]
+    ],
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json"
 }

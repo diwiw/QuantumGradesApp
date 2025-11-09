@@ -31,13 +31,7 @@
             "displayName": "Run unit tests (Release)",
             "description": "Runs all tests using CTest in Release mode",
             "execution": {
-                "command": "ctest",
-                "args": [
-                    "--test-dir",
-                    "build",
-                    "--output-on-failure",
-                    "-V"
-                ]
+                "stopOnFailure": true
             }
         }
     ]

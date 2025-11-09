@@ -1,6 +1,7 @@
 #include "doctest.h"
-#include "Statistics.hpp"
-#include "utils/Logger.hpp"
+#include "core/Statistics.hpp"
+//#include "examples/logger_demo/Logger.hpp"
+// TODO: Reactivate test logger after milestone 1.1.5
 #include <vector>
 
 using namespace qga;

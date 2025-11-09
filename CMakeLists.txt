@@ -104,14 +104,14 @@ find_package(SQLite3 REQUIRED)
 # ============================================================
 # 🧩 Modular source subdirectories
 # ============================================================
-add_subdirectory(${SRC_DIR}/core)
-add_subdirectory(${SRC_DIR}/domain)
-add_subdirectory(${SRC_DIR}/ingest)
-add_subdirectory(${SRC_DIR}/io)
-add_subdirectory(${SRC_DIR}/persistence)
-add_subdirectory(${SRC_DIR}/reporting)
-add_subdirectory(${SRC_DIR}/strategy)
-add_subdirectory(${SRC_DIR}/utils)
+add_subdirectory(${SRC_DIR}/utils)        # qga_utils — lowest layer
+add_subdirectory(${SRC_DIR}/core)         # qga_core depends on utils
+add_subdirectory(${SRC_DIR}/io)           # depends on core, utils
+add_subdirectory(${SRC_DIR}/persistence)  # depends on core, utils
+add_subdirectory(${SRC_DIR}/ingest)       # depends on io, persistence
+add_subdirectory(${SRC_DIR}/strategy)     # depends on core, utils
+add_subdirectory(${SRC_DIR}/reporting)    # depends on io, persistence
+add_subdirectory(${SRC_DIR}/domain)       # depends on core, strategy, persistence
 
 
 # ============================================================
@@ -124,29 +124,10 @@ if(BUILD_LEGACY_DEMOS)
     add_subdirectory(${EXAMPLES_DIR}/logger_demo)
 endif()
 
-# ============================================================
-# 🧪 Tests
-# ============================================================
-file(GLOB TEST_FILES ${TEST_DIR}/*.cpp)
-list(FILTER TEST_FILES EXCLUDE REGEX ".*test_main.cpp$")
-
-add_executable(tests
-    ${TEST_FILES}
-    ${TEST_DIR}/test_main.cpp
-)
-
-target_include_directories(tests PRIVATE ${INCLUDE_DIR})
-target_link_libraries(tests PRIVATE
-    qga_core
-    qga_utils
-    qga_io
-    fmt::fmt
-    spdlog::spdlog
-    CURL::libcurl
-    nlohmann_json::nlohmann_json
-    SQLite::SQLite3
-)
-target_compile_definitions(tests PRIVATE UNIT_TEST USE_CURL)
+# ==============================================
+# === Tests ===
+# ==============================================
+add_subdirectory(tests)
 
 # ============================================================
 # 📘 Doxygen

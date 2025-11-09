@@ -1,5 +1,5 @@
 # ============================================================
-# qga_core — core logic (Config, Statistics)
+# 🧠 qga_core — Application logic and shared data structures
 # ============================================================
 
 file(GLOB CORE_SRC CONFIGURE_DEPENDS
@@ -10,15 +10,20 @@ add_library(qga_core STATIC ${CORE_SRC})
 
 target_include_directories(qga_core
     PUBLIC
-        ${CMAKE_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/include
 )
 
 target_link_libraries(qga_core
     PUBLIC
-        fmt::fmt
-        spdlog::spdlog
+        qga_utils
         nlohmann_json::nlohmann_json
-        SQLite::SQLite3
 )
 
-target_compile_features(qga_core PUBLIC cxx_std_20)
+target_compile_features(qga_core PUBLIC cxx_std_23)
+
+set_target_properties(qga_core PROPERTIES
+    OUTPUT_NAME "qga_core"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)

@@ -1,0 +1,57 @@
+# ==============================================
+# QuantumGradesApp — Unit Tests
+# ==============================================
+
+message(STATUS "🧪 Configuring unit tests...")
+
+# === Test sources ===
+file(GLOB TEST_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
+)
+
+# === Create test executable ===
+add_executable(tests
+    ${TEST_SOURCES}
+)
+
+# === Include paths ===
+target_include_directories(tests PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/include/core
+    ${CMAKE_SOURCE_DIR}/include/utils
+    ${CMAKE_SOURCE_DIR}/external
+)
+
+# === Compiler options ===
+target_compile_features(tests PRIVATE cxx_std_23)
+target_compile_definitions(tests PRIVATE UNIT_TEST USE_CURL)
+
+# === Link libraries ===
+target_link_libraries(tests PRIVATE
+    qga_utils
+    qga_core    
+    qga_io
+    qga_domain
+    qga_ingest
+    qga_persistence
+    qga_reporting
+    qga_strategy
+    fmt::fmt
+    spdlog::spdlog
+    nlohmann_json::nlohmann_json
+    CURL::libcurl
+    SQLite::SQLite3
+)
+
+# === Output directory ===
+set_target_properties(tests PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
+# === Register in CTest (optional, for future CI) ===
+include(CTest)
+if (BUILD_TESTING)
+    add_test(NAME QuantumGradesAppTests COMMAND tests)
+endif()
+
+message(STATUS "✅ Unit tests target configured successfully.")
