@@ -1,5 +1,5 @@
 # ============================================================
-# 💽 qga_persistence — SQLite persistence and DB abstraction
+# 💽 qga_persistence — SQLite database layer
 # ============================================================
 
 file(GLOB PERSIST_SRC CONFIGURE_DEPENDS
@@ -10,14 +10,20 @@ add_library(qga_persistence STATIC ${PERSIST_SRC})
 
 target_include_directories(qga_persistence
     PUBLIC
-        ${CMAKE_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/include
 )
 
 target_link_libraries(qga_persistence
     PUBLIC
-        qga_core
         qga_utils
         SQLite::SQLite3
 )
 
 target_compile_features(qga_persistence PUBLIC cxx_std_23)
+
+set_target_properties(qga_persistence PROPERTIES
+    OUTPUT_NAME "qga_persistence"
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)

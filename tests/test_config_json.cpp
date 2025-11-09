@@ -2,7 +2,7 @@
 #include <filesystem>
 #include <fstream>
 #include <thread>
-#include "Config.hpp"
+#include "core/Config.hpp"
 
 namespace fs = std::filesystem;
 using namespace qga;

@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <thread>
-#include <nlohmann/json.hpp>
+#include "nlohmann/json.hpp"
 
 using nlohmann::json;
 

@@ -9,7 +9,7 @@ namespace qga::domain::backtest{
 
     // Simple account state: all-in 1 item; without leverage
     bool has_pos  = false;
-    double entry  = 0.0;
+   // double entry  = 0.0;  never used, safe to delete
     double cash   = initial_equity_;
     double qty    = 0.0;
 
@@ -26,7 +26,7 @@ namespace qga::domain::backtest{
 
         if(PX_EXEC > 0.0 && cash >= (PX_EXEC + FEE)) {
           has_pos = true; 
-          entry   = PX_EXEC;
+         // entry   = PX_EXEC;    // never used safe to remove
           qty     = 1.0;
           cash    -= (PX_EXEC + FEE);
           r.trades_executed_ += 1;
@@ -52,8 +52,8 @@ namespace qga::domain::backtest{
       const double FEE      = commissionCost(PX_EXEC, qty, exec_.commission_fixed_, exec_.commission_bps_);
       cash                  += PX_EXEC * qty;
       cash                  -= FEE;
-      qty                   = 0.0;
-      has_pos               = false;
+      // qty                   = 0.0; never read val, safe to del
+      // has_pos               = false; never read read, safe to del
       r.final_equity_ = cash;
     }
     
