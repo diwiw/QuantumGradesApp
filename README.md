@@ -125,6 +125,7 @@ QuantumGradesApp/
 ├─ data/
 ├─ docs/
 │  ├─ diagrams/
+│  ├─ developer_notes.md
 │  ├─ *.md
 │  └─ *.dox
 ├─ examples/

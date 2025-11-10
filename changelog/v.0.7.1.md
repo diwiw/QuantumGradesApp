@@ -76,3 +76,17 @@
 
 **v0.7.1** lays the foundation for a production-ready, modular C++ architecture with asynchronous logging, CI integration, and detailed documentation.  
 The upcoming **v0.8.0** focuses on **parallel execution**, **data persistence**, and **real-time reporting**, preparing the framework for **HPC and quantum simulation extensions**.
+
+---
+
+## Config Singleton Behavior in Tests (temporary note – removed in v1.0.0)
+
+Due to the global and persistent nature of the Config singleton, running multiple
+test cases in a single binary may carry state between tests.
+
+As a temporary solution for v0.7.1, every test suite performs an explicit
+`cfg.loadDefaults()` call before loading JSON fixtures.
+
+A full redesign of the test harness (including dependency injection,
+singleton isolation, and logger mocking) is planned for milestone v1.0.0.
+

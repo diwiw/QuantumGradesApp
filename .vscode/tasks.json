@@ -1,51 +1,34 @@
 {
     "version": "2.0.0",
     "tasks": [
-        // =========================
-        // CONFIGURATION
-        // =========================
+        // ======================================================
+        // CONFIGURE
+        // ======================================================
         {
             "label": "Configure Debug",
             "type": "shell",
             "command": "cmake",
             "args": [
-                "-S",
-                ".",
-                "-B",
-                "build/Debug",
-                "-G",
-                "Ninja",
-                "-DCMAKE_BUILD_TYPE=Debug",
-                "-DBUILD_LEGACY_DEMOS=ON"
+                "--preset",
+                "linux-debug"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": []
+            "group": "build"
         },
         {
             "label": "Configure Release",
             "type": "shell",
             "command": "cmake",
             "args": [
-                "-S",
-                ".",
-                "-B",
-                "build/Release",
-                "-G",
-                "Ninja",
-                "-DCMAKE_BUILD_TYPE=Release",
-                "-DBUILD_LEGACY_DEMOS=ON"
+                "--preset",
+                "linux-release"
             ],
-            "group": "build",
-            "problemMatcher": []
+            "group": "build"
         },
-        // =========================
-        // DEBUG BUILDS
-        // =========================
+        // ======================================================
+        // DEBUG BUILDS — INDIVIDUAL DEMOS
+        // ======================================================
         {
-            "label": "Build Debug Backtest_Demo",
+            "label": "Build Debug Backtest Demo",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -53,41 +36,18 @@
                 "build/Debug",
                 "--target",
                 "backtest_demo",
-                "--config",
-                "Debug",
-                "--parallel"
+                "-j8"
+            ],
+            "dependsOn": [
+                "Configure Debug"
             ],
             "group": "build",
             "problemMatcher": [
                 "$gcc"
-            ],
-            "dependsOn": [
-                "Configure Debug"
             ]
         },
         {
-            "label": "Build Debug Grades_Demo (Legacy)",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "build/Debug",
-                "--target",
-                "grades_demo",
-                "--config",
-                "Debug",
-                "--parallel"
-            ],
-            "group": "build",
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "dependsOn": [
-                "Configure Debug"
-            ]
-        },
-        {
-            "label": "Build Debug Logger_Demo (Legacy)",
+            "label": "Build Debug Logger Demo",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -95,39 +55,38 @@
                 "build/Debug",
                 "--target",
                 "logger_demo",
-                "--config",
-                "Debug",
-                "--parallel"
+                "-j8"
+            ],
+            "dependsOn": [
+                "Configure Debug"
             ],
             "group": "build",
             "problemMatcher": [
                 "$gcc"
-            ],
-            "dependsOn": [
-                "Configure Debug"
             ]
         },
         {
-            "label": "Build Debug Tests",
+            "label": "Build Debug Grades Demo",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
                 "build/Debug",
                 "--target",
-                "tests",
-                "--config",
-                "Debug",
-                "--parallel"
+                "grades_demo",
+                "-j8"
+            ],
+            "dependsOn": [
+                "Configure Debug"
             ],
             "group": "build",
             "problemMatcher": [
                 "$gcc"
-            ],
-            "dependsOn": [
-                "Configure Debug"
             ]
         },
+        // ======================================================
+        // ✅ DEBUG: BUILD ALL DEMOS (ZBIORCZY)
+        // ======================================================
         {
             "label": "Build Debug All Demos",
             "type": "shell",
@@ -143,19 +102,55 @@
                 "logger_demo",
                 "grades_demo"
             ],
+            "dependsOn": [
+                "Configure Debug"
+            ],
             "group": "build",
             "problemMatcher": [
                 "$gcc"
+            ]
+        },
+        // ======================================================
+        // DEBUG TESTS
+        // ======================================================
+        {
+            "label": "Build Debug Tests",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/Debug",
+                "--target",
+                "tests",
+                "-j8"
             ],
             "dependsOn": [
                 "Configure Debug"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
             ]
         },
-        // =========================
-        // RELEASE BUILDS
-        // =========================
         {
-            "label": "Build Release Backtest_Demo",
+            "label": "Run Debug Tests",
+            "type": "shell",
+            "command": "ctest",
+            "args": [
+                "--test-dir",
+                "build/Debug",
+                "--output-on-failure"
+            ],
+            "dependsOn": [
+                "Build Debug Tests"
+            ],
+            "group": "test"
+        },
+        // ======================================================
+        // RELEASE BUILDS — INDIVIDUAL DEMOS
+        // ======================================================
+        {
+            "label": "Build Release Backtest Demo",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -163,20 +158,37 @@
                 "build/Release",
                 "--target",
                 "backtest_demo",
-                "--config",
-                "Release",
-                "--parallel"
+                "-j8"
+            ],
+            "dependsOn": [
+                "Configure Release"
             ],
             "group": "build",
             "problemMatcher": [
                 "$gcc"
-            ],
-            "dependsOn": [
-                "Configure Release"
             ]
         },
         {
-            "label": "Build Release Grades_Demo (Legacy)",
+            "label": "Build Release Logger Demo",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/Release",
+                "--target",
+                "logger_demo",
+                "-j8"
+            ],
+            "dependsOn": [
+                "Configure Release"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "Build Release Grades Demo",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -184,42 +196,81 @@
                 "build/Release",
                 "--target",
                 "grades_demo",
-                "--config",
-                "Release",
-                "--parallel"
+                "-j8"
+            ],
+            "dependsOn": [
+                "Configure Release"
             ],
             "group": "build",
             "problemMatcher": [
                 "$gcc"
-            ],
-            "dependsOn": [
-                "Configure Release"
             ]
         },
-        // =========================
-        // UTILITIES
-        // =========================
+        // ======================================================
+        // ✅ RELEASE: BUILD ALL DEMOS (ZBIORCZY)
+        // ======================================================
         {
-            "label": "clang-tidy: fix project",
-            "type": "shell",
-            "command": "./tools/run-tidy-fix.sh",
-            "problemMatcher": []
-        },
-        {
-            "label": "cmake: build all",
+            "label": "Build Release All Demos",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "build/Debug",
-                "--parallel"
+                "build/Release",
+                "--config",
+                "Release",
+                "--parallel",
+                "--target",
+                "backtest_demo",
+                "logger_demo",
+                "grades_demo"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": []
+            "dependsOn": [
+                "Configure Release"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
         },
+        // ======================================================
+        // RELEASE TESTS
+        // ======================================================
+        {
+            "label": "Build Release Tests",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/Release",
+                "--target",
+                "tests",
+                "-j8"
+            ],
+            "dependsOn": [
+                "Configure Release"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "Run Release Tests",
+            "type": "shell",
+            "command": "ctest",
+            "args": [
+                "--test-dir",
+                "build/Release",
+                "--output-on-failure"
+            ],
+            "dependsOn": [
+                "Build Release Tests"
+            ],
+            "group": "test"
+        },
+        // ======================================================
+        // CLEAN
+        // ======================================================
         {
             "label": "Clean Build",
             "type": "shell",
@@ -228,7 +279,7 @@
                 "-rf",
                 "build"
             ],
-            "problemMatcher": []
+            "group": "build"
         }
     ]
 }

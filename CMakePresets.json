@@ -6,6 +6,26 @@
     },
     "configurePresets": [
         {
+            "name": "linux-debug",
+            "displayName": "Linux Debug",
+            "generator": "Ninja",
+            "binaryDir": "build/Debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "BUILD_LEGACY_DEMOS": "ON"
+            }
+        },
+        {
+            "name": "linux-release",
+            "displayName": "Linux Release",
+            "generator": "Ninja",
+            "binaryDir": "build/Release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "BUILD_LEGACY_DEMOS": "ON"
+            }
+        },
+        {
             "name": "windows-release",
             "displayName": "Windows Release (MSVC + Ninja)",
             "generator": "Ninja",
@@ -19,17 +39,29 @@
     ],
     "buildPresets": [
         {
-            "name": "build-release",
-            "configurePreset": "windows-release",
-            "configuration": "Release"
+            "name": "build-linux-debug",
+            "configurePreset": "linux-debug"
+        },
+        {
+            "name": "build-linux-release",
+            "configurePreset": "linux-release"
+        },
+        {
+            "name": "build-windows-release",
+            "configurePreset": "windows-release"
         }
     ],
     "testPresets": [
         {
-            "name": "test-release",
-            "configurePreset": "windows-release",
-            "displayName": "Run unit tests (Release)",
-            "description": "Runs all tests using CTest in Release mode",
+            "name": "test-linux-debug",
+            "configurePreset": "linux-debug",
+            "execution": {
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "test-linux-release",
+            "configurePreset": "linux-release",
             "execution": {
                 "stopOnFailure": true
             }
