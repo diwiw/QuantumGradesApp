@@ -1,35 +1,78 @@
-# v0.7.1 – Infra + Validation + Logger + Demo Refactor
+# v0.7.1 – Modularization, Testing, and Documentation Foundation
 
-### Added
-- `DataExporter` class for saving `BarSeries` to CSV files.
-- Support for exporting full series and custom ranges.
-- `BarSeries` now exposes `data()`, `operator[]`, `clear()`, and `empty()` methods.
-- Unit tests for `DataExporter` covering append, range, and full export modes.
-- Introduced modular demo targets: `grades_demo` and `logger_demo`, each built independently.
-- Added Doxygen documentation for demo examples to preserve educational context.
-- Auto-generation of `Version.hpp` from Git tags and build timestamp in CMake.
+### 🚀 Added
+- Full **modular CMake structure** (`core`, `utils`, `domain`, `io`, `strategy`, `persistence`, `reporting`)
+- **Asynchronous logging system** (`ILogger`, `SpdLogger`, `LoggerFactory`) with DI-based initialization
+- **DataExporter** for exporting `BarSeries` to CSV, with extensive unit tests
+- **Doxygen documentation**: architecture diagrams, backtest flow, and class relationships (SVG)
+- Automatic **`Version.hpp`** generation from Git tags and build timestamps
+- Updated **VSCode tasks and presets** for one-click builds, tests, and documentation
+- Enhanced CI compatibility with **Ninja + vcpkg + MSVC** on both Linux and Windows
 
-### Changed
-- Migrated all demo components to the new production logger system (`ILogger`, `SpdLogger`, `LoggerFactory`).
-- Removed legacy static `Logger` from the main build; kept only under `examples/` for reference.
-- Updated `grades_demo` to use asynchronous logger instance (`logger_` via factory).
-- Updated `logger_demo` to reflect production-style initialization with async sinks and config-based setup.
-- Adjusted build configuration to exclude `examples/` from the main build by default.
-- Unified naming, includes, and namespace consistency across demos and `utils`.
+### 🔧 Changed
+- All demos (`grades_demo`, `logger_demo`, `backtest_demo`) now use the new production async logger
+- Unified namespaces (`qga::core`, `qga::utils`, `qga::domain`, etc.)
+- Modularized CMake — separated per-component builds and public includes
+- Reorganized include structure: headers now live under `include/core`, `include/utils`, etc.
+- Clean and consistent configuration via `Config` class (centralized entry point)
+- Improved documentation build flow and separation of examples from main build
 
-### Cleaned
-- Removed outdated `include/Version.h` (replaced with generated `Version.hpp`).
-- Simplified include paths and reduced coupling between modules.
-- Legacy logging code (`utils/Logger`) kept only for archival purposes in `examples/`.
-- Updated `.gitignore` to exclude generated files (`Version.hpp`, local build artifacts).
+### 🧹 Cleaned
+- Removed legacy synchronous logger (`utils/Logger`)
+- Removed obsolete files (`include/Version.h`, outdated test variants)
+- Simplified `CMakeLists.txt` across project structure
+- `.gitignore` updated to exclude `app.log`, build artifacts, generated `Version.hpp`, and docs outputs
+- Removed `.mmd` diagram files (retained `.svg` for unified documentation)
 
-### Notes
-- Legacy logging API remains for backward compatibility in demos only.
-- Future milestone (`v0.7.2`) will focus on:
-  - modular CMake restructuring (`core/`, `io/`, `utils/` targets),
-  - final cleanup of legacy includes,
-  - and expanded Doxygen documentation coverage.
+### 🧪 Fixed
+- Build and link issues after modularization
+- Missing include paths for tests and demos
+- IntelliSense inconsistencies (`compile_commands.json`)
+- Doxygen warnings related to undefined symbols and image references
+- Corrected target linking for examples (`BUILD_LEGACY_DEMOS` and per-example flags)
 
-> **Migration note:**  
-> This release completes the internal transition from the legacy synchronous logger to the asynchronous, DI-based logging system.  
-> Future versions will focus on modular CMake restructuring and core HPC/QGA logic.
+### 🧭 Notes
+- This release completes the transition to a fully modular and maintainable architecture.  
+- All core modules (`core`, `domain`, `utils`, `io`, `persistence`) are now independent, testable units.
+- Documentation and architecture diagrams are now synchronized between Doxygen and README.
+- Demos use production-level async loggers and can serve as integration tests.
+
+---
+
+# 🔮 v0.8.0 – Parallel Backtesting, Reporting, and Persistence
+
+### 🚧 In Progress (Milestone [0.8.0 on GitHub](https://github.com/diwiw/QuantumGradesApp/milestone/3))
+
+#### 🧵 Multithreading & Concurrency
+- Parallelized **Backtest Engine** (thread-safe queue, worker pool, and producer–consumer model)
+- Thread-aware **LoggerFactory** (asynchronous queue-based sink)
+- Unit tests with **ThreadSanitizer** and **TSAN CI integration**
+
+#### 🧾 Reporting System
+- Implementation of **ReporterManager** (Observer Pattern)
+- Real-time and post-run reporting (CSV, JSON, console, async sinks)
+- Extensible reporter interfaces for statistics and PnL summaries
+
+#### 🧩 Persistence Layer
+- Connection pooling for **SQLite3**
+- Async persistence workers for historical and session data
+- Transaction-safe data writing with rollback support
+
+#### ⚙️ Performance and Testing
+- Benchmarks and profiling via CMake + Google Benchmark
+- TSAN/ASAN integration for CI
+- Expanded Doctest coverage (multithreaded, persistence, reporting)
+- Continuous build validation for Linux and Windows
+
+#### 🧠 Documentation & Tooling
+- New **developer guide** (`docs/dev_guide.md`)
+- High-level architecture overview in Doxygen (with data flow and sequence diagrams)
+- Improved README badges (build, docs, tests)
+- Reorganization of CI workflow (`linux-build.yml`, `windows-build.yml`)
+
+---
+
+## 📜 Release Summary
+
+**v0.7.1** lays the foundation for a production-ready, modular C++ architecture with asynchronous logging, CI integration, and detailed documentation.  
+The upcoming **v0.8.0** focuses on **parallel execution**, **data persistence**, and **real-time reporting**, preparing the framework for **HPC and quantum simulation extensions**.
