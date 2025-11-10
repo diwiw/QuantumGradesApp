@@ -11,6 +11,8 @@ cmake-build-*/
 
 # Log Catalog
 logs/
+app.log
+*.log
 
 # Development tools
 tools/

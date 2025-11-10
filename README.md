@@ -1,39 +1,39 @@
-# 📊 QuantumGradesApp
+# QuantumGradesApp
 
-> **Current Version:** `v0.7.0`  
-> **Build System:** CMake  
-> **IDE Support:** Visual Studio Code (fully configured)  
-> **Documentation:** Auto-generated with Doxygen  
-> **Unit Testing:** Doctest 
+> **Current Version:** `v0.7.1`
+> **Build System:** CMake
+> **IDE Support:** Visual Studio Code (fully configured)
+> **Documentation:** Auto-generated with Doxygen
+> **Unit Testing:** Doctest
 
 C++20 project evolving from a simple grades/statistics demo into a **quantitative backtesting framework** with clean modular design.
 
 ---
 
-
-## 🧠 Features (current – v0.7.0)
+## Features (current – v0.7.1)
 
 - **Config system**: JSON + ENV overrides, validation (fully functional)
-- **Statistics**: basic metrics (avg, variance, percentiles)
-- **FileManager**: lightweight I/O utilities
-- **Logger**: integrated with async `spdlog`
-- **DataIngest**: CSV + HTTP ingestion
+- **Statistics**: core metrics (avg, variance, percentiles), refactored structure (moved to `core/`)
+- **FileManager**: lightweight I/O utilities (static, no state)
+- **Logger**: async `spdlog` + DI, `NullLogger`, `MockLogger`
+- **DataIngest**: CSV + HTTP ingestion (refactored, tested, HTTP fixtures)
 - **Domain models**:
   - Backtest: `Engine`, `BarSeries`, `Portfolio`, `Orders`, `Trades`, `Execution`
   - Strategies: `Buy & Hold`, `Moving Average Crossover`
-- **Tests**: `doctest`-based, modular with separate `test_main.cpp`
-- **Docs**: Doxygen + optional Graphviz/Mermaid diagrams
-- **CI**: Ubuntu (`ccache`), Windows (`sccache`), optional ThreadSanitizer build
+- **Tests**: doctest-based, modular; improved HTTP tests; unified test data structure
+- **Docs**: Doxygen + updated diagrams (`backtest_flow`, `class_diagram`)
+- **CI**: Ubuntu (`ccache`), Windows (`sccache`), improved `vcpkg` stability; optional TSAN build
 
 ---
 
 ## Roadmap
 
-
 ### v0.7.1
-- Implement CSV/JSON Reporters.
-- Add 'IReporter' interface and observer notifications.
-- Archive legacy demos (examples/) and update Doxygen diagrams.
+- CSV/JSON Reporters implemented.
+- Introduced `IReporter` interface and observer model.
+- Updated diagrams (Mermaid + DOT) to reflect new reporter architecture.
+- Legacy demos archived (`examples/`).
+- Cleaner documentation structure and improved navigation.
 - Cleanup & refactor documentation structure.
 
 ### v0.8.0
@@ -45,12 +45,12 @@ C++20 project evolving from a simple grades/statistics demo into a **quantitativ
 ### v0.9.0
 - Metrics: MDD, Sharpe, Sortino, CAGR.
 - clang-format/tidy integration in CI.
-- Add benchmark and profiling support.
+- Benchmark and profiling support.
 
 ### v1.x
 - Stable MVP + REST API.
 - Python bindings (pybind11).
-- Desktop UI (Qt/QML) **or Web UI (React/Angular)**.
+- Desktop UI (Qt/QML) or Web UI (React/Angular).
 - API v2 (auth, pagination, OpenAPI).
 - Observability & monitoring.
 
@@ -70,175 +70,216 @@ C++20 project evolving from a simple grades/statistics demo into a **quantitativ
 
 ## Architecture
 
-To better understand the design of **QuantumGradesApp**, see the diagrams below:
+### Module Overview
 
-- [Backtest Flow](docs/pages/backtest_flow.md)  
-  Shows the step-by-step data flow inside the backtest engine  
-  (BarSeries → Engine → Strategy → Execution → Portfolio → Result).
+The project is organized into clearly separated modules reflecting clean architecture principles.
 
-- [Class Diagram](docs/pages/class_diagram.md)  
-  Shows the relationships between the main domain classes  
-  (Engine, BarSeries, Portfolio, Orders/Trades, Strategies).
+#### core/
+Contains foundational components shared across modules:
+- Config system (JSON + ENV + schema validation)
+- Statistics engine
+- Platform utilities
+- Versioning utilities
+
+#### domain/
+Contains all domain-specific models used by the backtest engine:
+- Backtest models: BarSeries, Engine, Portfolio, Order, Trade, Execution, Position, Result, Instrument, Quote
+- Strategy interfaces and concrete strategies (Buy & Hold, Moving Average Crossover)
+
+#### ingest/
+Responsible for loading external data:
+- DataIngest: orchestrates CSV/HTTP ingestion
+
+#### io/
+Low-level input/output layer:
+- CsvLoader
+- FileManager
+- DataExporter (CSV/JSON reporters use this)
+
+#### persistence/
+Database abstraction layer:
+- IDataStore interface
+- SQLiteStore implementation
+- Statement helper
+- PersistenceFactory
+- DatabaseWorker (async)
+
+#### reporting/
+Observer-based reporting system:
+- IReporter interface
+- ReporterManager orchestrates registered reporters
+
+#### strategy/
+User-provided or built-in strategies implementing IStrategy.
+
+#### utils/
+General-purpose utilities:
+- ILogger and implementations (SpdLogger, NullLogger, MockLogger)
+- LoggerFactory for DI-based logger retrieval
+
+### High-Level Architecture Diagram
+
+```mermaid
+flowchart TD
+    subgraph Ingest
+        A1[DataIngest] --> A2[CsvLoader]
+        A1 --> A3[HTTP Fetch]
+    end
+
+    subgraph Domain
+        B1[BarSeries]
+        B2[Engine]
+        B3[Strategy]
+        B4[Execution]
+        B5[Portfolio]
+        B6[Trades/Orders]
+    end
+
+    subgraph Reporting
+        C1[ReporterManager] --> C2[IReporter]
+    end
+
+    subgraph Persistence
+        D1[DatabaseWorker] --> D2[SQLiteStore]
+        D2 --> D3[Statement]
+    end
+
+    A1 --> B1
+    B2 --> B3
+    B3 --> B4
+    B4 --> B5
+    B5 --> C1
+    B5 --> D1
+```
+
+### Backtest Engine Flow
+Detailed flow is provided in `docs/pages/backtest_flow.md`.
+
+```mermaid
+flowchart LR
+    BS[BarSeries] --> ENG[Engine]
+    ENG --> STR[Strategy]
+    STR --> EXEC[Execution]
+    EXEC --> PORT[Portfolio]
+    PORT --> RES[Result]
+    RES --> REP[ReporterManager]
+```
+flowchart TD
+    A[BarSeries] --> B[Engine]
+    B --> C[Strategy]
+    C --> D[Execution]
+    D --> E[Portfolio]
+    E --> F[Result]
+```
+
+### Class Diagram
+See `docs/pages/class_diagram.md` for detailed OOP structure.
+
+```
+classDiagram
+    class Engine
+    class BarSeries
+    class Strategy
+    class Portfolio
+    class Order
+    class Trade
+    class Execution
+
+    Engine --> BarSeries
+    Engine --> Strategy
+    Portfolio --> Trade
+    Portfolio --> Order
+```
 
 ---
 
-## 🧱 Project Structure
+## Project Structure
 
 ```bash
 QuantumGradesApp/
-├─ cmake/ # config, version.h.in, helpers
-├─ data/ # sample input data
-├─docs/
-│ ├─ diagrams/
-│ │ ├─ backtest_flow.dot
-│ │ ├─ backtest_flow.mmd
-│ │ ├─ class_diagram.dot
-│ │ └─ class_diagram.mmd
-│ ├─ backtest_flow.dox
-│ ├─ backtest_flow.md
-│ ├─ class_diagram.dox
-│ └─ class_diagram.md
-├─ external/ # third-party libraries (via FetchContent)
+├─ .github/
+├─ .vscode/
+├─ build/
+├─ changelog/
+├─ config/
+├─ data/
+├─ docs/
+│  ├─ diagrams/
+│  ├─ *.md
+│  └─ *.dox
+├─ examples/
+│  ├─ backtest_demo/
+│  ├─ grades_demo/
+│  ├─ logger_demo/
+│  └─ CMakeLists.txt
+├─ external/
+│  └─ doctest.h
 ├─ include/
-│ ├─ Config.hpp
-│ ├─ FileManager.hpp
-│ ├─ Logger.hpp
-│ ├─ Statistics.hpp
-│ └─ domain/
-│    ├─ backtest/
-│    │  ├─ Engine.hpp
-│    │  ├─ BarSeries.hpp
-│    │  ├─ Order.hpp
-│    │  ├─ Portfolio.hpp
-│    │  ├─ Trade.hpp
-│    │  └─ Execution.hpp
-│    └─ strategy/
-│       ├─ IStrategy.hpp
-│       ├─ BuyHold.hpp
-│       └─ MACrossover.hpp
+│  ├─ common/
+│  │  ├─ LogLevel.hpp
+│  │  ├─ Platform.hpp
+│  │  └─ Version.hpp
+│  ├─ core/
+│  │  ├─ Config.hpp
+│  │  └─ Statistics.hpp
+│  ├─ domain/
+│  │  ├─ backtest/
+│  │  │  ├─ BarSeries.hpp
+│  │  │  ├─ Engine.hpp
+│  │  │  ├─ Execution.hpp
+│  │  │  ├─ Order.hpp
+│  │  │  ├─ Portfolio.hpp
+│  │  │  ├─ Position.hpp
+│  │  │  ├─ Result.hpp
+│  │  │  ├─ Trade.hpp
+│  │  │  ├─ Instrument.hpp
+│  │  │  └─ Quote.hpp
+│  ├─ ingest/
+│  │  └─ DataIngest.hpp
+│  ├─ io/
+│  │  ├─ CsvLoader.hpp
+│  │  ├─ DataExporter.hpp
+│  │  └─ FileManager.hpp
+│  ├─ persistence/
+│  │  ├─ DatabaseWorker.hpp
+│  │  ├─ IDataStore.hpp
+│  │  ├─ PersistenceFactory.hpp
+│  │  ├─ SQLiteStore.hpp
+│  │  └─ Statement.hpp
+│  ├─ reporting/
+│  │  ├─ IReporter.hpp
+│  │  └─ ReporterManager.hpp
+│  ├─ strategy/
+│  │  ├─ BuyHold.hpp
+│  │  ├─ IStrategy.hpp
+│  │  └─ MACrossover.hpp
+│  └─ utils/
+│     ├─ ILogger.hpp
+│     ├─ LoggerFactory.hpp
+│     ├─ MockLogger.hpp
+│     ├─ NullLogger.hpp
+│     └─ SpdLogger.hpp
+├─ logs/
+├─ sql/migrations/
+│  ├─ 001_init.sql
+│  ├─ 002_add_barseries.sql
+│  ├─ 003_add_portfolio.sql
+│  └─ migrations.sql
 ├─ src/
-│  ├─ Config.cpp
-│  ├─ Logger/
-│  ├─ DataIngest/
-│  ├─ FileManager.cpp
-│  └─ domain/
-│     ├─ backtest/
-│     └─ strategy/
+│  ├─ core/
+│  ├─ domain/
+│  ├─ ingest/
+│  ├─ io/
+│  ├─ persistence/
+│  ├─ reporting/
+│  ├─ strategy/
+│  └─ utils/
 ├─ tests/
-│  ├─ test_main.cpp
-│  ├─ test_data_ingest.cpp
-│  ├─ test_logger.cpp
-│  └─ data/test_http.csv
+├─ tools/
+├─ vcpkg_triplets/
 ├─ CMakeLists.txt
-├─ Doxyfile
-├─ README.md
+├─ .clang-format
+├─ .clang-tidy
 └─ LICENSE.txt
 ```
 
----
-
-## 🚀 Getting Started
-
-### 🔧 Build with CMake
-
-```bash
-## Build
-
-### Requirements
-- CMake ≥ 3.20
-- C++20 toolchain
-- (Optional) Doxygen for docs
-
-### Build & Test
-## Linux (Ubuntu)
-```bash
-sudo apt install cmake ninja-build pkg-config libcurl4-openssl-dev libsqlite3-dev libspdlog-dev libfmt-dev ccache
-cmake -S . -B build -G Ninja -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-cmake --build build --parallel
-ctest --test-dir build --output-on-failure
-```
-## Windows (MSVC + Ninja + vcpkg)
-cmake -S . -B build -G "Ninja" ^
-  -DCMAKE_TOOLCHAIN_FILE=%CD%\vcpkg\scripts\buildsystems\vcpkg.cmake ^
-  -DVCPKG_TARGET_TRIPLET=x64-windows-static ^
-  -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
-cmake --build build --config Release
-ctest --test-dir build --output-on-failure
-
-## Optional ThreadSanitizer (Linux only)
-sudo apt install clang
-cmake -S . -B build-tsan -DENABLE_TSAN=ON -DCMAKE_CXX_COMPILER=clang++
-cmake --build build-tsan
-ctest --test-dir build-tsan --output-on-failure
-
-### 🧪 Run Tests
-
-```bash
-. /build/bin/tests
-```
-For testing HTTP in file test_data_ingest, there should be server locally started, before start test:
-
-```bash
-cd tests/data
-python3 -m http.server 8000
-```
----
-
-## 📝 Doxygen Documentation
-
-Generate HTML docs with:
-
-```bash
-cmake -S . -B build -DBUILD_DOCS=ON
-
-cmake --build build --target docs
-```
-
-Output: `docs/html/index.html`
-
----
-
-### 📊 UML Diagrams (optional)
-
-To generate UML-style class diagrams with Doxygen, install [Graphviz](https://graphviz.org):
-
-```bash
-sudo apt install graphviz
-```
-Then rebuild the docs:
-```
-cmake --build build --target docs
-```
-## 🗒 Release Notes
-
-- [v0.7.0](changelog/release_notes_v0.7.0.md) – dataIngest: CSV, HTTP, Persistence: SQLite3, JSON validation, Async spdlog, config/module struct
-- [v0.6.0](changelog/release_notes_v0.6.0.md) – strategy framework, full backtest engine, domain model
-- [v0.5.0](changelog/release_notes_v0.5.0.md) – CI/CD, CMake refactor, Logger, Statistics, Grades, FileManager 
-- [v0.4.0](changelog/release_notes_v0.4.0.md) – CMake migration, VSCode setup
-- [v0.3.0](changelog/release_notes_v0.3.0.md) – full Makefile-based system
-
----
-
-## 📦 CI/CD Status
-
-| Platform   | Build  | Cache             | Sanitizer                    |
-| ---------- | ------ | ----------------- | ---------------------------- |
-| 🐧 Ubuntu  | ✅     | `ccache`          | `ThreadSanitizer` (optional) |
-| 🪟 Windows | ✅     | `sccache + vcpkg` | —                            |
-| 📚 Docs    | ✅     | —                 | —                            |
-
-[CI/CD](https://github.com/diwiw/QuantumGradesApp/actions/workflows/build.yml)
-[Releases](https://github.com/diwiw/QuantumGradesApp/releases)
-
----
-
-## 🙌 Contributors
-
-Project created and maintained by [diwiw](https://github.com/diwiw)
-with focus on C++ mastery, quantitative programming, and CI/CD practices.
-
----
-
-## ⚖️ License
-
-MIT License – see [LICENSE](https://github.com/diwiw/QuantumGradesApp/blob/main/LICENSE.txt)
