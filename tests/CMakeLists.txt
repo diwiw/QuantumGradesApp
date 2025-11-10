@@ -49,9 +49,7 @@ set_target_properties(tests PROPERTIES
 )
 
 # === Register in CTest (optional, for future CI) ===
-include(CTest)
-if (BUILD_TESTING)
-    add_test(NAME QuantumGradesAppTests COMMAND tests)
-endif()
+add_test(NAME QuantumGradesAppTests COMMAND tests)
+
 
 message(STATUS "✅ Unit tests target configured successfully.")

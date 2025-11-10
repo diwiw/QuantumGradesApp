@@ -1,98 +1,41 @@
 {
     "version": "0.2.0",
     "configurations": [
-        // =========================
-        // 🧠 BACKTEST DEMO
-        // =========================
         {
-            "name": "Run Backtest_Demo (Debug)",
+            "name": "Debug Backtest Demo",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/Debug/bin/backtest_demo",
             "args": [],
-            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": true,
-            "preLaunchTask": "Build Debug Backtest_Demo",
-            "MIMode": "gdb",
-            "miDebuggerPath": "/usr/bin/gdb"
+            "MIMode": "gdb"
         },
         {
-            "name": "Run Backtest_Demo (Release)",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/Release/bin/backtest_demo",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": true,
-            "preLaunchTask": "Build Release Backtest_Demo",
-            "MIMode": "gdb",
-            "miDebuggerPath": "/usr/bin/gdb"
-        },
-        // =========================
-        // 📘 GRADES DEMO (Legacy)
-        // =========================
-        {
-            "name": "Run Grades_Demo (Debug)",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/Debug/bin/grades_demo",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": true,
-            "preLaunchTask": "Build Debug Grades_Demo (Legacy)",
-            "MIMode": "gdb",
-            "miDebuggerPath": "/usr/bin/gdb"
-        },
-        {
-            "name": "Run Grades_Demo (Release)",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/Release/bin/grades_demo",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": true,
-            "preLaunchTask": "Build Release Grades_Demo (Legacy)",
-            "MIMode": "gdb",
-            "miDebuggerPath": "/usr/bin/gdb"
-        },
-        // =========================
-        // 🧾 LOGGER DEMO (Legacy)
-        // =========================
-        {
-            "name": "Run Logger_Demo (Debug)",
+            "name": "Debug Logger Demo",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/Debug/bin/logger_demo",
             "args": [],
-            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": true,
-            "preLaunchTask": "Build Debug Logger_Demo (Legacy)",
-            "MIMode": "gdb",
-            "miDebuggerPath": "/usr/bin/gdb"
+            "MIMode": "gdb"
         },
         {
-            "name": "Run Logger_Demo (Release)",
+            "name": "Debug Grades Demo",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Release/bin/logger_demo",
+            "program": "${workspaceFolder}/build/Debug/bin/grades_demo",
             "args": [],
-            "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": true,
-            "preLaunchTask": "Build Release Grades_Demo (Legacy)",
-            "MIMode": "gdb",
-            "miDebuggerPath": "/usr/bin/gdb"
+            "MIMode": "gdb"
+        },
+        {
+            "name": "Debug Unit Tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Debug/bin/tests",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "MIMode": "gdb"
         }
     ]
 }
