@@ -6,7 +6,7 @@
 
 #include "Grades.hpp"
 #include "core/Config.hpp"
-#include "core/Version.hpp"
+#include "Version.hpp"
 #include "io/FileManager.hpp"
 #include "utils/ILogger.hpp"
 #include "utils/LoggerFactory.hpp"

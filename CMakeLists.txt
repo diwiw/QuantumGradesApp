@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.27)
-project(QuantumGradesApp VERSION 0.8.0 LANGUAGES CXX)
-string(TIMESTAMP APP_BUILD_DATE "%Y-%m-%d")
+project(QuantumGradesApp LANGUAGES CXX)
+
+# === Load version information ===
+include(${CMAKE_SOURCE_DIR}/cmake/version.cmake)
+
+message(STATUS "🧩 QuantumGradesApp version: ${QGA_VERSION} (${QGA_GIT_VERSION})")
+message(STATUS "🕓 Build date: ${QGA_BUILD_DATE}")
 
 # ============================================================
 # ⚙️ Build configuration
@@ -71,15 +76,21 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-string(TIMESTAMP BUILD_DATE "%Y-%m-%d %H:%M:%S")
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data)
 
 configure_file(
-    ${CMAKE_SOURCE_DIR}/cmake/version.h.in
-    ${INCLUDE_DIR}/core/Version.hpp
+    ${CMAKE_SOURCE_DIR}/cmake/templates/Version.hpp.in
+    ${CMAKE_BINARY_DIR}/generated/Version.hpp
     @ONLY
 )
+
+include_directories(${CMAKE_BINARY_DIR}/generated)
+
+
+# ============================================================
+# 🧱 Install CCache
+# ============================================================
 
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)

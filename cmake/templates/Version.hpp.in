@@ -1,0 +1,5 @@
+#pragma once
+
+#define APP_VERSION "@QGA_VERSION@"
+#define APP_GIT_VERSION "@QGA_GIT_VERSION@"
+#define APP_BUILD_DATE "@QGA_BUILD_DATE@"

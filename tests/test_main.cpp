@@ -1,12 +1,12 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "Version.hpp"
 #include "doctest.h"
-#include "core/Version.hpp"
 #include "utils/LoggerFactory.hpp"
 #include "utils/SpdLogger.hpp"
 
 #include <filesystem>
-#include <memory>
 #include <iostream>
+#include <memory>
 
 using namespace qga;
 using namespace utils;
@@ -14,17 +14,21 @@ using namespace utils;
 /**
  * @brief Global fixture for initializing the logger before all tests.
  */
-struct LogInit {
+struct LogInit
+{
     std::shared_ptr<ILogger> logger_;
 
-    LogInit() {
+    LogInit()
+    {
         // Ensure logs directory exists
-        if (!std::filesystem::exists("logs")) {
+        if (!std::filesystem::exists("logs"))
+        {
             std::filesystem::create_directory("logs");
         }
 
         // Create async logger via LoggerFactory
-        logger_ = LoggerFactory::createLogger("tests_logger", "logs/test_log.txt", qga::LogLevel::Debug);
+        logger_ =
+            LoggerFactory::createLogger("tests_logger", "logs/test_log.txt", qga::LogLevel::Debug);
         logger_->info("[TEST] Logger initialized successfully.");
     }
 };
@@ -35,8 +39,10 @@ static LogInit log_init;
 /**
  * @brief Displays app version info at test startup.
  */
-struct VersionPrinter {
-    VersionPrinter() {
+struct VersionPrinter
+{
+    VersionPrinter()
+    {
         std::cout << "===================================\n";
         std::cout << " QuantumGradesApp Tests\n";
         std::cout << " Version: " << APP_VERSION << "\n";

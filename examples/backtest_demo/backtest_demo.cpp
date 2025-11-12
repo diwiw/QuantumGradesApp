@@ -1,5 +1,5 @@
+#include "Version.hpp"
 #include "core/Config.hpp"
-#include "core/Version.hpp"
 #include "io/FileManager.hpp"
 #include "utils/ILogger.hpp"
 #include "utils/LoggerFactory.hpp"

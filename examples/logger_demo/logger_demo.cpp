@@ -1,5 +1,5 @@
+#include "Version.hpp"
 #include "core/Config.hpp"
-#include "core/Version.hpp"
 #include "ingest/DataIngest.hpp"
 #include "io/DataExporter.hpp"
 #include "utils/SpdLogger.hpp"
