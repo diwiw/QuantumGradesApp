@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.27)
 project(QuantumGradesApp LANGUAGES CXX)
 
-# === Load version information ===
+# ============================================================
+# 🧩 Load version info
+# ============================================================
 include(${CMAKE_SOURCE_DIR}/cmake/version.cmake)
 
 message(STATUS "🧩 QuantumGradesApp version: ${QGA_VERSION} (${QGA_GIT_VERSION})")
@@ -32,29 +34,27 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+include(CTest)
 
-# ThreadSanitizer (optional for CI)
+# ============================================================
+# 🧩 Optional sanitizer
+# ============================================================
 if (ENABLE_TSAN)
     message(STATUS "🔬 ThreadSanitizer enabled")
     add_compile_options(-fsanitize=thread -fno-omit-frame-pointer -O1)
     add_link_options(-fsanitize=thread)
 endif()
 
-include(CTest)
-
-
 # ============================================================
-# 🧩 Ensure build directories exist (sanity check)
+# 🧩 Ensure required dirs exist
 # ============================================================
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR})
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/_deps)
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/examples)
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/generated)
 
 # ============================================================
-# 📁 Directories
+# 📁 Directory structure
 # ============================================================
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
@@ -62,34 +62,29 @@ set(TEST_DIR ${CMAKE_SOURCE_DIR}/tests)
 set(EXAMPLES_DIR ${CMAKE_SOURCE_DIR}/examples)
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/external)
 set(DATA_DIR ${CMAKE_SOURCE_DIR}/data)
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 include_directories(${INCLUDE_DIR} ${EXTERNAL_DIR})
 
 # ============================================================
-# 🧱 Auto-generate Version.hpp from template
+# 🧱 Version.hpp (auto-generated from template)
 # ============================================================
-
-set(VERSION_HEADER ${CMAKE_BINARY_DIR}/generated/Version.hpp)
 set(VERSION_TEMPLATE ${CMAKE_SOURCE_DIR}/cmake/templates/version.h.in)
+set(VERSION_HEADER ${CMAKE_BINARY_DIR}/generated/Version.hpp)
 
-add_custom_command(
-    OUTPUT ${VERSION_HEADER}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/generated
-    COMMAND ${CMAKE_COMMAND} -D SRC=${VERSION_TEMPLATE}
-                             -D DST=${VERSION_HEADER}
-                             -P ${CMAKE_SOURCE_DIR}/cmake/generate_version.cmake
-    DEPENDS ${VERSION_TEMPLATE}
-    COMMENT "📦 Generating Version.hpp from ${VERSION_TEMPLATE}"
+# Używamy configure_file — proste, niezawodne i działa w CI
+configure_file(
+    ${VERSION_TEMPLATE}
+    ${VERSION_HEADER}
+    @ONLY
 )
 
-add_custom_target(generate_version ALL DEPENDS ${VERSION_HEADER})
 include_directories(${CMAKE_BINARY_DIR}/generated)
+message(STATUS "📦 Generated Version.hpp → ${VERSION_HEADER}")
 
 # ============================================================
-# 🧱 Install CCache
+# 🧱 CCache
 # ============================================================
-
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
   message(STATUS "ccache found: ${CCACHE_PROGRAM}")
@@ -99,7 +94,7 @@ else()
 endif()
 
 # ============================================================
-# 📦 Dependencies
+# 📦 Dependencies (FetchContent + vcpkg)
 # ============================================================
 include(FetchContent)
 
@@ -119,25 +114,21 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(spdlog)
 
-# JSON
+# nlohmann JSON
 FetchContent_Declare(
   nlohmann_json
   URL https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.tar.gz
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
-# CURL
+# CURL + SQLite3 (z vcpkg)
 find_package(CURL REQUIRED)
-
-# SQLite3
 find_package(SQLite3 REQUIRED)
 
-# CLI
-# CLI11 dependency (via vcpkg or fallback)
-find_package(CLI11 CONFIG)
+# CLI11 (z vcpkg lub FetchContent)
+find_package(CLI11 CONFIG QUIET)
 if(NOT CLI11_FOUND)
-    message(WARNING "CLI11 not found in vcpkg — fetching manually.")
-    include(FetchContent)
+    message(WARNING "CLI11 not found in vcpkg — fetching manually")
     FetchContent_Declare(
         CLI11
         GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
@@ -147,36 +138,16 @@ if(NOT CLI11_FOUND)
 endif()
 
 # ============================================================
-# 🧩 Modular source subdirectories
+# 🧩 Subdirectories (modular build)
 # ============================================================
-add_subdirectory(${SRC_DIR}/utils)        # qga_utils — lowest layer
-add_subdirectory(${SRC_DIR}/core)         # qga_core depends on utils
-add_subdirectory(${SRC_DIR}/io)           # depends on core, utils
-add_subdirectory(${SRC_DIR}/persistence)  # depends on core, utils
-add_subdirectory(${SRC_DIR}/ingest)       # depends on io, persistence
-add_subdirectory(${SRC_DIR}/strategy)     # depends on core, utils
-add_subdirectory(${SRC_DIR}/reporting)    # depends on io, persistence
-add_subdirectory(${SRC_DIR}/domain)       # depends on core, strategy, persistence
-
-# ============================================================
-# 🧩 Dependency: CLI11 (for CLI argument parsing)
-# ============================================================
-include(FetchContent)
-find_package(CLI11 QUIET)
-
-if(NOT CLI11_FOUND)
-    message(STATUS "CLI11 not found — fetching via FetchContent...")
-    FetchContent_Declare(
-        CLI11
-        GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
-        GIT_TAG v2.4.2
-    )
-    FetchContent_MakeAvailable(CLI11)
-endif()
-
-# ============================================================
-# 🧩 Command-Line Interface (CLI)
-# ============================================================
+add_subdirectory(${SRC_DIR}/utils)
+add_subdirectory(${SRC_DIR}/core)
+add_subdirectory(${SRC_DIR}/io)
+add_subdirectory(${SRC_DIR}/persistence)
+add_subdirectory(${SRC_DIR}/ingest)
+add_subdirectory(${SRC_DIR}/strategy)
+add_subdirectory(${SRC_DIR}/reporting)
+add_subdirectory(${SRC_DIR}/domain)
 add_subdirectory(${SRC_DIR}/cli)
 
 # ============================================================
@@ -189,9 +160,9 @@ if(BUILD_LEGACY_DEMOS)
     add_subdirectory(${EXAMPLES_DIR}/logger_demo)
 endif()
 
-# ==============================================
-# === Tests ===
-# ==============================================
+# ============================================================
+# 🧪 Tests
+# ============================================================
 enable_testing()
 add_subdirectory(tests)
 
@@ -219,5 +190,6 @@ add_custom_target(clean-all
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/data
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/CMakeFiles
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/bin
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/generated
     COMMENT "🧹 Cleaning build artifacts..."
 )
