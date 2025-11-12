@@ -71,7 +71,7 @@ include_directories(${INCLUDE_DIR} ${EXTERNAL_DIR})
 # ============================================================
 
 set(VERSION_HEADER ${CMAKE_BINARY_DIR}/generated/Version.hpp)
-set(VERSION_TEMPLATE ${CMAKE_SOURCE_DIR}/cmake/templates/version.h.in)
+set(VERSION_TEMPLATE ${CMAKE_SOURCE_DIR}/cmake/templates/Version.h.in)
 
 add_custom_command(
     OUTPUT ${VERSION_HEADER}
