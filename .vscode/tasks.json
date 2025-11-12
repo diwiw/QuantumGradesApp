@@ -5,7 +5,7 @@
         // CONFIGURE
         // ======================================================
         {
-            "label": "Configure Debug",
+            "label": "Configure Debug (vcpkg)",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -15,7 +15,7 @@
             "group": "build"
         },
         {
-            "label": "Configure Release",
+            "label": "Configure Release (vcpkg)",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -25,77 +25,16 @@
             "group": "build"
         },
         // ======================================================
-        // DEBUG BUILDS — INDIVIDUAL DEMOS
+        // ✅ DEBUG BUILDS — Demos
         // ======================================================
         {
-            "label": "Build Debug Backtest Demo",
+            "label": "Build Debug All Demos (vcpkg)",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "build/Debug",
-                "--target",
-                "backtest_demo",
-                "-j8"
-            ],
-            "dependsOn": [
-                "Configure Debug"
-            ],
-            "group": "build",
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
-            "label": "Build Debug Logger Demo",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "build/Debug",
-                "--target",
-                "logger_demo",
-                "-j8"
-            ],
-            "dependsOn": [
-                "Configure Debug"
-            ],
-            "group": "build",
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
-            "label": "Build Debug Grades Demo",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "build/Debug",
-                "--target",
-                "grades_demo",
-                "-j8"
-            ],
-            "dependsOn": [
-                "Configure Debug"
-            ],
-            "group": "build",
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        // ======================================================
-        // ✅ DEBUG: BUILD ALL DEMOS (ZBIORCZY)
-        // ======================================================
-        {
-            "label": "Build Debug All Demos",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "build/Debug",
-                "--config",
-                "Debug",
+                "--preset",
+                "build-linux-debug",
                 "--parallel",
                 "--target",
                 "backtest_demo",
@@ -103,29 +42,27 @@
                 "grades_demo"
             ],
             "dependsOn": [
-                "Configure Debug"
+                "Configure Debug (vcpkg)"
             ],
             "group": "build",
             "problemMatcher": [
                 "$gcc"
             ]
         },
-        // ======================================================
-        // DEBUG TESTS
-        // ======================================================
         {
-            "label": "Build Debug Tests",
+            "label": "Build Debug Tests (vcpkg)",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "build/Debug",
+                "--preset",
+                "build-linux-debug",
                 "--target",
                 "tests",
-                "-j8"
+                "--parallel"
             ],
             "dependsOn": [
-                "Configure Debug"
+                "Configure Debug (vcpkg)"
             ],
             "group": "build",
             "problemMatcher": [
@@ -133,91 +70,29 @@
             ]
         },
         {
-            "label": "Run Debug Tests",
+            "label": "Run Debug Tests (vcpkg)",
             "type": "shell",
             "command": "ctest",
             "args": [
-                "--test-dir",
-                "build/Debug",
-                "--output-on-failure"
+                "--preset",
+                "test-linux-debug"
             ],
             "dependsOn": [
-                "Build Debug Tests"
+                "Build Debug Tests (vcpkg)"
             ],
             "group": "test"
         },
         // ======================================================
-        // RELEASE BUILDS — INDIVIDUAL DEMOS
+        // ✅ RELEASE BUILDS — Demos
         // ======================================================
         {
-            "label": "Build Release Backtest Demo",
+            "label": "Build Release All Demos (vcpkg)",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "build/Release",
-                "--target",
-                "backtest_demo",
-                "-j8"
-            ],
-            "dependsOn": [
-                "Configure Release"
-            ],
-            "group": "build",
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
-            "label": "Build Release Logger Demo",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "build/Release",
-                "--target",
-                "logger_demo",
-                "-j8"
-            ],
-            "dependsOn": [
-                "Configure Release"
-            ],
-            "group": "build",
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
-            "label": "Build Release Grades Demo",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "build/Release",
-                "--target",
-                "grades_demo",
-                "-j8"
-            ],
-            "dependsOn": [
-                "Configure Release"
-            ],
-            "group": "build",
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        // ======================================================
-        // ✅ RELEASE: BUILD ALL DEMOS (ZBIORCZY)
-        // ======================================================
-        {
-            "label": "Build Release All Demos",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "build/Release",
-                "--config",
-                "Release",
+                "--preset",
+                "build-linux-release",
                 "--parallel",
                 "--target",
                 "backtest_demo",
@@ -225,29 +100,27 @@
                 "grades_demo"
             ],
             "dependsOn": [
-                "Configure Release"
+                "Configure Release (vcpkg)"
             ],
             "group": "build",
             "problemMatcher": [
                 "$gcc"
             ]
         },
-        // ======================================================
-        // RELEASE TESTS
-        // ======================================================
         {
-            "label": "Build Release Tests",
+            "label": "Build Release Tests (vcpkg)",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "build/Release",
+                "--preset",
+                "build-linux-release",
                 "--target",
                 "tests",
-                "-j8"
+                "--parallel"
             ],
             "dependsOn": [
-                "Configure Release"
+                "Configure Release (vcpkg)"
             ],
             "group": "build",
             "problemMatcher": [
@@ -255,18 +128,60 @@
             ]
         },
         {
-            "label": "Run Release Tests",
+            "label": "Run Release Tests (vcpkg)",
             "type": "shell",
             "command": "ctest",
             "args": [
-                "--test-dir",
-                "build/Release",
-                "--output-on-failure"
+                "--preset",
+                "test-linux-release"
             ],
             "dependsOn": [
-                "Build Release Tests"
+                "Build Release Tests (vcpkg)"
             ],
             "group": "test"
+        },
+        // ======================================================
+        // ✅ QGA BUILDS 
+        // ======================================================
+        {
+            "label": "Build Debug CLI App",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "--preset",
+                "build-linux-debug-cli",
+                "--target",
+                "qga_cli",
+                "-j8"
+            ],
+            "dependsOn": [
+                "Configure Debug (vcpkg)"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "Build Release CLI App",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "--preset",
+                "build-linux-release-cli",
+                "--target",
+                "qga_cli",
+                "-j8"
+            ],
+            "dependsOn": [
+                "Configure Release (vcpkg)"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
         },
         // ======================================================
         // CLEAN

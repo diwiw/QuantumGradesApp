@@ -2,7 +2,6 @@
 # Backtest Demo (production-style example)
 # ==============================================
 
-
 file(GLOB_RECURSE BACKTEST_SRC
     ${CMAKE_SOURCE_DIR}/src/domain/backtest/*.cpp
     ${CMAKE_SOURCE_DIR}/src/strategy/*.cpp

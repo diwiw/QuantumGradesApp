@@ -4,8 +4,7 @@
 
 file(GLOB_RECURSE APP_SRC ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
-add_executable(grades_demo
-    ${APP_SRC}
+add_executable(grades_demo    
     grades_demo.cpp
     Grades.cpp
 )
@@ -30,6 +29,7 @@ target_link_libraries(grades_demo PRIVATE
     nlohmann_json::nlohmann_json
     CURL::libcurl
     SQLite::SQLite3
+    CLI11::CLI11
 )
 
 target_compile_definitions(grades_demo PRIVATE

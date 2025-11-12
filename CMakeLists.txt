@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.21)
-project(QuantumGradesApp VERSION 0.7.1 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.27)
+project(QuantumGradesApp VERSION 0.8.0 LANGUAGES CXX)
+string(TIMESTAMP APP_BUILD_DATE "%Y-%m-%d")
 
 # ============================================================
 # ⚙️ Build configuration
@@ -36,6 +37,17 @@ endif()
 
 include(CTest)
 
+
+# ============================================================
+# 🧩 Ensure build directories exist (sanity check)
+# ============================================================
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR})
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/_deps)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/examples)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
 # ============================================================
 # 📁 Directories
 # ============================================================
@@ -68,6 +80,14 @@ configure_file(
     ${INCLUDE_DIR}/core/Version.hpp
     @ONLY
 )
+
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+  message(STATUS "ccache found: ${CCACHE_PROGRAM}")
+  set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
+else()
+  message(STATUS "ccache not found — building without compiler cache")
+endif()
 
 # ============================================================
 # 📦 Dependencies
@@ -103,6 +123,20 @@ find_package(CURL REQUIRED)
 # SQLite3
 find_package(SQLite3 REQUIRED)
 
+# CLI
+# CLI11 dependency (via vcpkg or fallback)
+find_package(CLI11 CONFIG)
+if(NOT CLI11_FOUND)
+    message(WARNING "CLI11 not found in vcpkg — fetching manually.")
+    include(FetchContent)
+    FetchContent_Declare(
+        CLI11
+        GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
+        GIT_TAG v2.4.2
+    )
+    FetchContent_MakeAvailable(CLI11)
+endif()
+
 # ============================================================
 # 🧩 Modular source subdirectories
 # ============================================================
@@ -115,6 +149,26 @@ add_subdirectory(${SRC_DIR}/strategy)     # depends on core, utils
 add_subdirectory(${SRC_DIR}/reporting)    # depends on io, persistence
 add_subdirectory(${SRC_DIR}/domain)       # depends on core, strategy, persistence
 
+# ============================================================
+# 🧩 Dependency: CLI11 (for CLI argument parsing)
+# ============================================================
+include(FetchContent)
+find_package(CLI11 QUIET)
+
+if(NOT CLI11_FOUND)
+    message(STATUS "CLI11 not found — fetching via FetchContent...")
+    FetchContent_Declare(
+        CLI11
+        GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
+        GIT_TAG v2.4.2
+    )
+    FetchContent_MakeAvailable(CLI11)
+endif()
+
+# ============================================================
+# 🧩 Command-Line Interface (CLI)
+# ============================================================
+add_subdirectory(${SRC_DIR}/cli)
 
 # ============================================================
 # 💡 Examples

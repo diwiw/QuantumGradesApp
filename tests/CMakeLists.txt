@@ -17,8 +17,7 @@ add_executable(tests
 # === Include paths ===
 target_include_directories(tests PRIVATE
     ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/include/core
-    ${CMAKE_SOURCE_DIR}/include/utils
+    ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/external
 )
 
@@ -36,11 +35,13 @@ target_link_libraries(tests PRIVATE
     qga_persistence
     qga_reporting
     qga_strategy
+    qga_cli_lib           
     fmt::fmt
     spdlog::spdlog
     nlohmann_json::nlohmann_json
     CURL::libcurl
     SQLite::SQLite3
+    CLI11::CLI11
 )
 
 # === Output directory ===
@@ -50,6 +51,5 @@ set_target_properties(tests PROPERTIES
 
 # === Register in CTest (optional, for future CI) ===
 add_test(NAME QuantumGradesAppTests COMMAND tests)
-
 
 message(STATUS "✅ Unit tests target configured successfully.")

@@ -1,17 +1,18 @@
 #include "core/Config.hpp"
-#include "utils/SpdLogger.hpp"
+#include "core/Version.hpp"
 #include "ingest/DataIngest.hpp"
 #include "io/DataExporter.hpp"
-#include "core/Version.hpp"
-#include <spdlog/async.h>
+#include "utils/SpdLogger.hpp"
 #include <filesystem>
 #include <iostream>
 #include <memory>
+#include <spdlog/async.h>
 
 using namespace qga;
 using namespace utils;
 
-int main() {
+int main()
+{
     // === Header ===
     std::cout << "===================================\n";
     std::cout << " QuantumGradesApp Backtest\n";
@@ -20,23 +21,23 @@ int main() {
     std::cout << "===================================\n\n";
 
     // ===== 1. Load Config =====
-    auto& config = Config::getInstance();
+    auto& config = qga::core::Config::getInstance();
     config.loadFromEnv();
 
     auto log_level = config.logLevel();
-    
+
     // ===== 2. Setup Logger =====
-    if (!spdlog::thread_pool()) {
-        spdlog::init_thread_pool(8192, 1);  // start async thread pool
+    if (!spdlog::thread_pool())
+    {
+        spdlog::init_thread_pool(8192, 1); // start async thread pool
     }
 
-    auto logger = std::make_shared<SpdLogger>(
-        "DemoLogger",
-        std::vector<std::shared_ptr<spdlog::sinks::sink>>{
-            std::make_shared<spdlog::sinks::stdout_color_sink_mt>()
-        },
-        true // async
-    );
+    auto logger =
+        std::make_shared<SpdLogger>("DemoLogger",
+                                    std::vector<std::shared_ptr<spdlog::sinks::sink>>{
+                                        std::make_shared<spdlog::sinks::stdout_color_sink_mt>()},
+                                    true // async
+        );
     logger->setLevel(log_level);
     logger->info("Logger initialized with level {}", toString(log_level));
     std::cout << "Config log level: " << toString(config.logLevel()) << "\n";
@@ -46,22 +47,23 @@ int main() {
     std::filesystem::path cwd = std::filesystem::current_path();
     logger->debug("Current working directory: {}", cwd.string());
 
-    
     std::string demo_csv = std::string(DATA_PATH) + "/demo.csv";
-    
 
     auto series = ingest.fromCsv(demo_csv);
-    if (!series.has_value()) {
+    if (!series.has_value())
+    {
         logger->error("Failed to ingest data from CSV");
         return 1;
-    } else {
+    }
+    else
+    {
         logger->info("Ingested {} bars", series->size());
     }
-    
 
-    // ===== 4. Export Data =====   
+    // ===== 4. Export Data =====
 
-    try {
+    try
+    {
         namespace fs = std::filesystem;
         fs::create_directories("build"); // ensure output dir exists
 
@@ -74,14 +76,15 @@ int main() {
         exporter_json.exportAll(*series);
 
         logger->info("Exported series to CSV and JSON");
-    } catch (const std::exception& ex) {
+    }
+    catch (const std::exception& ex)
+    {
         logger->error("Exporter exception: {}", ex.what());
     }
 
     logger->info("Demo finished.");
     logger->flush();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // 
-    spdlog::shutdown(); // cleanup spdlog
+    std::this_thread::sleep_for(std::chrono::milliseconds(100)); //
+    spdlog::shutdown();                                          // cleanup spdlog
     return 0;
-    
 }
