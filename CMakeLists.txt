@@ -67,25 +67,24 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 include_directories(${INCLUDE_DIR} ${EXTERNAL_DIR})
 
 # ============================================================
-# 🧱 Auto-generate Version.hpp and make it visible globally
+# 🧱 Auto-generate Version.hpp from template
 # ============================================================
 
 set(VERSION_HEADER ${CMAKE_BINARY_DIR}/generated/Version.hpp)
+set(VERSION_TEMPLATE ${CMAKE_SOURCE_DIR}/cmake/templates/version.h.in)
 
 add_custom_command(
     OUTPUT ${VERSION_HEADER}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/generated
-    COMMAND ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/cmake/version.h.in
+    COMMAND ${CMAKE_COMMAND} -D SRC=${VERSION_TEMPLATE}
                              -D DST=${VERSION_HEADER}
                              -P ${CMAKE_SOURCE_DIR}/cmake/generate_version.cmake
-    DEPENDS ${CMAKE_SOURCE_DIR}/cmake/version.h.in
-    COMMENT "📦 Generating Version.hpp from version.h.in"
+    DEPENDS ${VERSION_TEMPLATE}
+    COMMENT "📦 Generating Version.hpp from ${VERSION_TEMPLATE}"
 )
 
 add_custom_target(generate_version ALL DEPENDS ${VERSION_HEADER})
 include_directories(${CMAKE_BINARY_DIR}/generated)
-
-
 
 # ============================================================
 # 🧱 Install CCache
