@@ -6,34 +6,44 @@
     },
     "configurePresets": [
         {
-            "name": "linux-debug",
-            "displayName": "Linux Debug",
+            "name": "base-vcpkg",
+            "hidden": true,
             "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_TOOLCHAIN_FILE": "/home/diw/Programming/projects_cpp/vcpkg/scripts/buildsystems/vcpkg.cmake",
+                "VCPKG_FEATURE_FLAGS": "manifests"
+            }
+        },
+        {
+            "name": "linux-debug",
+            "displayName": "Linux Debug (vcpkg)",
+            "inherits": "base-vcpkg",
             "binaryDir": "build/Debug",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
                 "BUILD_LEGACY_DEMOS": "ON"
             }
         },
         {
             "name": "linux-release",
-            "displayName": "Linux Release",
-            "generator": "Ninja",
+            "displayName": "Linux Release (vcpkg)",
+            "inherits": "base-vcpkg",
             "binaryDir": "build/Release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
                 "BUILD_LEGACY_DEMOS": "ON"
             }
         },
         {
             "name": "windows-release",
-            "displayName": "Windows Release (MSVC + Ninja)",
-            "generator": "Ninja",
-            "binaryDir": "build",
+            "displayName": "Windows Release (MSVC + vcpkg + Ninja)",
+            "inherits": "base-vcpkg",
+            "binaryDir": "build/WindowsRelease",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "VCPKG_TARGET_TRIPLET": "x64-windows-static",
-                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+                "VCPKG_TARGET_TRIPLET": "x64-windows-static"
             }
         }
     ],
@@ -49,11 +59,22 @@
         {
             "name": "build-windows-release",
             "configurePreset": "windows-release"
+        },
+        {
+            "name": "build-linux-debug-cli",
+            "displayName": "Build Debug CLI App",
+            "configurePreset": "linux-debug"
+        },
+        {
+            "name": "build-linux-release-cli",
+            "displayName": "Build Release CLI App",
+            "configurePreset": "linux-release"
         }
     ],
     "testPresets": [
         {
             "name": "test-linux-debug",
+            "displayName": "Run Debug Tests",
             "configurePreset": "linux-debug",
             "execution": {
                 "stopOnFailure": true
@@ -61,6 +82,7 @@
         },
         {
             "name": "test-linux-release",
+            "displayName": "Run Release Tests",
             "configurePreset": "linux-release",
             "execution": {
                 "stopOnFailure": true

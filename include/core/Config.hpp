@@ -18,7 +18,7 @@
 #include "common/LogLevel.hpp"
 #include "utils/ILogger.hpp"
 
-namespace qga {
+namespace qga::core {
   
   /**
    * @class Config

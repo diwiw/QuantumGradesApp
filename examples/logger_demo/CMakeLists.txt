@@ -4,8 +4,7 @@
 
 file(GLOB_RECURSE APP_SRC ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
-add_executable(logger_demo
-    ${APP_SRC}
+add_executable(logger_demo    
     logger_demo.cpp
 )
 
@@ -37,6 +36,7 @@ target_link_libraries(logger_demo PRIVATE
     nlohmann_json::nlohmann_json
     CURL::libcurl
     SQLite::SQLite3
+    CLI11::CLI11
 )
 
 
