@@ -67,25 +67,24 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 include_directories(${INCLUDE_DIR} ${EXTERNAL_DIR})
 
 # ============================================================
-# 🧱 Version.hpp (auto-generated)
+# 🧱 Auto-generate Version.hpp and make it visible globally
 # ============================================================
-execute_process(
-    COMMAND git describe --tags --always --dirty
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_VERSION
-    OUTPUT_STRIP_TRAILING_WHITESPACE
+
+set(VERSION_HEADER ${CMAKE_BINARY_DIR}/generated/Version.hpp)
+
+add_custom_command(
+    OUTPUT ${VERSION_HEADER}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/generated
+    COMMAND ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/cmake/version.h.in
+                             -D DST=${VERSION_HEADER}
+                             -P ${CMAKE_SOURCE_DIR}/cmake/generate_version.cmake
+    DEPENDS ${CMAKE_SOURCE_DIR}/cmake/version.h.in
+    COMMENT "📦 Generating Version.hpp from version.h.in"
 )
 
-
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/data)
-
-configure_file(
-    ${CMAKE_SOURCE_DIR}/cmake/templates/Version.hpp.in
-    ${CMAKE_BINARY_DIR}/generated/Version.hpp
-    @ONLY
-)
-
+add_custom_target(generate_version ALL DEPENDS ${VERSION_HEADER})
 include_directories(${CMAKE_BINARY_DIR}/generated)
+
 
 
 # ============================================================
