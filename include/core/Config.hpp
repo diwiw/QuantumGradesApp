@@ -4,6 +4,7 @@
  *
  * Supports:
  * - Loading parameters from JSON and environment variables (QGA_*).
+ * - Profile-based configuration (dev/test/prod) via QGA_PROFILE.
  * - Validation and normalization (e.g. thread clamping).
  * - Integrated Logger (created via LoggerFactory).
  */
@@ -18,126 +19,83 @@
 #include "common/LogLevel.hpp"
 #include "utils/ILogger.hpp"
 
-namespace qga::core {
-  
-  /**
-   * @class Config
-   * @brief Global singleton managing application-wide configuration.
-   *
-   * Features:
-   * - Loaded once at startup from JSON + environment (`QGA_*`).
-   * - Normalized (e.g. `threads` clamped to available cores).
-   * - Read-only API via getters.
-   * - Supports warning collection for user feedback.
-   * - Integrated Logger for application-wide use.
-   *
-   * Usage:
-   * ```cpp
-   * auto& cfg = Config::getInstance();
-   * cfg.loadFromFile("config.json");
-   * cfg.loadFromEnv();
-   * int threads = cfg.threads();
-   * ```
-   */
-  class Config {
-  public:
-    // === Singleton access ===
+namespace qga::core
+{
 
-    /**
-     * @brief Access the global singleton instance.
-     * @return Reference to the singleton.
-     */
-    static Config& getInstance() noexcept;
+    class Config
+    {
+      public:
+        // === Singleton access ===
+        static Config& getInstance() noexcept;
 
-    // === Loading / setup ===
+        // === Loading / setup ===
 
-    /**
-     * @brief Load configuration from a JSON file.
-     * @param path Path to JSON file.
-     * @param warnings Optional vector to collect warnings (e.g. type mismatches).
-     *
-     * @note If the file is missing or invalid, the config remains unchanged.
-     */
-    void loadFromFile(const std::filesystem::path& path,
-                      std::vector<std::string>* warnings = nullptr);
+        /**
+         * @brief Load configuration from a JSON file.
+         * @param path Path to JSON file.
+         * @param warnings Optional vector to collect warnings.
+         *
+         * If the file is missing, config remains unchanged.
+         */
+        void loadFromFile(const std::filesystem::path& path,
+                          std::vector<std::string>* warnings = nullptr);
 
-    /**
-     * @brief Load overrides from environment variables prefixed with `QGA_`.
-     * @param warnings Optional vector to collect warnings (e.g. unknown log level).
-     */
-    void loadFromEnv(std::vector<std::string>* warnings = nullptr);
+        /**
+         * @brief Load overrides from environment variables prefixed with QGA_.
+         *
+         * New behavior:
+         * - Detects QGA_PROFILE={dev|test|prod}
+         * - Loads corresponding config/config.<profile>.json
+         */
+        void loadFromEnv(std::vector<std::string>* warnings = nullptr);
 
-    /**
-     * @brief Reset config to default values and validate.
-     *
-     * Useful for unit tests or full reload.
-     */
-    void loadDefaults();
+        /**
+         * @brief Reset config to default values and validate.
+         */
+        void loadDefaults();
 
-    /**
-     * @brief Validate current state and normalize values.
-     * @param warnings Optional vector to collect validation warnings.
-     *
-     * @details Clamps thread count, checks file paths, parses log level.
-     */
-    void validate(std::vector<std::string>* warnings = nullptr);
+        /**
+         * @brief Validate current state and normalize values.
+         */
+        void validate(std::vector<std::string>* warnings = nullptr);
 
-    // === Read-only API ===
+        // === Read-only API ===
 
-    /// @return Path to the data directory.
-    const std::filesystem::path& dataDir()  const noexcept { return data_dir_; }
-    
-    /// @return Number of worker threads.
-    int                          threads()  const noexcept { return threads_; }
-    
-    /// @return Current log level.
-    LogLevel                     logLevel() const noexcept { return log_level_; }
-    
-    /// @return Path to the log output file.
-    const std::filesystem::path& logFile()  const noexcept { return log_file_; }
+        const std::string& profile() const noexcept { return profile_; }
 
-    // --- Rule of Five (singleton: non-copyable, non-movable) ---
-    ~Config() = default;
-    Config(const Config&)            = delete;
-    Config(Config&&)                 = delete;
-    Config& operator=(const Config&) = delete;
-    Config& operator=(Config&&)      = delete;
+        const std::filesystem::path& dataDir() const noexcept { return data_dir_; }
+        int threads() const noexcept { return threads_; }
+        LogLevel logLevel() const noexcept { return log_level_; }
+        const std::filesystem::path& logFile() const noexcept { return log_file_; }
 
-  private:
-    /// Private constructor (singleton pattern).
-    Config() = default;
+        // === Rule of Five (disabled for singleton) ===
+        ~Config() = default;
+        Config(const Config&) = delete;
+        Config(Config&&) = delete;
+        Config& operator=(const Config&) = delete;
+        Config& operator=(Config&&) = delete;
 
-    // === State ===
-    std::filesystem::path data_dir_  = "data";   ///< Data directory for input/output files.
-    int                   threads_  = 4;         ///< Number of worker threads.
-    LogLevel              log_level_ = LogLevel::Info;  ///< Logging verbosity level.
-    std::filesystem::path log_file_  = "app.log"; ///< Output file for logs.
+      private:
+        Config() = default;
 
-    std::shared_ptr<utils::ILogger> logger_; ///< Integrated logger instance.
+        // === Internal helpers ===
+        static std::string toLower(std::string s) noexcept;
+        static void addWarn(std::vector<std::string>* w, std::string msg);
 
-     // === Internal helpers ===
+        /// Initialize integrated logger after config load/validate.
+        void initLogger();
 
-    /**
-     * @brief Convert string to lowercase (for log level parsing).
-     * @param s Input string.
-     * @return Lowercased string.
-     */
-    static std::string toLower(std::string s) noexcept;
+      private:
+        // === NEW: profile state ===
+        std::string profile_ = "dev"; ///< Active configuration profile: dev/test/prod
 
-    /**
-     * @brief Add a warning message to the warning vector, if not null.
-     * @param w Pointer to vector; may be null.
-     * @param msg Warning message to append.
-     */
-    static void addWarn(std::vector<std::string>* w, std::string msg);
+        // === Existing configuration values ===
+        std::filesystem::path data_dir_ = "data";
+        int threads_ = 4;
+        LogLevel log_level_ = LogLevel::Info;
+        std::filesystem::path log_file_ = "app.log";
 
-    /**
-     * @brief Initialize the integrated logger based on current config.
-     *
-     * Creates a logger instance (e.g. via LoggerFactory) with the configured
-     * log level and output file.
-     */
-    void initLogger();
-  };
+        std::shared_ptr<utils::ILogger> logger_;
+    };
 
-} // namespace qga
+} // namespace qga::core
