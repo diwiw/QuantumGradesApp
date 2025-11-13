@@ -183,3 +183,137 @@ TEST_SUITE("Config/JSON")
         CHECK(warnings[0].find("Config file not found") != std::string::npos);
     }
 }
+
+TEST_SUITE("Config/Profiles")
+{
+    // clean env between tests
+    auto unset_all = []()
+    {
+        unsetenv("QGA_PROFILE");
+        unsetenv("QGA_DATA_DIR");
+        unsetenv("QGA_THREADS");
+        unsetenv("QGA_LOG_LEVEL");
+        unsetenv("QGA_LOG_FILE");
+    };
+
+    TEST_CASE("Default profile is dev when QGA_PROFILE is missing")
+    {
+        unset_all();
+
+        auto& cfg = Config::getInstance();
+        cfg.loadDefaults();
+        cfg.loadFromEnv();
+
+        CHECK(cfg.profile() == "dev");
+    }
+
+    TEST_CASE("Loads correct profile JSON: test")
+    {
+        unset_all();
+
+        // prepare test profile config
+        auto d = tmpdir() / "config";
+        fs::create_directories(d);
+        auto f = d / "config.test.json";
+
+        std::ofstream out(f);
+        out << R"({
+            "logging": { "level": "WARN" },
+            "paths":   { "data_dir": "test_data" },
+            "engine":  { "threads": 2 }
+        })";
+        out.close();
+
+        // point working dir so Config can find config/config.test.json
+        // (we copy generated file into cwd)
+        fs::copy(f, "config.test.json", fs::copy_options::overwrite_existing);
+
+        setenv("QGA_PROFILE", "test", 1);
+
+        auto& cfg = Config::getInstance();
+        cfg.loadDefaults();
+        std::vector<std::string> warnings;
+        cfg.loadFromEnv(&warnings);
+
+        CHECK(cfg.profile() == "test");
+        CHECK(cfg.dataDir() == fs::path("test_data"));
+        CHECK(cfg.threads() == 2);
+        CHECK(qga::toString(cfg.logLevel()) == qga::toString(qga::LogLevel::Warn));
+    }
+
+    TEST_CASE("Loads correct profile JSON: prod")
+    {
+        unset_all();
+
+        auto d = tmpdir() / "config";
+        fs::create_directories(d);
+        auto f = d / "config.prod.json";
+
+        std::ofstream out(f);
+        out << R"({
+            "logging": { "level": "INFO" },
+            "paths":   { "data_dir": "live_data" },
+            "engine":  { "threads": 1 }
+        })";
+        out.close();
+
+        fs::copy(f, "config.prod.json", fs::copy_options::overwrite_existing);
+
+        setenv("QGA_PROFILE", "prod", 1);
+
+        auto& cfg = Config::getInstance();
+        cfg.loadDefaults();
+        std::vector<std::string> warnings;
+        cfg.loadFromEnv(&warnings);
+
+        CHECK(cfg.profile() == "prod");
+        CHECK(cfg.dataDir() == fs::path("live_data"));
+        CHECK(cfg.threads() == 1);
+    }
+
+    TEST_CASE("Env overrides profile JSON values (but not profile)")
+    {
+        unset_all();
+
+        // config.dev.json
+        auto f = tmpdir() / "config.dev.json";
+        std::ofstream out(f);
+        out << R"({
+            "logging": { "level": "DEBUG" },
+            "paths":   { "data_dir": "dev_data" }
+        })";
+        out.close();
+        fs::copy(f, "config.dev.json", fs::copy_options::overwrite_existing);
+
+        unsetenv("QGA_PROFILE"); // default => dev
+        setenv("QGA_DATA_DIR", "override_data", 1);
+        setenv("QGA_THREADS", "99", 1);
+
+        auto& cfg = Config::getInstance();
+        cfg.loadDefaults();
+        cfg.loadFromEnv();
+
+        CHECK(cfg.profile() == "dev");                     // profile NOT overridden by env
+        CHECK(cfg.dataDir() == fs::path("override_data")); // ENV wins
+        CHECK(cfg.threads() == 99);                        // ENV wins
+    }
+
+    TEST_CASE("Missing profile JSON produces warning and keeps defaults")
+    {
+        unset_all();
+        setenv("QGA_PROFILE", "nonexistentProfile123", 1);
+
+        auto& cfg = Config::getInstance();
+        cfg.loadDefaults();
+        std::vector<std::string> warnings;
+        cfg.loadFromEnv(&warnings);
+
+        CHECK(cfg.profile() == "nonexistentProfile123"); // still the selected profile
+        CHECK(cfg.dataDir() == fs::path("data"));
+        CHECK(cfg.logFile() == fs::path("app.log"));
+        CHECK(cfg.threads() == 4);
+
+        REQUIRE_FALSE(warnings.empty());
+        CHECK(warnings[0].find("Config file not found") != std::string::npos);
+    }
+}

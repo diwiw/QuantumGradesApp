@@ -1,0 +1,7 @@
+{
+    "profile": "test",
+    "logLevel": "warn",
+    "dataPath": "./tests/fixtures/data/",
+    "dbPath": "./build/test/test.sqlite",
+    "exportPath": "./build/test/exports/"
+}

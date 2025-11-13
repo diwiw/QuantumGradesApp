@@ -1,0 +1,7 @@
+{
+    "profile": "prod",
+    "logLevel": "info",
+    "dataPath": "/var/qga/data/",
+    "dbPath": "/var/qga/qga.sqlite",
+    "exportPath": "/var/qga/exports/"
+}

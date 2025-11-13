@@ -28,13 +28,14 @@ namespace qga::core
     // ===== Singleton =====
     Config& Config::getInstance() noexcept
     {
-        static Config instance; // thread-safe since C++11
+        static Config instance;
         return instance;
     }
 
-    // ===== Public API =====
+    // ===== Defaults =====
     void Config::loadDefaults()
     {
+        profile_ = "dev";
         data_dir_ = "data";
         threads_ = 4;
         log_level_ = LogLevel::Info;
@@ -43,12 +44,12 @@ namespace qga::core
         initLogger();
     }
 
+    // ===== Validation =====
     void Config::validate(std::vector<std::string>* warnings)
     {
-
         const unsigned HW = std::max(1u, std::thread::hardware_concurrency());
 
-        // === threads ===
+        // threads
         if (threads_ < 1)
         {
             addWarn(warnings, "engine.threads < 1 → fallback to 1");
@@ -60,51 +61,48 @@ namespace qga::core
             threads_ = static_cast<int>(HW);
         }
 
-        // === data_dir ===
+        // data_dir
         if (data_dir_.empty())
         {
             addWarn(warnings, "paths.data_dir is empty → 'data'");
             data_dir_ = "data";
         }
 
-        // === log_file ===
+        // log_file
         if (log_file_.empty())
         {
             addWarn(warnings, "logging.file is empty → 'app.log'");
             log_file_ = "app.log";
         }
 
-        // === log_level ===
-        // already validated during parsing
+        // log_level
         if (log_level_ < LogLevel::Trace || log_level_ > LogLevel::Off)
         {
-            addWarn(warnings, "logging.level is invalid → INFO");
+            addWarn(warnings, "logging.level invalid → INFO");
             log_level_ = LogLevel::Info;
         }
 
         initLogger();
     }
 
+    // ===== JSON loader =====
     void Config::loadFromFile(const std::filesystem::path& path, std::vector<std::string>* warnings)
     {
-        // Start from current values (or defaults if you prefer)
-        // Try to open file
         std::ifstream in(path);
         if (!in)
         {
-            addWarn(warnings,
-                    "Config file not found: " + path.string() + " (using current/default values).");
+            addWarn(warnings, "Config file not found: " + path.string() +
+                                  " (keeping current/default values)");
             validate(warnings);
             return;
         }
 
-        // Read & parse
         std::string content((std::istreambuf_iterator<char>(in)), {});
-        json j = json::parse(content, /*cb*/ nullptr, /*allow_exceptions*/ false);
+        json j = json::parse(content, nullptr, false);
         if (j.is_discarded())
         {
             addWarn(warnings,
-                    "Invalid JSON in " + path.string() + " (using current/default values).");
+                    "Invalid JSON in " + path.string() + " (keeping current/default values)");
             validate(warnings);
             return;
         }
@@ -135,10 +133,11 @@ namespace qga::core
             }
         }
 
-        // logging.level / logging.file
+        // logging.level / file
         if (j.contains("logging") && j["logging"].is_object())
         {
             const auto& jl = j["logging"];
+
             if (jl.contains("level"))
             {
                 if (jl["level"].is_string())
@@ -147,14 +146,12 @@ namespace qga::core
                     if (lvl)
                         log_level_ = *lvl;
                     else
-                        addWarn(warnings, "logging.level: unknown value (allowed: "
-                                          "trace/debug/info/warn/error/critical/off)");
+                        addWarn(warnings, "logging.level: unknown value");
                 }
                 else
-                {
                     addWarn(warnings, "logging.level: expected string");
-                }
             }
+
             if (jl.contains("file"))
             {
                 if (jl["file"].is_string())
@@ -167,8 +164,23 @@ namespace qga::core
         validate(warnings);
     }
 
+    // ===== ENV loader with profile support =====
     void Config::loadFromEnv(std::vector<std::string>* warnings)
     {
+        // --- NEW: read QGA_PROFILE ---
+        if (const char* p = std::getenv("QGA_PROFILE"))
+        {
+            if (*p)
+                profile_ = std::string(p);
+            else
+                addWarn(warnings, "QGA_PROFILE is empty → using 'dev'");
+        }
+
+        // Determine config file from profile
+        std::filesystem::path profile_path = "config/config." + profile_ + ".json";
+        loadFromFile(profile_path, warnings);
+
+        // --- Existing env overrides ---
         if (const char* v = std::getenv("QGA_DATA_DIR"))
         {
             if (*v)
@@ -176,6 +188,7 @@ namespace qga::core
             else
                 addWarn(warnings, "QGA_DATA_DIR is empty");
         }
+
         if (const char* v = std::getenv("QGA_THREADS"))
         {
             try
@@ -187,6 +200,7 @@ namespace qga::core
                 addWarn(warnings, "QGA_THREADS: invalid integer");
             }
         }
+
         if (const char* v = std::getenv("QGA_LOG_FILE"))
         {
             if (*v)
@@ -194,6 +208,7 @@ namespace qga::core
             else
                 addWarn(warnings, "QGA_LOG_FILE is empty");
         }
+
         if (const char* v = std::getenv("QGA_LOG_LEVEL"))
         {
             if (auto lvl = parseLogLevel(v))
@@ -209,9 +224,11 @@ namespace qga::core
     void Config::initLogger()
     {
         logger_ = utils::LoggerFactory::createLogger("App", log_file_.string(), log_level_);
+
         if (logger_)
         {
-            logger_->info(std::string("Logger initialized with level ") + toString(log_level_));
+            logger_->info(std::string("Logger initialized [profile=") + profile_ +
+                          ", level=" + toString(log_level_) + "]");
         }
     }
 
