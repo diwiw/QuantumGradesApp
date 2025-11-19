@@ -69,6 +69,22 @@
             "name": "build-linux-release-cli",
             "displayName": "Build Release CLI App",
             "configurePreset": "linux-release"
+        },
+        {
+            "name": "build-linux-debug-e2e",
+            "displayName": "Build Debug E2E Tests",
+            "configurePreset": "linux-debug",
+            "targets": [
+                "qga_tests_e2e"
+            ]
+        },
+        {
+            "name": "build-linux-release-e2e",
+            "displayName": "Build Release E2E Tests",
+            "configurePreset": "linux-release",
+            "targets": [
+                "qga_tests_e2e"
+            ]
         }
     ],
     "testPresets": [
