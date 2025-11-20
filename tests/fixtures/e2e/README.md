@@ -41,7 +41,7 @@ Additional sections may be added as the project grows.
 ## General Rules
 
 1. **Fixtures must be deterministic.**  
-   No randomness, timestamps, or values that change over time.uste, przygotowane na przy
+   No randomness, timestamps, or values that change over time.
 
 2. **Fixtures must remain small.**  
    Typically under **5–10 KB**. Large datasets belong in `tests/data/`.
