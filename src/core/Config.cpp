@@ -11,7 +11,10 @@ using nlohmann::json;
 namespace qga::core
 {
 
-    // ===== Utilities =====
+    // ============================================================
+    //  Utilities
+    // ============================================================
+
     std::string Config::toLower(std::string s) noexcept
     {
         std::transform(s.begin(), s.end(), s.begin(),
@@ -25,14 +28,20 @@ namespace qga::core
             w->push_back(std::move(msg));
     }
 
-    // ===== Singleton =====
+    // ============================================================
+    //  Singleton
+    // ============================================================
+
     Config& Config::getInstance() noexcept
     {
         static Config instance;
         return instance;
     }
 
-    // ===== Defaults =====
+    // ============================================================
+    //  Defaults
+    // ============================================================
+
     void Config::loadDefaults()
     {
         profile_ = "dev";
@@ -40,11 +49,17 @@ namespace qga::core
         threads_ = 4;
         log_level_ = LogLevel::Info;
         log_file_ = "app.log";
+        input_path_ = "";
+        output_path_ = "";
+
         validate(nullptr);
         initLogger();
     }
 
-    // ===== Validation =====
+    // ============================================================
+    //  Validation
+    // ============================================================
+
     void Config::validate(std::vector<std::string>* warnings)
     {
         const unsigned HW = std::max(1u, std::thread::hardware_concurrency());
@@ -85,7 +100,10 @@ namespace qga::core
         initLogger();
     }
 
-    // ===== JSON loader =====
+    // ============================================================
+    //  JSON loader
+    // ============================================================
+
     void Config::loadFromFile(const std::filesystem::path& path, std::vector<std::string>* warnings)
     {
         std::ifstream in(path);
@@ -99,6 +117,7 @@ namespace qga::core
 
         std::string content((std::istreambuf_iterator<char>(in)), {});
         json j = json::parse(content, nullptr, false);
+
         if (j.is_discarded())
         {
             addWarn(warnings,
@@ -107,7 +126,9 @@ namespace qga::core
             return;
         }
 
+        // --------------------------------------------------------
         // paths.data_dir
+        // --------------------------------------------------------
         if (j.contains("paths") && j["paths"].is_object())
         {
             const auto& jp = j["paths"];
@@ -120,7 +141,9 @@ namespace qga::core
             }
         }
 
+        // --------------------------------------------------------
         // engine.threads
+        // --------------------------------------------------------
         if (j.contains("engine") && j["engine"].is_object())
         {
             const auto& je = j["engine"];
@@ -133,7 +156,9 @@ namespace qga::core
             }
         }
 
-        // logging.level / file
+        // --------------------------------------------------------
+        // logging
+        // --------------------------------------------------------
         if (j.contains("logging") && j["logging"].is_object())
         {
             const auto& jl = j["logging"];
@@ -149,7 +174,9 @@ namespace qga::core
                         addWarn(warnings, "logging.level: unknown value");
                 }
                 else
+                {
                     addWarn(warnings, "logging.level: expected string");
+                }
             }
 
             if (jl.contains("file"))
@@ -161,13 +188,47 @@ namespace qga::core
             }
         }
 
+        // --------------------------------------------------------
+        // NEW: input.path
+        // --------------------------------------------------------
+        if (j.contains("input") && j["input"].is_object())
+        {
+            const auto& ji = j["input"];
+            if (ji.contains("path"))
+            {
+                if (ji["path"].is_string())
+                    input_path_ = ji["path"].get<std::string>();
+                else
+                    addWarn(warnings, "input.path: expected string");
+            }
+        }
+
+        // --------------------------------------------------------
+        // NEW: output.path
+        // --------------------------------------------------------
+        if (j.contains("output") && j["output"].is_object())
+        {
+            const auto& jo = j["output"];
+            if (jo.contains("path"))
+            {
+                if (jo["path"].is_string())
+                    output_path_ = jo["path"].get<std::string>();
+                else
+                    addWarn(warnings, "output.path: expected string");
+            }
+        }
+
         validate(warnings);
     }
 
-    // ===== ENV loader with profile support =====
+    // ============================================================
+    //  ENV loader with profile support
+    // ============================================================
+
     void Config::loadFromEnv(std::vector<std::string>* warnings)
     {
-        // --- NEW: read QGA_PROFILE ---
+
+        // profile: QGA_PROFILE
         if (const char* p = std::getenv("QGA_PROFILE"))
         {
             if (*p)
@@ -176,19 +237,20 @@ namespace qga::core
                 addWarn(warnings, "QGA_PROFILE is empty → using 'dev'");
         }
 
-        // Determine config file from profile
+        // Load JSON file for profile
         std::filesystem::path profile_path = "config/config." + profile_ + ".json";
         loadFromFile(profile_path, warnings);
 
-        // --- Existing env overrides ---
+        // QGA_DATA_DIR
         if (const char* v = std::getenv("QGA_DATA_DIR"))
         {
             if (*v)
-                data_dir_ = v;
+                data_dir_ = std::string(v);
             else
                 addWarn(warnings, "QGA_DATA_DIR is empty");
         }
 
+        // QGA_THREADS
         if (const char* v = std::getenv("QGA_THREADS"))
         {
             try
@@ -201,14 +263,16 @@ namespace qga::core
             }
         }
 
+        // QGA_LOG_FILE
         if (const char* v = std::getenv("QGA_LOG_FILE"))
         {
             if (*v)
-                log_file_ = v;
+                log_file_ = std::string(v);
             else
                 addWarn(warnings, "QGA_LOG_FILE is empty");
         }
 
+        // QGA_LOG_LEVEL
         if (const char* v = std::getenv("QGA_LOG_LEVEL"))
         {
             if (auto lvl = parseLogLevel(v))
@@ -217,17 +281,38 @@ namespace qga::core
                 addWarn(warnings, "QGA_LOG_LEVEL: unknown value");
         }
 
+        // NEW: QGA_INPUT
+        if (const char* v = std::getenv("QGA_INPUT"))
+        {
+            if (*v)
+                input_path_ = std::string(v);
+            else
+                addWarn(warnings, "QGA_INPUT is empty");
+        }
+
+        // NEW: QGA_OUTPUT
+        if (const char* v = std::getenv("QGA_OUTPUT"))
+        {
+            if (*v)
+                output_path_ = std::string(v);
+            else
+                addWarn(warnings, "QGA_OUTPUT is empty");
+        }
+
         validate(warnings);
     }
 
-    // ===== Logger integration =====
+    // ============================================================
+    //  Logger initialization
+    // ============================================================
+
     void Config::initLogger()
     {
         logger_ = utils::LoggerFactory::createLogger("App", log_file_.string(), log_level_);
 
         if (logger_)
         {
-            logger_->info(std::string("Logger initialized [profile=") + profile_ +
+            logger_->info("Logger initialized [profile=" + profile_ +
                           ", level=" + toString(log_level_) + "]");
         }
     }

@@ -210,7 +210,8 @@ TEST_CASE("E2E: negative case – missing CSV results in error")
 #endif
 
     bool contains_error = stdout_and_err.find("error") != std::string::npos ||
-                          stdout_and_err.find("Error") != std::string::npos;
+                          stdout_and_err.find("Error") != std::string::npos ||
+                          stdout_and_err.find("ERROR") != std::string::npos;
 
     CHECK_MESSAGE(contains_error, "Expected some error message, got:\n" << stdout_and_err);
 
