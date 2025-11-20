@@ -140,6 +140,18 @@
             ],
             "group": "test"
         },
+        {
+            "label": "Build E2E Tests (preset)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "--preset",
+                "build-linux-debug-e2e"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
         // ======================================================
         // ✅ QGA BUILDS 
         // ======================================================

@@ -7,6 +7,7 @@
  * - Profile-based configuration (dev/test/prod) via QGA_PROFILE.
  * - Validation and normalization (e.g. thread clamping).
  * - Integrated Logger (created via LoggerFactory).
+ * - Input/output paths for CLI / data ingest / exporters.
  */
 
 #pragma once
@@ -25,42 +26,19 @@ namespace qga::core
     class Config
     {
       public:
-        // === Singleton access ===
+        // === Singleton ===
         static Config& getInstance() noexcept;
 
-        // === Loading / setup ===
-
-        /**
-         * @brief Load configuration from a JSON file.
-         * @param path Path to JSON file.
-         * @param warnings Optional vector to collect warnings.
-         *
-         * If the file is missing, config remains unchanged.
-         */
+        // === Loading ===
         void loadFromFile(const std::filesystem::path& path,
                           std::vector<std::string>* warnings = nullptr);
 
-        /**
-         * @brief Load overrides from environment variables prefixed with QGA_.
-         *
-         * New behavior:
-         * - Detects QGA_PROFILE={dev|test|prod}
-         * - Loads corresponding config/config.<profile>.json
-         */
         void loadFromEnv(std::vector<std::string>* warnings = nullptr);
 
-        /**
-         * @brief Reset config to default values and validate.
-         */
         void loadDefaults();
-
-        /**
-         * @brief Validate current state and normalize values.
-         */
         void validate(std::vector<std::string>* warnings = nullptr);
 
         // === Read-only API ===
-
         const std::string& profile() const noexcept { return profile_; }
 
         const std::filesystem::path& dataDir() const noexcept { return data_dir_; }
@@ -68,7 +46,14 @@ namespace qga::core
         LogLevel logLevel() const noexcept { return log_level_; }
         const std::filesystem::path& logFile() const noexcept { return log_file_; }
 
-        // === Rule of Five (disabled for singleton) ===
+        // === NEW: Input/Output paths for CLI ===
+        const std::filesystem::path& inputPath() const noexcept { return input_path_; }
+        const std::filesystem::path& outputPath() const noexcept { return output_path_; }
+
+        void setInputPath(const std::filesystem::path& p) { input_path_ = p; }
+        void setOutputPath(const std::filesystem::path& p) { output_path_ = p; }
+
+        // === Rule of Five (disabled) ===
         ~Config() = default;
         Config(const Config&) = delete;
         Config(Config&&) = delete;
@@ -78,23 +63,28 @@ namespace qga::core
       private:
         Config() = default;
 
-        // === Internal helpers ===
+        // Helpers
         static std::string toLower(std::string s) noexcept;
         static void addWarn(std::vector<std::string>* w, std::string msg);
 
-        /// Initialize integrated logger after config load/validate.
         void initLogger();
 
       private:
-        // === NEW: profile state ===
-        std::string profile_ = "dev"; ///< Active configuration profile: dev/test/prod
+        // === Profiles ===
+        std::string profile_ = "dev";
 
-        // === Existing configuration values ===
+        // === Core configuration ===
         std::filesystem::path data_dir_ = "data";
         int threads_ = 4;
+
         LogLevel log_level_ = LogLevel::Info;
         std::filesystem::path log_file_ = "app.log";
 
+        // === NEW: CLI / ingest / exporter paths ===
+        std::filesystem::path input_path_ = "";  ///< Source CSV or HTTP URL
+        std::filesystem::path output_path_ = ""; ///< Destination CSV/JSON path
+
+        // Integrated logger
         std::shared_ptr<utils::ILogger> logger_;
     };
 

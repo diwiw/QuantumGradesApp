@@ -43,6 +43,16 @@ target_link_libraries(tests PRIVATE
     SQLite::SQLite3
     CLI11::CLI11
 )
+# === TO DO in 1.1.5 =====
+# Jednostkowe testy (jeśli masz)
+#if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/unit")
+#    add_subdirectory(unit)
+#endif()
+
+# E2E testy
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/e2e")
+    add_subdirectory(e2e)
+endif()
 
 # === Output directory ===
 set_target_properties(tests PROPERTIES
