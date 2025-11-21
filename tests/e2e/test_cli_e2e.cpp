@@ -55,12 +55,16 @@ static fs::path projectRoot()
     return {};
 }
 
+#ifndef QGA_CLI_PATH
+#error "QGA_CLI_PATH is not defined! Fix CMake for E2E tests."
+#endif
+
 static fs::path cliBinaryPath()
 {
 #ifdef _WIN32
-    return projectRoot() / "build" / "Debug" / "bin" / "qga_cli.exe";
+    return fs::path(QGA_CLI_PATH).string() + ".exe";
 #else
-    return projectRoot() / "build" / "Debug" / "bin" / "qga_cli";
+    return fs::path(QGA_CLI_PATH);
 #endif
 }
 
