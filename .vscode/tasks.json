@@ -91,6 +91,9 @@
                 "--preset",
                 "build-linux-debug-e2e"
             ],
+            "dependsOn": [
+                "Configure Debug (vcpkg)"
+            ],
             "group": "build",
             "problemMatcher": []
         },
@@ -160,6 +163,9 @@
                 "--build",
                 "--preset",
                 "build-linux-release-e2e"
+            ],
+            "dependsOn": [
+                "Configure Release (vcpkg)"
             ],
             "group": "build",
             "problemMatcher": []

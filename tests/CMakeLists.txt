@@ -55,6 +55,6 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/e2e")
 endif()
 
 # === Register in CTest (optional, for future CI) ===
-add_test(NAME QuantumGradesAppTests COMMAND tests)
+add_test(NAME QuantumGradesAppTests COMMAND qga_tests)
 
 message(STATUS "✅ Unit tests target configured successfully.")
