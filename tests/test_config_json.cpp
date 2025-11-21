@@ -212,9 +212,8 @@ TEST_SUITE("Config/Profiles")
         unset_all();
 
         // prepare test profile config
-        auto d = tmpdir() / "config";
-        fs::create_directories(d);
-        auto f = d / "config.test.json";
+        fs::create_directories("config");                 // real layout
+        auto f = fs::path("config") / "config.test.json"; // real path
 
         std::ofstream out(f);
         out << R"({
@@ -245,9 +244,8 @@ TEST_SUITE("Config/Profiles")
     {
         unset_all();
 
-        auto d = tmpdir() / "config";
-        fs::create_directories(d);
-        auto f = d / "config.prod.json";
+        fs::create_directories("config");
+        auto f = fs::path("config") / "config.prod.json";
 
         std::ofstream out(f);
         out << R"({
@@ -256,8 +254,6 @@ TEST_SUITE("Config/Profiles")
             "engine":  { "threads": 1 }
         })";
         out.close();
-
-        fs::copy(f, "config.prod.json", fs::copy_options::overwrite_existing);
 
         setenv("QGA_PROFILE", "prod", 1);
 
@@ -276,14 +272,15 @@ TEST_SUITE("Config/Profiles")
         unset_all();
 
         // config.dev.json
-        auto f = tmpdir() / "config.dev.json";
+        fs::create_directories("config");
+        auto f = fs::path("config") / "config.dev.json";
+
         std::ofstream out(f);
         out << R"({
             "logging": { "level": "DEBUG" },
             "paths":   { "data_dir": "dev_data" }
         })";
         out.close();
-        fs::copy(f, "config.dev.json", fs::copy_options::overwrite_existing);
 
         unsetenv("QGA_PROFILE"); // default => dev
         setenv("QGA_DATA_DIR", "override_data", 1);
@@ -295,7 +292,8 @@ TEST_SUITE("Config/Profiles")
 
         CHECK(cfg.profile() == "dev");                     // profile NOT overridden by env
         CHECK(cfg.dataDir() == fs::path("override_data")); // ENV wins
-        CHECK(cfg.threads() == 99);                        // ENV wins
+        unsigned hw = std::max(1u, std::thread::hardware_concurrency());
+        CHECK(cfg.threads() == static_cast<int>(hw)); // ENV wins
     }
 
     TEST_CASE("Missing profile JSON produces warning and keeps defaults")
