@@ -19,6 +19,9 @@ tools/
 
 # Generated data
 data/grades.txt
+
+# test artifacts
+test_tmp_export/
 test_tmp_cfg_json
 
 # Version file
