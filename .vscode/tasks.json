@@ -58,7 +58,7 @@
                 "--preset",
                 "build-linux-debug",
                 "--target",
-                "tests",
+                "qga_tests",
                 "--parallel"
             ],
             "dependsOn": [
@@ -82,8 +82,20 @@
             ],
             "group": "test"
         },
+        {
+            "label": "Build Debug E2E Tests (preset)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "--preset",
+                "build-linux-debug-e2e"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
         // ======================================================
-        // ✅ RELEASE BUILDS — Demos
+        // ✅ RELEASE BUILDS
         // ======================================================
         {
             "label": "Build Release All Demos (vcpkg)",
@@ -116,7 +128,7 @@
                 "--preset",
                 "build-linux-release",
                 "--target",
-                "tests",
+                "qga_tests",
                 "--parallel"
             ],
             "dependsOn": [
@@ -141,13 +153,13 @@
             "group": "test"
         },
         {
-            "label": "Build E2E Tests (preset)",
+            "label": "Build Release E2E Tests (preset)",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
                 "--preset",
-                "build-linux-debug-e2e"
+                "build-linux-release-e2e"
             ],
             "group": "build",
             "problemMatcher": []

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.27)
 
 add_executable(qga_tests_e2e
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_e2e.cpp
@@ -20,10 +20,6 @@ target_link_libraries(qga_tests_e2e PRIVATE
     qga_ingest
     qga_cli_lib
     CLI11::CLI11    
-)
-
-set_target_properties(qga_tests_e2e PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
 add_test(NAME e2e_cli COMMAND qga_tests_e2e)

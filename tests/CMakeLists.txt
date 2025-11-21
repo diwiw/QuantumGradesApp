@@ -10,23 +10,23 @@ file(GLOB TEST_SOURCES
 )
 
 # === Create test executable ===
-add_executable(tests
+add_executable(qga_tests
     ${TEST_SOURCES}
 )
 
 # === Include paths ===
-target_include_directories(tests PRIVATE
+target_include_directories(qga_tests PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/external
 )
 
 # === Compiler options ===
-target_compile_features(tests PRIVATE cxx_std_23)
-target_compile_definitions(tests PRIVATE UNIT_TEST USE_CURL)
+target_compile_features(qga_tests PRIVATE cxx_std_23)
+target_compile_definitions(qga_tests PRIVATE UNIT_TEST USE_CURL)
 
 # === Link libraries ===
-target_link_libraries(tests PRIVATE
+target_link_libraries(qga_tests PRIVATE
     qga_utils
     qga_core    
     qga_io
@@ -44,20 +44,15 @@ target_link_libraries(tests PRIVATE
     CLI11::CLI11
 )
 # === TO DO in 1.1.5 =====
-# Jednostkowe testy (jeśli masz)
+# Unit tests (if any)
 #if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/unit")
 #    add_subdirectory(unit)
 #endif()
 
-# E2E testy
+# E2E tests
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/e2e")
     add_subdirectory(e2e)
 endif()
-
-# === Output directory ===
-set_target_properties(tests PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-)
 
 # === Register in CTest (optional, for future CI) ===
 add_test(NAME QuantumGradesAppTests COMMAND tests)
