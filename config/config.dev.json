@@ -1,7 +1,4 @@
 {
-    "profile": "dev",
-    "logLevel": "debug",
-    "dataPath": "./data/dev/",
-    "dbPath": "./db/dev.sqlite",
-    "exportPath": "./exports/dev/"
-}
+            "logging": { "level": "DEBUG" },
+            "paths":   { "data_dir": "dev_data" }
+        }
