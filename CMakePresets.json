@@ -69,36 +69,36 @@
             "name": "build-linux-release-cli",
             "displayName": "Build Release CLI App",
             "configurePreset": "linux-release"
-        },
-        {
-            "name": "build-linux-debug-e2e",
-            "displayName": "Build Debug E2E Tests",
-            "configurePreset": "linux-debug",
-            "targets": [
-                "qga_tests_e2e"
-            ]
-        },
-        {
-            "name": "build-linux-release-e2e",
-            "displayName": "Build Release E2E Tests",
-            "configurePreset": "linux-release",
-            "targets": [
-                "qga_tests_e2e"
-            ]
         }
     ],
     "testPresets": [
         {
-            "name": "test-linux-debug",
-            "displayName": "Run Debug Tests",
+            "name": "unit-linux-debug",
+            "displayName": "Run Unit Tests (Debug)",
             "configurePreset": "linux-debug",
             "execution": {
                 "stopOnFailure": true
             }
         },
         {
-            "name": "test-linux-release",
-            "displayName": "Run Release Tests",
+            "name": "unit-linux-release",
+            "displayName": "Run Unit Tests (Release)",
+            "configurePreset": "linux-release",
+            "execution": {
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "e2e-linux-debug",
+            "displayName": "Run E2E Tests (Debug)",
+            "configurePreset": "linux-debug",
+            "execution": {
+                "stopOnFailure": true
+            }
+        },
+        {
+            "name": "e2e-linux-release",
+            "displayName": "Run E2E Tests (Release)",
             "configurePreset": "linux-release",
             "execution": {
                 "stopOnFailure": true
