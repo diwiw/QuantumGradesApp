@@ -221,3 +221,62 @@ TEST_CASE("E2E: negative case – missing CSV results in error")
 
     CHECK(!fs::exists(output_out));
 }
+
+TEST_CASE("E2E: CLI --help returns usage information")
+{
+    const auto CLI = cliBinaryPath();
+    REQUIRE_MESSAGE(fs::exists(CLI), "CLI binary not found: " << CLI);
+
+    int exit_code = 0;
+    std::string out = runCliAndCapture("\"" + CLI.string() + "\" --help", exit_code);
+
+#ifdef _WIN32
+    CHECK(exit_code == 0);
+#else
+    CHECK(WEXITSTATUS(exit_code) == 0);
+#endif
+    bool has_usage = out.find("Usage") != std::string::npos;
+    bool has_config = out.find("--config") != std::string::npos;
+    bool checker = has_usage || has_config;
+    CHECK_MESSAGE(checker, "Help output missing expected content.\n" << out);
+}
+
+TEST_CASE("E2E: CLI --version prints version info")
+{
+    const auto CLI = cliBinaryPath();
+    REQUIRE_MESSAGE(fs::exists(CLI), "CLI binary not found: " << CLI);
+
+    int exit_code = 0;
+    std::string out = runCliAndCapture("\"" + CLI.string() + "\" --version", exit_code);
+
+#ifdef _WIN32
+    CHECK(exit_code == 0);
+#else
+    CHECK(WEXITSTATUS(exit_code) == 0);
+#endif
+
+    CHECK_MESSAGE(out.find("QuantumGradesApp") != std::string::npos,
+                  "Version output missing expected app name.\n"
+                      << out);
+}
+
+TEST_CASE("E2E: running CLI without --config produces error")
+{
+    const auto CLI = cliBinaryPath();
+    REQUIRE_MESSAGE(fs::exists(CLI), "CLI binary not found: " << CLI);
+
+    int exit_code = 0;
+    std::string out = runCliAndCapture("\"" + CLI.string() + "\"", exit_code);
+
+#ifdef _WIN32
+    CHECK(exit_code != 0);
+#else
+    CHECK(WEXITSTATUS(exit_code) != 0);
+#endif
+
+    bool contains_error = out.find("--config") != std::string::npos ||
+                          out.find("required") != std::string::npos ||
+                          out.find("Error") != std::string::npos;
+
+    CHECK_MESSAGE(contains_error, "Missing expected error about --config:\n" << out);
+}
