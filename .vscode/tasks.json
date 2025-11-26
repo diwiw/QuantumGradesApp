@@ -25,7 +25,7 @@
             "group": "build"
         },
         // ======================================================
-        // ✅ DEBUG BUILDS — Demos
+        // BUILD — DEBUG (Demos, Unit tests, E2E tests)
         // ======================================================
         {
             "label": "Build Debug All Demos (vcpkg)",
@@ -50,7 +50,7 @@
             ]
         },
         {
-            "label": "Build Debug Tests (vcpkg)",
+            "label": "Build Debug Unit Tests (vcpkg)",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -70,26 +70,13 @@
             ]
         },
         {
-            "label": "Run Debug Tests (vcpkg)",
-            "type": "shell",
-            "command": "ctest",
-            "args": [
-                "--preset",
-                "test-linux-debug"
-            ],
-            "dependsOn": [
-                "Build Debug Tests (vcpkg)"
-            ],
-            "group": "test"
-        },
-        {
             "label": "Build Debug E2E Tests (preset)",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
                 "--preset",
-                "build-linux-debug-e2e"
+                "build-linux-debug"
             ],
             "dependsOn": [
                 "Configure Debug (vcpkg)"
@@ -98,7 +85,7 @@
             "problemMatcher": []
         },
         // ======================================================
-        // ✅ RELEASE BUILDS
+        // BUILD — RELEASE
         // ======================================================
         {
             "label": "Build Release All Demos (vcpkg)",
@@ -143,26 +130,13 @@
             ]
         },
         {
-            "label": "Run Release Tests (vcpkg)",
-            "type": "shell",
-            "command": "ctest",
-            "args": [
-                "--preset",
-                "test-linux-release"
-            ],
-            "dependsOn": [
-                "Build Release Tests (vcpkg)"
-            ],
-            "group": "test"
-        },
-        {
             "label": "Build Release E2E Tests (preset)",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
                 "--preset",
-                "build-linux-release-e2e"
+                "build-linux-release"
             ],
             "dependsOn": [
                 "Configure Release (vcpkg)"
@@ -171,7 +145,69 @@
             "problemMatcher": []
         },
         // ======================================================
-        // ✅ QGA BUILDS 
+        // TEST TASKS — DEBUG (Unit & E2E)
+        // ======================================================
+        {
+            "label": "Test Unit (Debug)",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "cmake --build --preset build-linux-debug --target qga_tests -j && ctest -C Debug -L unit --output-on-failure --test-dir build/Debug"
+            ],
+            "dependsOn": [
+                "Configure Debug (vcpkg)"
+            ],
+            "group": "test",
+            "problemMatcher": []
+        },
+        {
+            "label": "Test E2E (Debug)",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "cmake --build --preset build-linux-debug-e2e -j && ctest -C Debug -L e2e --output-on-failure --test-dir build/Debug"
+            ],
+            "dependsOn": [
+                "Configure Debug (vcpkg)"
+            ],
+            "group": "test",
+            "problemMatcher": []
+        },
+        // ======================================================
+        // TEST TASKS — RELEASE (Unit & E2E)
+        // ======================================================
+        {
+            "label": "Test Unit (Release)",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "cmake --build --preset build-linux-release --target qga_tests -j && ctest -C Release -L unit --output-on-failure --test-dir build/Release"
+            ],
+            "dependsOn": [
+                "Configure Release (vcpkg)"
+            ],
+            "group": "test",
+            "problemMatcher": []
+        },
+        {
+            "label": "Test E2E (Release)",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "cmake --build --preset build-linux-release-e2e -j && ctest -C Release -L e2e --output-on-failure --test-dir build/Release"
+            ],
+            "dependsOn": [
+                "Configure Release (vcpkg)"
+            ],
+            "group": "test",
+            "problemMatcher": []
+        },
+        // ======================================================
+        // CLI BUILDS
         // ======================================================
         {
             "label": "Build Debug CLI App",
