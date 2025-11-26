@@ -1,5 +1,6 @@
 #include "core/Config.hpp"
 #include "doctest.h"
+#include "unit_config.hpp"
 #include <filesystem>
 #include <fstream>
 #include <thread>
@@ -9,7 +10,7 @@ using namespace qga::core;
 
 static fs::path tmpdir()
 {
-    fs::path d{"test_tmp_cfg_json"};
+    fs::path d = fs::path(QGA_UNIT_TEST_DIR) / "test_tmp_cfg_json";
     fs::create_directories(d);
     return d;
 }
@@ -18,7 +19,8 @@ TEST_SUITE("Config/JSON")
 {
     TEST_CASE("Load full JSON and sets fields")
     {
-        auto d = tmpdir();
+
+        fs::path d = tmpdir();
         auto f = d / "full.json";
         std::ofstream out(f);
         out << R"({

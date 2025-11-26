@@ -24,7 +24,11 @@ target_include_directories(qga_tests PRIVATE
 
 # === Compiler options ===
 target_compile_features(qga_tests PRIVATE cxx_std_23)
-target_compile_definitions(qga_tests PRIVATE UNIT_TEST USE_CURL)
+target_compile_definitions(qga_tests PRIVATE 
+        UNIT_TEST 
+        USE_CURL
+        QGA_UNIT_TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+)
 
 # === Link libraries ===
 target_link_libraries(qga_tests PRIVATE
