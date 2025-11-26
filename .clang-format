@@ -8,3 +8,15 @@ NamespaceIndentation: All
 PointerAlignment: Left
 SpaceAfterCStyleCast: true
 SortIncludes: CaseSensitive
+SortIncludes: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<.*\.h>$'
+    Priority: 1
+  - Regex: '^<.*>$'
+    Priority: 2
+  - Regex: '^".*"'
+    Priority: 3
+SpaceBeforeParens: ControlStatements
+BreakBeforeBinaryOperators: NonAssignment
+InsertTrailingNewline: true
