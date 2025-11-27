@@ -41,7 +41,7 @@ namespace qga::cli
         bool show_version = false;
 
         app.add_flag("--version", show_version, "Show version information");
-        app.add_option("--config", config_path, "Path to configuration file")->required();
+        app.add_option("--config", config_path, "Path to configuration file");
 
         app.add_option("--input", cli_input, "Override input data file (CSV)");
         app.add_option("--output", cli_output, "Override output results file (CSV)");
@@ -54,6 +54,11 @@ namespace qga::cli
             return 0;
         }
 
+        if (config_path.empty())
+        {
+            std::cerr << "ERROR: --config is required\n";
+            return 1;
+        }
 #else
         po::options_description desc("QuantumGradesApp CLI options");
         desc.add_options()("help,h", "Show help")("version,v", "Version")(
