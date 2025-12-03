@@ -9,6 +9,28 @@ bin/
 obj/
 cmake-build-*/
 
+# E2E CLI temp output
+tmp_cli_out.txt
+
+# Perf profiling artifacts
+perf.data
+perf.data.old
+out.folded
+out.perf
+flame.svg
+profiling_output/
+
+# Data files (large raw datasets)
+data/*.csv
+data/*.qga.csv
+data/raw_*.csv
+
+# Rnadom test-generated config files
+config.test.json
+
+# Any *.json test artifacts in root
+*.test.json
+
 # Log Catalog
 logs/
 app.log
@@ -30,6 +52,11 @@ include/core/Version.hpp
 # Tests
 build/tests/
 
+# CTest logs
+Testing/
+
+
+
 # Documentation
 /docs/
 *.dox
@@ -44,3 +71,4 @@ build/tests/
 .DS_Store
 test_spdlog.log
 /include/Version.hpp
+

@@ -45,6 +45,19 @@
                 "CMAKE_BUILD_TYPE": "Release",
                 "VCPKG_TARGET_TRIPLET": "x64-windows-static"
             }
+        },
+        {
+            "name": "linux-profiling",
+            "displayName": "Linux Profiling (Release + symbols)",
+            "inherits": "base-vcpkg",
+            "binaryDir": "build/Profiling",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+                "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+                "BUILD_LEGACY_DEMOS": "OFF",
+                "CMAKE_CXX_FLAGS": "-O2 -g -fno-omit-frame-pointer",
+                "CMAKE_C_FLAGS": "-O2 -g -fno-omit-frame-pointer"
+            }
         }
     ],
     "buildPresets": [
@@ -69,6 +82,25 @@
             "name": "build-linux-release-cli",
             "displayName": "Build Release CLI App",
             "configurePreset": "linux-release"
+        },
+        {
+            "name": "build-linux-debug-e2e",
+            "configurePreset": "linux-debug",
+            "targets": [
+                "qga_tests_e2e"
+            ]
+        },
+        {
+            "name": "build-linux-release-e2e",
+            "configurePreset": "linux-release",
+            "targets": [
+                "qga_tests_e2e"
+            ]
+        },
+        {
+            "name": "build-linux-profiling",
+            "displayName": "Build Profiling (RelWithDebInfo)",
+            "configurePreset": "linux-profiling"
         }
     ],
     "testPresets": [
