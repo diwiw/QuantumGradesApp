@@ -36,7 +36,7 @@ This release v0.9.0 introduces major quality upgrades, new metrics, improved ing
 - Sharpe Ratio
 - Sortino Ratio
 - Hit Ratio
-- Numerous new unit tests
+- Additional validation and tests
 
 ## CLI improvements
 
@@ -351,7 +351,12 @@ sudo apt install graphviz
 
 ---
 
-## ❌ Why CI currently fails (Detailed)
+## Known Issues (High Level)
+
+### Profiling dataset is too small (demo-only)
+
+v0.9.0 ships with a tiny ingest dataset (demo.csv) for stability and CI reproducibility.
+Real performance profiling will become available in v2.0.0, once large datasets and optimized ingestion paths are added.
 
 ### Ubuntu (Linux)
 Ubuntu CI fails due to test-suite mismatches caused by legitimate refactors done in 0.9.0:
