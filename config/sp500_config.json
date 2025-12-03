@@ -1,7 +1,7 @@
 {
     "input": {
         "format": "csv",
-        "path": "data/sp500_qga.csv"
+        "path": "data/demo.csv"
     },
     "output": {
         "format": "csv",
