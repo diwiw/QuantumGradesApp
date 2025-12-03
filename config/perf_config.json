@@ -1,0 +1,17 @@
+{
+    "input": {
+        "format": "csv",
+        "path": "tests/fixtures/e2e/sample_short.csv"
+    },
+    "output": {
+        "format": "csv",
+        "path": "build/Profiling/output_perf.csv"
+    },
+    "engine": {
+        "initial_equity": 10000
+    },
+    "logging": {
+        "level": "WARN",
+        "file": ""
+    }
+}

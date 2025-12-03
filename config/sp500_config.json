@@ -1,0 +1,18 @@
+{
+    "input": {
+        "format": "csv",
+        "path": "data/sp500_qga.csv"
+    },
+    "output": {
+        "format": "csv",
+        "path": "build/Profiling/output_perf.csv"
+    },
+    "engine": {
+        "initial_equity": 10000,
+        "repeat": 25000
+    },
+    "logging": {
+        "level": "WARN",
+        "file": ""
+    }
+}
