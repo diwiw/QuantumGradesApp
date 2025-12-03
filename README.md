@@ -1,72 +1,81 @@
 # QuantumGradesApp
 
-> **Version:** `v0.8.0`
+> **Version:** `v0.9.0`
 > **Build System:** CMake + Ninja
 > **Standard:** C++23
 > **Documentation:** Doxygen + Mermaid + Graphviz
 > **Testing:** doctest (unit + E2E)
 > **Platforms:** Linux, Windows (MSVC+vcpkg)
 > **Architecture:** Modular, layered, Clean Architecture
+> **Performance Tools:** perf + FlameGraph (Linux, profiling preset)
 
 QuantumGradesApp is a modular, extensible quantitative backtesting framework written in modern C++.  
-Originally built as a grades/statistics demo, it has evolved into a clean, layered architecture suitable for quantitative research, algorithmic trading, data ingestion, reporting, and performance‑oriented extensions (GPU/HPC).
+Originally built as a grades/statistics demo, it has evolved into a clean, layered architecture suitable for:
+  - quantitative research
+  - backtesting trading strategies
+  - portfolio & risk analytics
+  - data ingestion
+  - reporting
+  - building HPC-oriented extensions
+
+This release v0.9.0 introduces major quality upgrades, new metrics, improved ingestion, test suite stabilization, and a full CPU profiling pipeline.
+---
+# What's New in v0.9.0
+## New performance profiling tools
+
+- perf_setup.sh
+- perf_flamegraph.sh
+- perf_hotspot.sh
+- CMake preset: linux-profiling
+- VSCode task: Build Profiling (vcpkg)
+
+## Expanded Statistics module
+
+- Maximum Drawdown (MDD)
+- CAGR
+- Sharpe Ratio
+- Sortino Ratio
+- Hit Ratio
+- Numerous new unit tests
+
+## CLI improvements
+
+- `--config` is now required
+- Better error messages
+- CLI tests rewritten and fixed
+
+## Data ingestion improvements
+
+- Strict CSV validation
+- Fixed row parsing for malformed inputs
+- Preparation for mock HTTP server tests (not yet used in CI)
+- Improved error handling and reporting
+
+## Test suite updates (v0.9.0)
+
+- Updated fixtures for new Config schema
+- Stabilized E2E tests (Linux)
+- Added NullLogger for deterministic outputs
+- Improved Statistics tests
+
+## Formatting & code quality
+
+- clang-format enforced on all modules
+- clang-tidy baseline added
+- CI workflows updated for formatting compliance
 
 ---
 
-# Prerequisites
+# Features (v0.9.0)
+The 0.9.0 milestone includes: 
 
-To build v0.8.0, install the following depending on your platform.
+### Profiling & Performance Tools
+- perf integration
+- Flamegraph & hotspots scripting
+- Userspace-only profiling mode
+- Unified profiling pipeline (tools/profiling/)
 
-### Linux (recommended)
-
-```
-sudo apt install -y \
-  cmake ninja-build g++ pkg-config \
-  libcurl4-openssl-dev libsqlite3-dev libspdlog-dev libfmt-dev \
-  ccache graphviz doxygen
-```
-Optionally Clang for TSAN:
-```
-sudo apt install clang
-```  
-### Windows (MSVC + vcpkg REQUIRED)
-- Install Visual Studio Build Tools or full Visual Studio (C++ Desktop).
-
-- Install Ninja
-
-- Clone vcpkg:
-```
-git clone https://github.com/microsoft/vcpkg
-cd vcpkg
-bootstrap-vcpkg.bat
-```
-- Install dependencies:
-```
-vcpkg install fmt spdlog sqlite3 curl
-```
-- Enable toolchain when configuring:
-```
--DCMAKE_TOOLCHAIN_FILE=%CD%/vcpkg/scripts/buildsystems/vcpkg.cmake
--DVCPKG_TARGET_TRIPLET=x64-windows-static
-```
-
----
-
-# Features (v0.8.0)
-
-### CLI & Configuration
-- Full CLI interface for executing backtests:
-  - `--config <file>` (required)
-  - `--input <csv>` (override JSON)
-  - `--output <csv>` (override JSON)
-- `config.json` supports:
-  - `input.path`, `input.format`
-  - `output.path`, `output.format`
-- Environment override support (`QGA_*`).
-- Integrated asynchronous logging.
-- Deterministic E2E tests for CLI.
-
-## Module Breakdown
+## Module Overview
 
 ### `core/`
 Shared, foundational infrastructure:
@@ -149,19 +158,19 @@ classDiagram
 
 ```
 QuantumGradesApp/
-├─ .github/ # CI/CD pipelines (Ubuntu/Windows)
-├─ build/ # Out-of-source build directory
-├─ changelog/ # Version changelogs
-├─ config/ # Runtime configuration profiles (dev/test/prod)
-├─ data/ # Sample datasets (optional)
-├─ docs/ # Doxygen, diagrams, developer notes
+├─ .github/                                 # CI/CD pipelines (Ubuntu/Windows)
+├─ build/                                   # Out-of-source build directory
+├─ changelog/                               # Version changelogs
+├─ config/                                  # Runtime configuration profiles (dev/test/prod)
+├─ data/                                    # Sample datasets (optional)
+├─ docs/                                    # Doxygen, diagrams, developer notes
 │ ├─ diagrams/
 │ ├─ pages/
 │ ├─ developer_notes.md
 │ └─ *.md / .dox
-├─ external/ # Third-party libs (header-only, vendored)
+├─ external/                                # Third-party libs (header-only, vendored)
 │ └─ doctest.h
-├─ include/ # Public headers (installed by project)
+├─ include/                                 # Public headers (installed by project)
 │ ├─ common/
 │ ├─ core/
 │ ├─ domain/
@@ -171,10 +180,10 @@ QuantumGradesApp/
 │ ├─ reporting/
 │ ├─ strategy/
 │ └─ utils/
-├─ logs/ # App/runtime logs
+├─ logs/                                    # App/runtime logs
 ├─ sql/
-│ └─ migrations/ # SQLite schema migrations
-├─ src/ # Implementation (.cpp)
+│ └─ migrations/                            # SQLite schema migrations
+├─ src/                                     # Implementation (.cpp)
 │ ├─ cli/
 │ ├─ core/
 │ ├─ domain/
@@ -184,13 +193,15 @@ QuantumGradesApp/
 │ ├─ reporting/
 │ ├─ strategy/
 │ └─ utils/
-├─ tests/ # Unit / integration / E2E tests
+├─ tests/                                   # Unit / integration / E2E tests
 │ ├─ e2e/
 │ ├─ fixtures/
 │ │ └─ e2e/
-│ └─ test_.cpp
-├─ tools/ # Internal tools / scripts
-├─ vcpkg_triplets/ # Custom vcpkg triplets
+│ └─ unit/
+│   └─ test_.cpp
+├─ tools/                                   # Profiling tools / scripts + utilities
+│ └─ profiling/
+├─ vcpkg_triplets/                          # Custom vcpkg triplets
 ├─ CMakeLists.txt
 └─ LICENSE.txt
 ```
@@ -199,29 +210,57 @@ QuantumGradesApp/
 
 # Building the Project
 
-## Linux (GCC/Clang)
+## Prerequisites
+
+To build v0.9.0, install the following depending on your platform.
+
+### Linux (recommended)
 
 ```
-sudo apt install cmake ninja-build pkg-config \
-    libcurl4-openssl-dev libsqlite3-dev libspdlog-dev libfmt-dev ccache
-
-cmake -S . -B build -G Ninja -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-cmake --build build --parallel
-ctest --test-dir build --output-on-failure
+sudo apt install -y \
+  cmake ninja-build g++ pkg-config \
+  libcurl4-openssl-dev libsqlite3-dev libspdlog-dev libfmt-dev \
+  ccache graphviz doxygen
 ```
+Optionally Clang for TSAN:
+```
+sudo apt install clang
+```  
+### Windows (MSVC + vcpkg)
+## Required
+- Install Visual Studio Build Tools or full Visual Studio (C++ Desktop).
 
----
+- Install Ninja
 
-## Windows (MSVC + Ninja + vcpkg)
-
-### Prerequisites
+- Clone vcpkg:
 ```
 git clone https://github.com/microsoft/vcpkg
 cd vcpkg
 bootstrap-vcpkg.bat
 vcpkg integrate install
 ```
+- Install dependencies:
+```
+vcpkg install fmt spdlog sqlite3 curl
+```
+
+
+---
+
+## Linux (GCC/Clang)
+
+```
+cmake -S . -B build -G Ninja -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
+```
+---
+
+## Windows (MSVC + Ninja + vcpkg)
+
 ### Build
+- Enable toolchain when configuring and build:
+
 ```
 cmake -S . -B build -G "Ninja" ^
   -DCMAKE_TOOLCHAIN_FILE=%CD%/vcpkg/scripts/buildsystems/vcpkg.cmake ^
@@ -242,24 +281,44 @@ cmake -S . -B build-tsan -DENABLE_TSAN=ON -DCMAKE_CXX_COMPILER=clang++
 cmake --build build-tsan
 ctest --test-dir build-tsan --output-on-failure
 ```
+## Profiling (NEW in v0.9.0)
+### Setup
+```
+./tools/profiling/perf_setup.sh
+```
+### Build profiling preset
+```
+cmake --preset linux-profiling
+cmake --build --preset build-linux-profiling
+```
+### FlameGraph
+```
+./tools/profiling/perf_flamegraph.sh ./build/Profiling/bin/qga_cli config/perf_config.json
+```
+Output → ``` profiling_output/flamegraph.svg ```
+
+### Hotspot report
+
+```
+./tools/profiling/perf_hotspot.sh ./build/Profiling/bin/qga_cli config/perf_config.json
+```
 
 ---
 
 # Running Tests
 
-### Full test suite
-```
-./build/bin/tests
-```
-### E2E tests (added in v0.8.0)
-```
+## Linux
+./build/bin/qga_tests
 ./build/bin/qga_tests_e2e
-```
 
-### HTTP-related tests require a local server:
+## Windows (MSVC + Ninja)
+# Ninja multi-config produces binaries under /Debug or /Release
+./build/Debug/qga_tests.exe
+./build/Debug/qga_tests_e2e.exe
+
+### Run all tests:
 ```
-cd tests/data
-python3 -m http.server 8000
+ctest --test-dir build --output-on-failure
 ```
 
 ---
@@ -279,61 +338,78 @@ sudo apt install graphviz
 
 ---
 
-# CI/CD Status
-
 > **Note:**  
-> As of release **v0.8.0**, CI builds fail on both Ubuntu and Windows due to  
-> ongoing refactors in **Config**, **profiles**, **HTTP ingest**, and  
-> test-suite alignment. The build itself succeeds, but several tests do not.
+> Important:
+> Milestone 0.9.0 does NOT fix CI — that is intentionally postponed to 1.0.5
+> (Advanced Test Infrastructure milestone).
 
-| Platform   | Build | Cache | Tests | Notes |
-|-----------|--------|--------|--------|--------|
-| **Ubuntu** | ⚠️ Builds, ❌ Tests | ccache | ❌ | Failing profile tests, HTTP ingest tests, CLI tests (`--config required`) |
-| **Windows** | ⚠️ Builds, ❌ Tests | sccache + vcpkg | ❌ | Test binaries not discovered (`tests.exe` / `qga_tests_e2e.exe` not generated or path mismatch). |
-| **Docs** | ✅ | — | — | Doxygen builds correctly |
-
-### ❌ Why CI currently fails
-
-#### Ubuntu
-- New Config fields: `input`, `output`, `input.path`, `output.path` not handled by older tests  
-- Profile-based configs (`dev/test/prod`) changed → profile tests expect old schema  
-- HTTP ingest test tries to reach a server not available on GitHub Actions  
-- CLI tests now require `--config`, causing doctest auto-discovery failures  
-- Some Stats tests expect old behavior (e.g. mean/median error messages)
-
-#### Windows
-- Build succeeds, but CTest **cannot find test executables**: 
-- - Could not find executable .../build/bin/tests.exe
-- - Could not find executable .../build/bin/qga_tests_e2e.exe
-- This is due to Ninja + MSVC generating binaries in:
-- - build/Debug/tests.exe
-- - build/Debug/qga_tests_e2e.exe
-but current CTest config still expects:
-- - build/bin/tests.exe
-- - build/bin/qga_tests_e2e.exe
-
-This will be aligned in milestone **0.9.0** when the test suite is updated  
-and CMake unified across platforms.
+| Platform    | Build Status        | Cache              | Tests | Notes |
+|-------------|---------------------|---------------------|-------|-------|
+| **Ubuntu**  | ⚠️ Builds, ❌ Tests | ccache             | ❌    | Config schema changed; CLI requires `--config`; Statistics tests outdated; HTTP ingest missing mock server; async logger warning during teardown |
+| **Windows** | ⚠️ Builds, ❌ Tests | sccache + vcpkg    | ❌    | CTest cannot find binaries (Ninja + MSVC outputs to `/Debug`); multi-config mismatch; fix postponed to `1.0.5` |
+| **Docs**    | ✅                  | —                  | —     | Doxygen builds successfully |
 
 ---
 
-## Planned Fix (Milestone 0.9.0)
+## ❌ Why CI currently fails (Detailed)
 
-- 🔧 Update all Config/Profiles tests to new schema  
-- 🔧 Add mock HTTP server for DataIngest HTTP tests  
-- 🔧 Fix CLI tests for required `--config`  
-- 🔧 Unify test binary output (`build/bin/` on Linux + Windows)  
-- 🔧 Patch Windows CTest discovery  
-- 🔧 Add missing fixtures for E2E tests  
-- 🔧 Enable optional TSAN job again  
+### Ubuntu (Linux)
+Ubuntu CI fails due to test-suite mismatches caused by legitimate refactors done in 0.9.0:
 
-When fixed, CI table will return to:
+- Old tests incompatible with new Config schema  
+- CLI now **requires `--config`**, so doctest auto-discovery fails  
+- Profile-based configs (`dev/test/prod`) changed — tests expect old values  
+- HTTP ingest tests require a real HTTP server (not available on CI runners)  
+- Statistics tests expect old validation logic (e.g. mean/median error cases)
+- Async logger prints warnings when destroyed before thread pool flush
 
-| Platform   | Build | Cache | Sanitizer | Tests |
-|-----------|--------|--------|-------------|--------|
-| Ubuntu    | ✅ | ccache | TSAN (opt) | ✅ |
-| Windows   | ✅ | sccache + vcpkg | — | ✅ |
-| Docs      | ✅ | — | — | — |
+These failures are **not regressions in application logic** —  
+they reflect that tests must be updated to match the new architecture.
+
+---
+
+### Windows (MSVC + Ninja + vcpkg)
+Windows CI fails because **CTest cannot find test executables**, e.g.:
+- Ninja + MSVC output layout mismatch:
+```
+build/Debug/qga_tests.exe
+build/Release/qga_tests.exe
+```
+but CTest expects:
+```
+build/bin/qga_tests.exe
+```
+- CTest paths will be refactored in 1.0.5
+- Multi-config generators complicate test discovery
+
+---
+
+# Roadmap
+### v0.9.0
+- CPU profiling + hotspots
+- Statistics expansion
+- Tests stabilization (Linux only)
+- Cleanup, formatting, clang-tidy baseline
+
+### v1.0.0 (MVP Stable)
+
+- REST API v1 (crow/cpp-httplib)
+- Linux/Windows release bundles
+- Documentation overhaul
+- Coverage ≥70% (core modules)
+- NO CI fix here
+
+### v1.0.5 (Advanced Test Infrastructure)
+
+- This is where CI finally becomes stable and green.
+- Includes:
+  - Test layout refactor (unit/module/system/perf)
+  - MockLogger for deterministic outputs
+  - Integration test suite
+  - Performance test scaffold
+  - Coverage reporting into CI
+  - Windows test path unification
+  - Fully rewritten CTest config
 
 ---
 
