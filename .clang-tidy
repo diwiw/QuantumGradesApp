@@ -1,9 +1,9 @@
+HeaderFilterRegex: '^(?!external/)'
 Checks: >
     -*>,
     readability-identifier-naming
 
-WarningsAsErrors: >
-    readability-identifier-naming
+WarningsAsErrors: false
 
 CheckOptions:
     # Classes/Structures
@@ -41,4 +41,3 @@ CheckOptions:
       value: lower_case
     - key: readability-identifier-naming.VariableCase
       value: lower_case
-

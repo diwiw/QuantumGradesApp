@@ -7,7 +7,6 @@ BreakBeforeBraces: Allman
 NamespaceIndentation: All
 PointerAlignment: Left
 SpaceAfterCStyleCast: true
-SortIncludes: CaseSensitive
 SortIncludes: true
 IncludeBlocks: Regroup
 IncludeCategories:

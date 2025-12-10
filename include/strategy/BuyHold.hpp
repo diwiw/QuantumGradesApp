@@ -21,7 +21,7 @@ public:
     /**
      * @brief Called once before the backtest begins.
      */
-    void onStart() override;    
+    void onStart() override;
 
     /**
      * @brief Called for each quote in the time series.
@@ -37,7 +37,7 @@ public:
      * @brief Called once after the backtest ends.
      */
     void onFinish() override;
-    
+
     private:
         bool has_bought_ = false;  ///< Flag to track if a buy has been made.
 };

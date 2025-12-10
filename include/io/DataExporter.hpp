@@ -12,7 +12,7 @@
 #include "utils/ILogger.hpp"
 
 namespace qga::io {
- 
+
 /**
  * @enum ExportFormat
  * @brief Supported export formats for serialized market data.
@@ -20,14 +20,14 @@ namespace qga::io {
 enum class ExportFormat {
     CSV,   ///< Export data as plain CSV (comma-separated values).
     JSON   ///< Export data as JSON array of objects.
-};    
+};
 
 /**
  * @class DataExporter
  * @brief Handles exporting time-series market data to disk.
- * 
+ *
  * Provides an interface for exporting BarSeries data to a specified file in different formats in different
- * formats (CSV, JSON). 
+ * formats (CSV, JSON).
  */
 class DataExporter {
 public:
@@ -63,7 +63,7 @@ public:
 
     /**
      * @brief Exports the given BarSeries to the configured file.
-     * 
+     *
      * @param series The series quotes to export.
      * @throws std::runtime_error if file operations fail.
      */
@@ -77,9 +77,9 @@ public:
 
     /**
      * @brief Export the entire BarSeries to the configured file.
-     * 
+     *
      * Alias for exportSeries(), but more explicit in intent.
-     * 
+     *
      * @param series The full BarSeries to export.
      */
     void exportAll(const qga::domain::backtest::BarSeries& series);

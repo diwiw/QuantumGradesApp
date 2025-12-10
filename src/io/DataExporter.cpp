@@ -12,7 +12,7 @@ namespace qga::io {
         ExportFormat format,
         bool append)
         : output_path_(output_path),
-         format_(format), 
+         format_(format),
          append_(append),
          logger_(std::move(logger)) {
         if (!logger_) {
@@ -43,9 +43,9 @@ namespace qga::io {
         } else {
             writeJSON(out, series);
         }
-        
+
         logger_->info("DataExporter: successfully exported {} bars to {}", series.size(), output_path_);
-                
+
     }
 
     void DataExporter::exportRange(const qga::domain::backtest::BarSeries& series, size_t from, size_t to) {
@@ -84,10 +84,10 @@ namespace qga::io {
     void DataExporter::writeCSV(std::ofstream& out,
         const qga::domain::backtest::BarSeries& series) {
         for (const auto& bar : series.data()) {
-            out << bar.ts_ << "," 
-                << bar.open_ << "," 
+            out << bar.ts_ << ","
+                << bar.open_ << ","
                 << bar.high_ << ","
-                << bar.low_ << "," 
+                << bar.low_ << ","
                 << bar.close_ << ","
                 << bar.volume_ << "\n";
         }
@@ -118,6 +118,6 @@ namespace qga::io {
     }
 
 
-    
+
 
 }   // namespace export_util

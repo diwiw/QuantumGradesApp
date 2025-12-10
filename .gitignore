@@ -71,4 +71,3 @@ Testing/
 .DS_Store
 test_spdlog.log
 /include/Version.hpp
-

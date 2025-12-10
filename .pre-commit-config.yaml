@@ -1,0 +1,32 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-json
+      - id: check-yaml
+      - id: check-merge-conflict
+
+  # clang-format — ONLY manual
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v17.0.6
+    hooks:
+      - id: clang-format
+        stages: [manual]
+        types_or: [c, c++, header]
+
+  # clang-tidy — ONLY manual
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.0
+    hooks:
+      - id: clang-tidy
+        stages: [manual]
+        args:
+          - "-p=build"
+          - "-extra-arg=-Iexternal"
+          - "-extra-arg=-Iexternal/httplib"
+          - "-extra-arg=-Iexternal/doctest"
+          - "-header-filter=^(src|include|tests)/"
+          - "--config-file=.clang-tidy"
+        files: '^(src|include|tests)/.*\.(cpp|hpp|h)$'

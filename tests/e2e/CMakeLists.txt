@@ -6,8 +6,8 @@ message(STATUS "🧪 Configuring end-to-end (E2E) tests...")
 
 add_executable(qga_tests_e2e
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_e2e.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_cli_e2e.cpp 
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_data_ingest_http.cpp  
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_cli_e2e.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_data_ingest_http.cpp
 )
 
 # ============================================================
@@ -45,7 +45,7 @@ target_link_libraries(qga_tests_e2e PRIVATE
     qga_io
     qga_ingest
     qga_cli_lib
-    CLI11::CLI11    
+    CLI11::CLI11
 )
 
 # Inject CLI binary path into tests

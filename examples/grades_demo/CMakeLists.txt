@@ -4,7 +4,7 @@
 
 file(GLOB_RECURSE APP_SRC ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
-add_executable(grades_demo    
+add_executable(grades_demo
     grades_demo.cpp
     Grades.cpp
 )

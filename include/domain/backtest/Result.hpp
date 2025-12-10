@@ -5,7 +5,7 @@
 #pragma once
 
 namespace qga::domain::backtest {
-    
+
 /**
  * @struct BacktestResult
  * @brief Minimal backtest summary returned by the engine.

@@ -3,7 +3,7 @@
  * @brief Utility class for statistical and financial performance calculations.
  *
  * This class is stateless and contains only static helper methods.
- * 
+ *
  * TODO(v1.2.0–v1.9.9):
  *   - Split into two modules:
  *       StatisticsBasic (mean, stddev, median)

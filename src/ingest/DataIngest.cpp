@@ -134,12 +134,12 @@ bool DataIngest::validateRow(const std::vector<std::string>& fields) {
 }
 
 std::optional<domain::Quote> DataIngest::parseRow(const std::vector<std::string>& fields) {
-    
+
     try {
         domain::Quote quote;
         // --- Parse timestamp (ISO 8601 or epoch)
         if (fields[0].find('T') != std::string::npos) {
-            
+
             // ISO 8601 format
             std::istringstream ss(fields[0]);
             std::tm tm = {};
@@ -149,7 +149,7 @@ std::optional<domain::Quote> DataIngest::parseRow(const std::vector<std::string>
                 throw std::runtime_error("Invalid ISO timestamp");
             }
             auto time_point = std::chrono::system_clock::from_time_t(std::mktime(&tm));
-            
+
             quote.ts_ = std::chrono::duration_cast<std::chrono::milliseconds>(time_point.time_since_epoch()).count();
         } else {
             // Epoch milliseconds
@@ -163,13 +163,13 @@ std::optional<domain::Quote> DataIngest::parseRow(const std::vector<std::string>
         quote.close_ = std::stod(fields[4]);
         quote.volume_ = std::stod(fields[5]);
 
-        return quote;            
+        return quote;
     } catch (const std::exception& e) {
-        if (logger_) logger_->error("parseRow failed: {}", e.what());        
+        if (logger_) logger_->error("parseRow failed: {}", e.what());
         return std::nullopt;
-    }   
+    }
 
-    
+
 }
 
 } // namespace qga::ingest

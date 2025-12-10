@@ -21,7 +21,7 @@ namespace qga::domain::backtest{
             if (qty_ == 0.0) avg_price_ = 0.0;
             // shorting/over-sell can be added later if needed
         }
-        
+
     }
 
 }   // namespace qga::domain::backtest

@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       # Cache apt packages (optional but fast)
 
       - name: Cache APT packages
@@ -26,7 +26,7 @@ jobs:
             ${{ runner.os }}-apt-
 
       # Install dependencies
-      
+
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -55,14 +55,14 @@ jobs:
       - name: Clean previous CMake cache
         run: rm -rf build
       # Configure (no manual CURL paths)
-      
+
       - name: Configure
         run: |
           cmake -S . -B build -G Ninja \
             -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
             -DBUILD_EXAMPLES=ON \
             -DBUILD_DOCS=OFF \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache 
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
       # List built targets
       - name: List built targets
@@ -71,20 +71,20 @@ jobs:
           cmake --build build --target help | grep demo || true
 
       # Build and test
-      
+
       - name: Build
         run: cmake --build build --parallel
 
       - name: Test
         run: ctest --test-dir build --output-on-failure
-      
+
       # === Upload demo artifacts (CSV, JSON) ===
 
       # Show ccache statistics
       - name: Show ccache stats
         if: always()
         run: ccache --show-stats
-      
+
       # === Generate and upload demo outputs (CSV, JSON) ===
       - name: Generate and Upload Demo Outputs
         if: success()
@@ -200,7 +200,7 @@ jobs:
       VCPKG_TARGET_TRIPLET: x64-windows-static
       CMAKE_MAKE_PROGRAM: C:\ninja\ninja.exe
       SCCACHE_DIR: C:\sccache
-      SCCACHE_LOG: error      
+      SCCACHE_LOG: error
       CMAKE_VERBOSE_MAKEFILE: 1
       CMAKE_MESSAGE_LOG_LEVEL: VERBOSE
       VCPKG_FEATURE_FLAGS: "manifests,versions,registries"
@@ -232,7 +232,7 @@ jobs:
           where cl
           cl /Bv || exit 0
           C:\ninja\ninja.exe --version
-      
+
       - name: 🧩 Install sccache (Windows)
         shell: cmd
         run: |
@@ -370,8 +370,8 @@ jobs:
           echo === PATH ===
           echo %PATH%
           where cl
-          cl /Bv 
-          where ninja          
+          cl /Bv
+          where ninja
           ninja --version
 
       - name: Build (Release)
@@ -421,7 +421,7 @@ jobs:
         if: always()
         shell: cmd
         run: C:\sccache\sccache.exe --show-stats || echo (no sccache found)
-      
+
       # === Generate and upload demo outputs (CSV, JSON) ===
       - name: Generate and Upload Demo Outputs
         if: success()

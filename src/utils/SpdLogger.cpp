@@ -1,7 +1,7 @@
 #include "utils/SpdLogger.hpp"
 
 namespace qga::utils {
-    
+
     SpdLogger::SpdLogger(const std::string& logger_name,
                          const std::string& file_path,
                          qga::LogLevel level)
@@ -15,9 +15,9 @@ namespace qga::utils {
         std::vector<spdlog::sink_ptr> sinks { file_sink, console_sink };
         spd_logger_ = std::make_shared<spdlog::async_logger>(
             logger_name,
-            sinks.begin(), 
+            sinks.begin(),
             sinks.end(),
-            spdlog::thread_pool(), 
+            spdlog::thread_pool(),
             spdlog::async_overflow_policy::block);
 
         spdlog::register_logger(spd_logger_);
@@ -27,7 +27,7 @@ namespace qga::utils {
 
     SpdLogger::SpdLogger(const std::string& logger_name,
                      const std::vector<std::shared_ptr<spdlog::sinks::sink>>& sinks,
-                     bool async_mode) 
+                     bool async_mode)
     {
         if (async_mode) {
             spd_logger_ = std::make_shared<spdlog::async_logger>(
@@ -57,7 +57,7 @@ namespace qga::utils {
             case qga::LogLevel::Critical: return spd_logger_->critical(message); break;
             case qga::LogLevel::Off: return; break;
             default: return spd_logger_->info(message); break;
-        }        
+        }
     }
 
     spdlog::level::level_enum SpdLogger::setLevel(qga::LogLevel level)  {
@@ -79,7 +79,7 @@ namespace qga::utils {
             case qga::LogLevel::Critical: return spdlog::level::critical; break;
             default: return spdlog::level::info; break;
         }
-        
+
     }
 
     void SpdLogger::flush() noexcept {

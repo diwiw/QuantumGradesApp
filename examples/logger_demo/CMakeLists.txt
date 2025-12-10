@@ -4,7 +4,7 @@
 
 file(GLOB_RECURSE APP_SRC ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
-add_executable(logger_demo    
+add_executable(logger_demo
     logger_demo.cpp
 )
 

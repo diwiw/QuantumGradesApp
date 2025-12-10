@@ -11,11 +11,11 @@ namespace qga::utils {
         qga::LogLevel level
         ) {
             size_t max_size = 10 * 1024 * 1024; // 10 MB
-            size_t max_files = 5;            
+            size_t max_files = 5;
             return createAsyncRotatingLogger(name, filename, level, max_size, max_files);
     }
 
-    
+
 
     std::shared_ptr<qga::utils::ILogger> LoggerFactory::createAsyncRotatingLogger(
         const std::string& name,
