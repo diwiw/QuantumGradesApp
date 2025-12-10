@@ -1,9 +1,6 @@
 {
     "version": "2.0.0",
     "tasks": [
-        // ======================================================
-        // CONFIGURE
-        // ======================================================
         {
             "label": "Configure Debug (vcpkg)",
             "type": "shell",
@@ -34,9 +31,6 @@
             ],
             "group": "build"
         },
-        // ======================================================
-        // BUILD — DEBUG (Demos, Unit tests, E2E tests)
-        // ======================================================
         {
             "label": "Build Debug All Demos (vcpkg)",
             "type": "shell",
@@ -91,12 +85,26 @@
             "dependsOn": [
                 "Configure Debug (vcpkg)"
             ],
-            "group": "build",
-            "problemMatcher": []
+            "group": "build"
         },
-        // ======================================================
-        // BUILD — RELEASE
-        // ======================================================
+        {
+            "label": "Build Debug API (vcpkg)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "--preset",
+                "build-linux-debug-api",
+                "--parallel"
+            ],
+            "dependsOn": [
+                "Configure Debug (vcpkg)"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
         {
             "label": "Build Release All Demos (vcpkg)",
             "type": "shell",
@@ -151,12 +159,26 @@
             "dependsOn": [
                 "Configure Release (vcpkg)"
             ],
-            "group": "build",
-            "problemMatcher": []
+            "group": "build"
         },
-        // ======================================================
-        // TEST TASKS — DEBUG (Unit & E2E)
-        // ======================================================
+        {
+            "label": "Build Release API (vcpkg)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "--preset",
+                "build-linux-release-api",
+                "--parallel"
+            ],
+            "dependsOn": [
+                "Configure Release (vcpkg)"
+            ],
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
         {
             "label": "Test Unit (Debug)",
             "type": "shell",
@@ -168,8 +190,7 @@
             "dependsOn": [
                 "Configure Debug (vcpkg)"
             ],
-            "group": "test",
-            "problemMatcher": []
+            "group": "test"
         },
         {
             "label": "Test E2E (Debug)",
@@ -182,12 +203,8 @@
             "dependsOn": [
                 "Configure Debug (vcpkg)"
             ],
-            "group": "test",
-            "problemMatcher": []
+            "group": "test"
         },
-        // ======================================================
-        // TEST TASKS — RELEASE (Unit & E2E)
-        // ======================================================
         {
             "label": "Test Unit (Release)",
             "type": "shell",
@@ -199,8 +216,7 @@
             "dependsOn": [
                 "Configure Release (vcpkg)"
             ],
-            "group": "test",
-            "problemMatcher": []
+            "group": "test"
         },
         {
             "label": "Test E2E (Release)",
@@ -213,12 +229,8 @@
             "dependsOn": [
                 "Configure Release (vcpkg)"
             ],
-            "group": "test",
-            "problemMatcher": []
+            "group": "test"
         },
-        // ======================================================
-        // CLI BUILDS
-        // ======================================================
         {
             "label": "Build Debug CLI App",
             "type": "shell",
@@ -288,9 +300,6 @@
             ],
             "group": "test"
         },
-        // ======================================================
-        // CLEAN
-        // ======================================================
         {
             "label": "Clean Build",
             "type": "shell",
