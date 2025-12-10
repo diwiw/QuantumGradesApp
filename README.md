@@ -9,7 +9,7 @@
 > **Architecture:** Modular, layered, Clean Architecture
 > **Performance Tools:** perf + FlameGraph (Linux, profiling preset)
 
-QuantumGradesApp is a modular, extensible quantitative backtesting framework written in modern C++.  
+QuantumGradesApp is a modular, extensible quantitative backtesting framework written in modern C++.
 Originally built as a grades/statistics demo, it has evolved into a clean, layered architecture suitable for:
   - quantitative research
   - backtesting trading strategies
@@ -67,7 +67,7 @@ This release v0.9.0 introduces major quality upgrades, new metrics, improved ing
 ---
 
 # Features (v0.9.0)
-The 0.9.0 milestone includes: 
+The 0.9.0 milestone includes:
 
 ### Profiling & Performance Tools
 - perf integration
@@ -225,7 +225,7 @@ sudo apt install -y \
 Optionally Clang for TSAN:
 ```
 sudo apt install clang
-```  
+```
 ### Windows (MSVC + vcpkg)
 ## Required
 - Install Visual Studio Build Tools or full Visual Studio (C++ Desktop).
@@ -338,7 +338,7 @@ sudo apt install graphviz
 
 ---
 
-> **Note:**  
+> **Note:**
 > Important:
 > Milestone 0.9.0 does NOT fix CI — that is intentionally postponed to 1.0.5
 > (Advanced Test Infrastructure milestone).
@@ -361,14 +361,14 @@ Real performance profiling will become available in v2.0.0, once large datasets 
 ### Ubuntu (Linux)
 Ubuntu CI fails due to test-suite mismatches caused by legitimate refactors done in 0.9.0:
 
-- Old tests incompatible with new Config schema  
-- CLI now **requires `--config`**, so doctest auto-discovery fails  
-- Profile-based configs (`dev/test/prod`) changed — tests expect old values  
-- HTTP ingest tests require a real HTTP server (not available on CI runners)  
+- Old tests incompatible with new Config schema
+- CLI now **requires `--config`**, so doctest auto-discovery fails
+- Profile-based configs (`dev/test/prod`) changed — tests expect old values
+- HTTP ingest tests require a real HTTP server (not available on CI runners)
 - Statistics tests expect old validation logic (e.g. mean/median error cases)
 - Async logger prints warnings when destroyed before thread pool flush
 
-These failures are **not regressions in application logic** —  
+These failures are **not regressions in application logic** —
 they reflect that tests must be updated to match the new architecture.
 
 ---
@@ -425,4 +425,3 @@ Project created and maintained by https://github.com/diwiw.
 
 # License
 MIT License – see `LICENSE.txt`
-

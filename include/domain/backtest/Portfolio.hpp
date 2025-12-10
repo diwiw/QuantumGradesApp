@@ -82,7 +82,7 @@ private:
      * Used internally for position mapping.
      */
     static std::string keyFor(const domain::Instrument& ins);
-    
+
     /**
      * @brief Aggregates total realized PnL across all closed positions.
      * @return Total realized profit/loss.

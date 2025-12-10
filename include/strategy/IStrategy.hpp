@@ -6,7 +6,7 @@
 #include "domain/Quote.hpp"
 
 namespace qga::strategy {
-    
+
 /**
  * @enum Signal
  * @brief Possible trading decisions a strategy can emit at a bar.
@@ -36,7 +36,7 @@ public:
     * @brief Virtual destructor.
     */
     virtual ~IStrategy() = default;
-    
+
     /**
      * @brief Prepare internal state. Called once before streaming bars.
      */

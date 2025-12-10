@@ -1,7 +1,7 @@
 /**
  * @file SQLiteStore.hpp
  * @brief SQLite implementation of IDataStore interface.
- * 
+ *
  * Provides persistence using a local SQLite database file.
  * Manages connection lifecycle and executes SQL queries for quotes, bar series, portfolios.
  */
@@ -21,7 +21,7 @@ namespace qga::persistence {
     /**
      * @class SQLiteStore
      * @brief SQLite-based implementation of IDataStore.
-     * 
+     *
      * Uses SQLite C API to store and retrieve financial data.
      * Ensures thread safety and efficient connection management.
      */

@@ -1,6 +1,6 @@
 /** @file IDataStore.hpp
  *  @brief Abstract interface for persistence layer (quotes, bar series, portfolios, trades).
- * 
+ *
  * Provides unified access to underlying storage (SQLite, DuckDB, Postgres...).
  * Each implementation must ensure thread safety if used concurrently.
  */
@@ -19,7 +19,7 @@ namespace qga::persistence {
     /**
      * @class IDataStore
      * @brief Abstract interface for data storage operations.
-     * 
+     *
      * Defines methods for saving/loading quotes, bar series, portfolios, and trades.
      * Implementations must handle connection management, transactions, and error handling.
      */

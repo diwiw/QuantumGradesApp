@@ -9,7 +9,7 @@ cmake --build "$BUILD_DIR" -j
 
 # 2) Run clang-tidy with auto-fix
 # 	--fix executes patches, --format-style=file uses your .clang-format (if found)
-# 	--header-filter is 
+# 	--header-filter is
 clang-tidy -p "$BUILD_DIR" \
     --fix \
     --format-style=file \

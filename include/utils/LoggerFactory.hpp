@@ -9,7 +9,7 @@
  * Designed to be injected into classes expecting an ILogger.
  * Uses shared sinks for file and console output.
  *
- * @author 
+ * @author
  * @date 2025
  */
 
@@ -28,7 +28,7 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 
 namespace qga::utils {
-    
+
 /**
 * @class LoggerFactory
 * @brief Factory for creating spdlog-based loggers.

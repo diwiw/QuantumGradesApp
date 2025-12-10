@@ -28,7 +28,7 @@ public:
 	 * @return Reference to the Logger instance
 	 */
 	static Logger& getInstance();
-	
+
 	/**
 	 * @brief Set the minimum log level for output
 	 * @param level LogLevel (e.g., INFO, ERROR)
@@ -51,11 +51,11 @@ public:
 private:
 	Logger();	///< Private constructor (singleton pattern)
 	~Logger();	///< Destructor to close log file
-	Logger(const Logger&) = delete;	///< Deleted assignment 
+	Logger(const Logger&) = delete;	///< Deleted assignment
 	Logger& operator=(const Logger&) = delete; ///< Deleted assignment
 	std::string levelToString(qga::LogLevel level); ///< Convert level to string
 	std::string getCurrentTime();		   ///< Get current timestamp
-						   
+
 	std::ofstream logfile_;			   ///< Log file stream
 	qga::LogLevel current_level_;			   ///< Currenet minimum log level
 	std::mutex mtx_;				   ///< Thread safety mutex

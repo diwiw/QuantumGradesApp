@@ -11,7 +11,7 @@ namespace qga::domain::backtest {
         auto k = keyFor(ins);
         auto it = positions_.find(k);
         if(it == positions_.end()) {
-            it = positions_.emplace(k, Position{ins}).first;        
+            it = positions_.emplace(k, Position{ins}).first;
         }
         return it->second;
     }
@@ -38,5 +38,5 @@ namespace qga::domain::backtest {
         for(auto const& kv : positions_) sum += kv.second.realizedPnl();
         return sum;
     }
-  
+
 }   // namespace qga::domain::backtest

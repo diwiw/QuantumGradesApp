@@ -28,7 +28,7 @@ public:
     * @param q Market quote containing OHLCV data and timestamp.
     */
     void add(const domain::Quote& q);
-    
+
     /**
      * @brief Returns the number of bars in the series.
      * @return Total number of quotes stored.
@@ -72,7 +72,7 @@ public:
      * @brief Checks if the BarSeries contains any quotes.
      *
      * This method allows users to verify whether the series is empty,
-     * which can be useful for validating data loading operations or 
+     * which can be useful for validating data loading operations or
      * ensuring proper initialization before processing.
      *
      * @return True if the BarSeries contains no quotes, false otherwise.
@@ -99,7 +99,7 @@ public:
      *
      * @note Usage of this method preserves encapsulation while enabling iteration.
      */
-    const std::vector<Quote>& data() const noexcept; 
+    const std::vector<Quote>& data() const noexcept;
 private:
     std::vector<Quote> data_;   ///< Internal container of quotes.
 };

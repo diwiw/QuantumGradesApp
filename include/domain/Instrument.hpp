@@ -1,7 +1,7 @@
 /**
  * @file Instrument.hpp
  * @brief Domain model: security/instrument metadata (symbol, venue, asset class, trading params).
- * 
+ *
  * Minimal, robust Value Object representing a tradable instrument.
  * Validates construction and exposes read-only accessors.
  */
@@ -18,7 +18,7 @@ namespace qga::domain {
  * @enum AssetClass
  * @brief High-Level classification of the instrument.
  */
-enum class AssetClass { 
+enum class AssetClass {
     Equity,   ///< Common stock
     ETF,      ///< Exchange-traded fund
     Future,   ///< Futures contract
@@ -34,7 +34,7 @@ enum class AssetClass {
  * @brief Trading/settlement currency (subset of ISO 4217).
  */
 
-enum class Currency { 
+enum class Currency {
     USD,    ///< US Dollar
     EUR,    ///< Euro
     PLN,    ///< Polish Zloty
@@ -85,7 +85,7 @@ public:
         if(lot_size_ <= 0)     throw std::invalid_argument("Instrument: lot size must be positive");
         if(multiplier_ <= 0.0) throw std::invalid_argument("Instrument: multiplier must be positive");
     }
-    
+
     #ifdef UNIT_TEST
         Instrument() = default; // only for test mocks
     #endif
@@ -108,7 +108,7 @@ public:
     /// @return Contract multiplier (e.g. 100 for options).
     double multiplier() const noexcept { return multiplier_; }
     /// @}
-    
+
     /**
      * @brief Equality comparison (based on all fields).
      */
@@ -149,10 +149,9 @@ namespace std {
      */
     template <> struct hash<qga::domain::Instrument> {
         size_t operator()(const qga::domain::Instrument& inst) const noexcept {
-            return std::hash<std::string>()(inst.symbol()) ^ 
+            return std::hash<std::string>()(inst.symbol()) ^
                    std::hash<std::string>()(inst.exchangeMic());
         }
     };
 }
 /// @endcond
-

@@ -64,5 +64,5 @@ private:
 
     bool ready_ = false;         ///< Indicates if enough data is available to compute both SMAs.
 };
-            
+
 } // namespace qga::strategy

@@ -25,18 +25,18 @@ namespace qga::domain::backtest{
         const double FEE      = commissionCost(PX_EXEC, 1.0, exec_.commission_fixed_, exec_.commission_bps_);
 
         if(PX_EXEC > 0.0 && cash >= (PX_EXEC + FEE)) {
-          has_pos = true; 
+          has_pos = true;
          // entry   = PX_EXEC;    // never used safe to remove
           qty     = 1.0;
           cash    -= (PX_EXEC + FEE);
           r.trades_executed_ += 1;
         }
-        
+
       } else if (SIG == strategy::Signal::Sell && has_pos) {
         const double PX_EXEC  = applySlippage(q.close_, exec_.slippage_bps_, /*is_buy=*/false);
         const double FEE      = commissionCost(PX_EXEC, qty, exec_.commission_fixed_, exec_.commission_bps_);
 
-        has_pos = false; 
+        has_pos = false;
         cash    += PX_EXEC * qty;   // income from sell
         cash    -= FEE;             // minus commission
         qty     = 0.0;
@@ -46,7 +46,7 @@ namespace qga::domain::backtest{
     }
     strat.onFinish();
 
-    if (has_pos) { // 
+    if (has_pos) { //
       const auto& last      = s.end();
       const double PX_EXEC  = applySlippage(last.close_, exec_.slippage_bps_, /*is_buy=*/false);
       const double FEE      = commissionCost(PX_EXEC, qty, exec_.commission_fixed_, exec_.commission_bps_);
@@ -56,7 +56,7 @@ namespace qga::domain::backtest{
       // has_pos               = false; never read read, safe to del
       r.final_equity_ = cash;
     }
-    
+
     return r;
   }
 

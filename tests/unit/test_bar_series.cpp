@@ -25,7 +25,7 @@ TEST_CASE("BarSeries::at valid and invalid access") {
 
     CHECK(series.at(0).ts_ == 1);
     CHECK(series.at(1).ts_ == 2);
-    
+
 }
 
 TEST_CASE("BarSeries::back and front") {
@@ -50,5 +50,5 @@ TEST_CASE("BarSeries::clear") {
     series.clear();
 
     CHECK(series.empty());
-    CHECK(series.size() == 0);    
+    CHECK(series.size() == 0);
 }

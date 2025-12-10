@@ -66,36 +66,36 @@ public:
      /** @name Convenience Logging Methods with fmt formatting */
     ///@{
     template<typename... Args>
-    void trace(fmt::format_string<Args...> message, Args&&... args) { 
-        log(qga::LogLevel::Trace, fmt::format(message, std::forward<Args>(args)...)); 
+    void trace(fmt::format_string<Args...> message, Args&&... args) {
+        log(qga::LogLevel::Trace, fmt::format(message, std::forward<Args>(args)...));
     }
 
     template<typename... Args>
-    void debug(fmt::format_string<Args...> message, Args&&... args) { 
-        log(qga::LogLevel::Debug, fmt::format(message, std::forward<Args>(args)...)); 
+    void debug(fmt::format_string<Args...> message, Args&&... args) {
+        log(qga::LogLevel::Debug, fmt::format(message, std::forward<Args>(args)...));
     }
 
     template<typename... Args>
-    void info(fmt::format_string<Args...> message, Args&&... args) { 
-        log(qga::LogLevel::Info, fmt::format(message, std::forward<Args>(args)...)); 
+    void info(fmt::format_string<Args...> message, Args&&... args) {
+        log(qga::LogLevel::Info, fmt::format(message, std::forward<Args>(args)...));
     }
 
     template<typename... Args>
-    void warn(fmt::format_string<Args...> message, Args&&... args) { 
-        log(qga::LogLevel::Warn, fmt::format(message, std::forward<Args>(args)...)); 
+    void warn(fmt::format_string<Args...> message, Args&&... args) {
+        log(qga::LogLevel::Warn, fmt::format(message, std::forward<Args>(args)...));
     }
 
     template<typename... Args>
-    void error(fmt::format_string<Args...> message, Args&&... args) { 
-        log(qga::LogLevel::Err, fmt::format(message, std::forward<Args>(args)...)); 
+    void error(fmt::format_string<Args...> message, Args&&... args) {
+        log(qga::LogLevel::Err, fmt::format(message, std::forward<Args>(args)...));
     }
 
     template<typename... Args>
-    void critical(fmt::format_string<Args...> message, Args&&... args) { 
-        log(qga::LogLevel::Critical, fmt::format(message, std::forward<Args>(args)...)); 
+    void critical(fmt::format_string<Args...> message, Args&&... args) {
+        log(qga::LogLevel::Critical, fmt::format(message, std::forward<Args>(args)...));
     }
     ///@}
-    
+
     /**
      * @brief Flushes all buffered log messages to sinks.
      *

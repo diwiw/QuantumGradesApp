@@ -21,7 +21,7 @@ namespace qga::persistence {
         /// @brief Creates an IDataStore instance based on the specified backend and configuration.
         /// @param backend The storage backend to use (e.g. SQLite).
         /// @param config Configuration string (e.g. connection string or file path).
-        static std::unique_ptr<IDataStore> create(StoreBackend backend, const std::string& config); 
+        static std::unique_ptr<IDataStore> create(StoreBackend backend, const std::string& config);
     };
 
 } // namespace qga::persistence

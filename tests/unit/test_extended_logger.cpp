@@ -22,7 +22,7 @@ TEST_SUITE("Logger") {
 
         logger->info("Hello");
         logger->warn("Something might be wrong");
-        logger->error("Error happened");        
+        logger->error("Error happened");
 
         auto infos = logger->getLogsByLevel(qga::LogLevel::Info);
         auto warns = logger->getLogsByLevel(qga::LogLevel::Warn);

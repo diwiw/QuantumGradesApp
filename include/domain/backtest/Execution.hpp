@@ -13,7 +13,7 @@ namespace qga::domain::backtest {
 /**
  * @brief Parameters used to simulate realistic execution costs.
  *
- * Includes both fixed and proportional commissions, as well as slippage 
+ * Includes both fixed and proportional commissions, as well as slippage
  * adjustments for buy/sell orders.
  */
 struct ExecParams {
@@ -49,7 +49,7 @@ inline double applySlippage(double px, double bps, bool is_buy) {
 inline double commissionCost(double px, double qty, double fixed, double bps) {
     const double NOTIONAL = px * qty;
     return fixed + (bps / 10000.0) * NOTIONAL;
-}  
+}
 
 
 } // namespace qga::domain::backtest
