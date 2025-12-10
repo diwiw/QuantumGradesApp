@@ -1,6 +1,8 @@
 #include "core/Config.hpp"
 #include "nlohmann/json.hpp"
 #include "utils/LoggerFactory.hpp"
+#include "Version.hpp"
+
 #include <algorithm>
 #include <cstdlib>
 #include <fstream>
@@ -8,313 +10,175 @@
 
 using nlohmann::json;
 
-namespace qga::core
-{
+namespace qga::core {
 
-    // ============================================================
-    //  Utilities
-    // ============================================================
+// ============================================================
+// Singleton
+// ============================================================
+Config& Config::getInstance() noexcept {
+    static Config instance;
+    return instance;
+}
 
-    std::string Config::toLower(std::string s) noexcept
-    {
-        std::transform(s.begin(), s.end(), s.begin(),
-                       [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-        return s;
+// ============================================================
+// Helper utilities
+// ============================================================
+std::string Config::toLower(std::string s) noexcept {
+    std::transform(s.begin(), s.end(), s.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    return s;
+}
+
+void Config::addWarn(std::vector<std::string>* w, std::string msg) {
+    if (w)
+        w->push_back(std::move(msg));
+}
+
+// ============================================================
+// Defaults
+// ============================================================
+void Config::loadDefaults() {
+    profile_ = "dev";
+    api_port_ = 8080;
+    threads_ = 4;
+    data_dir_ = "data";
+
+    log_level_ = LogLevel::Info;
+    log_file_ = "logs/qga.log";
+    log_max_size_mb_ = 10;
+    log_max_files_ = 3;
+
+    version_ = APP_VERSION;
+
+    validate(nullptr);
+}
+
+// ============================================================
+// Validation
+// ============================================================
+void Config::validate(std::vector<std::string>* warnings) {
+    unsigned hw = std::max(1u, std::thread::hardware_concurrency());
+
+    // Threads validation
+    if (threads_ < 1) {
+        addWarn(warnings, "engine.threads < 1 → fallback to 1");
+        threads_ = 1;
+    } else if (threads_ > static_cast<int>(hw)) {
+        addWarn(warnings, "engine.threads > CPU cores → fallback to hw concurrency");
+        threads_ = hw;
     }
 
-    void Config::addWarn(std::vector<std::string>* w, std::string msg)
-    {
-        if (w)
-            w->push_back(std::move(msg));
+    if (log_max_size_mb_ < 1)
+        log_max_size_mb_ = 1;
+
+    if (log_max_files_ < 1)
+        log_max_files_ = 1;
+
+    initLogger();
+}
+
+// ============================================================
+// JSON Loader
+// ============================================================
+void Config::loadFromFile(const std::filesystem::path& path,
+                          std::vector<std::string>* warnings) {
+    std::ifstream in(path);
+    if (!in) {
+        addWarn(warnings, "Config file not found: " + path.string());
+        loadDefaults();
+        return;
     }
 
-    // ============================================================
-    //  Singleton
-    // ============================================================
-
-    Config& Config::getInstance() noexcept
-    {
-        static Config instance;
-        return instance;
+    json j = json::parse(in, nullptr, false);
+    if (j.is_discarded()) {
+        addWarn(warnings, "Invalid JSON in config file: " + path.string());
+        loadDefaults();
+        return;
     }
 
-    // ============================================================
-    //  Defaults
-    // ============================================================
+    // --------------------------------------------------------
+    // API
+    // --------------------------------------------------------
+    if (j.contains("api") && j["api"].contains("port"))
+        api_port_ = j["api"]["port"].get<int>();
 
-    void Config::loadDefaults()
-    {
-        profile_ = "dev";
-        data_dir_ = "data";
-        threads_ = 4;
-        log_level_ = LogLevel::Info;
-        log_file_ = "app.log";
-        input_path_ = "";
-        output_path_ = "";
+    // --------------------------------------------------------
+    // paths
+    // --------------------------------------------------------
+    if (j.contains("paths") && j["paths"].contains("data_dir"))
+        data_dir_ = j["paths"]["data_dir"].get<std::string>();
 
-        validate(nullptr);
-        initLogger();
+    // --------------------------------------------------------
+    // engine
+    // --------------------------------------------------------
+    if (j.contains("engine") && j["engine"].contains("threads"))
+        threads_ = j["engine"]["threads"].get<int>();
+
+    // --------------------------------------------------------
+    // logging
+    // --------------------------------------------------------
+    if (j.contains("logging")) {
+        auto& jl = j["logging"];
+
+        if (jl.contains("level"))
+            log_level_ = parseLogLevel(jl["level"].get<std::string>()).value_or(LogLevel::Info);
+
+        if (jl.contains("file"))
+            log_file_ = jl["file"].get<std::string>();
+
+        if (jl.contains("max_size_mb"))
+            log_max_size_mb_ = jl["max_size_mb"].get<int>();
+
+        if (jl.contains("max_files"))
+            log_max_files_ = jl["max_files"].get<int>();
     }
 
-    // ============================================================
-    //  Validation
-    // ============================================================
+    // --------------------------------------------------------
+    // ingest/cli
+    // --------------------------------------------------------
+    if (j.contains("input") && j["input"].contains("path"))
+        input_path_ = j["input"]["path"].get<std::string>();
 
-    void Config::validate(std::vector<std::string>* warnings)
-    {
-        const unsigned HW = std::max(1u, std::thread::hardware_concurrency());
+    if (j.contains("output") && j["output"].contains("path"))
+        output_path_ = j["output"]["path"].get<std::string>();
 
-        // threads
-        if (threads_ < 1)
-        {
-            addWarn(warnings, "engine.threads < 1 → fallback to 1");
-            threads_ = 1;
-        }
-        else if (threads_ > static_cast<int>(HW))
-        {
-            addWarn(warnings, "engine.threads > CPU cores → fallback to " + std::to_string(HW));
-            threads_ = static_cast<int>(HW);
-        }
+    // Version always overridable
+    version_ = APP_VERSION;
 
-        // data_dir
-        if (data_dir_.empty())
-        {
-            addWarn(warnings, "paths.data_dir is empty → 'data'");
-            data_dir_ = "data";
-        }
+    validate(warnings);
+}
 
-        // log_file
-        if (log_file_.empty())
-        {
-            addWarn(warnings, "logging.file is empty → 'app.log'");
-            log_file_ = "app.log";
-        }
+// ============================================================
+// ENV loader
+// ============================================================
+void Config::loadFromEnv(std::vector<std::string>* warnings) {
+    // QGA_PROFILE
+    if (const char* p = std::getenv("QGA_PROFILE"))
+        profile_ = p;
 
-        // log_level
-        if (log_level_ < LogLevel::Trace || log_level_ > LogLevel::Off)
-        {
-            addWarn(warnings, "logging.level invalid → INFO");
-            log_level_ = LogLevel::Info;
-        }
+    loadFromFile("config/config." + profile_ + ".json", warnings);
 
-        initLogger();
-    }
+    // API PORT
+    if (const char* p = std::getenv("QGA_API_PORT"))
+        api_port_ = std::atoi(p);
 
-    // ============================================================
-    //  JSON loader
-    // ============================================================
+    validate(warnings);
+}
 
-    void Config::loadFromFile(const std::filesystem::path& path, std::vector<std::string>* warnings)
-    {
-        std::ifstream in(path);
-        if (!in)
-        {
-            addWarn(warnings, "Config file not found: " + path.string() +
-                                  " (keeping current/default values)");
-            validate(warnings);
-            return;
-        }
+// ============================================================
+// Logger initialization
+// ============================================================
+void Config::initLogger() {
+    logger_ = utils::LoggerFactory::createAsyncRotatingLogger(
+        "QGA",
+        log_file_.string(),
+        log_level_,
+        log_max_size_mb_ * 1024 * 1024,
+        log_max_files_
+    );
 
-        std::string content((std::istreambuf_iterator<char>(in)), {});
-        json j = json::parse(content, nullptr, false);
-
-        if (j.is_discarded())
-        {
-            addWarn(warnings,
-                    "Invalid JSON in " + path.string() + " (keeping current/default values)");
-            validate(warnings);
-            return;
-        }
-
-        // --------------------------------------------------------
-        // paths.data_dir
-        // --------------------------------------------------------
-        if (j.contains("paths") && j["paths"].is_object())
-        {
-            const auto& jp = j["paths"];
-            if (jp.contains("data_dir"))
-            {
-                if (jp["data_dir"].is_string())
-                    data_dir_ = jp["data_dir"].get<std::string>();
-                else
-                    addWarn(warnings, "paths.data_dir: expected string");
-            }
-        }
-
-        // --------------------------------------------------------
-        // engine.threads
-        // --------------------------------------------------------
-        if (j.contains("engine") && j["engine"].is_object())
-        {
-            const auto& je = j["engine"];
-            if (je.contains("threads"))
-            {
-                if (je["threads"].is_number_integer())
-                    threads_ = je["threads"].get<int>();
-                else
-                    addWarn(warnings, "engine.threads: expected integer");
-            }
-        }
-
-        // --------------------------------------------------------
-        // logging
-        // --------------------------------------------------------
-        if (j.contains("logging") && j["logging"].is_object())
-        {
-            const auto& jl = j["logging"];
-
-            if (jl.contains("level"))
-            {
-                if (jl["level"].is_string())
-                {
-                    auto lvl = parseLogLevel(jl["level"].get<std::string>());
-                    if (lvl)
-                        log_level_ = *lvl;
-                    else
-                        addWarn(warnings, "logging.level: unknown value");
-                }
-                else
-                {
-                    addWarn(warnings, "logging.level: expected string");
-                }
-            }
-
-            if (jl.contains("file"))
-            {
-                if (jl["file"].is_string())
-                    log_file_ = jl["file"].get<std::string>();
-                else
-                    addWarn(warnings, "logging.file: expected string");
-            }
-        }
-
-        // --------------------------------------------------------
-        // NEW: input.path
-        // --------------------------------------------------------
-        if (j.contains("input") && j["input"].is_object())
-        {
-            const auto& ji = j["input"];
-            if (ji.contains("path"))
-            {
-                if (ji["path"].is_string())
-                    input_path_ = ji["path"].get<std::string>();
-                else
-                    addWarn(warnings, "input.path: expected string");
-            }
-        }
-
-        // --------------------------------------------------------
-        // NEW: output.path
-        // --------------------------------------------------------
-        if (j.contains("output") && j["output"].is_object())
-        {
-            const auto& jo = j["output"];
-            if (jo.contains("path"))
-            {
-                if (jo["path"].is_string())
-                    output_path_ = jo["path"].get<std::string>();
-                else
-                    addWarn(warnings, "output.path: expected string");
-            }
-        }
-
-        validate(warnings);
-    }
-
-    // ============================================================
-    //  ENV loader with profile support
-    // ============================================================
-
-    void Config::loadFromEnv(std::vector<std::string>* warnings)
-    {
-
-        // profile: QGA_PROFILE
-        if (const char* p = std::getenv("QGA_PROFILE"))
-        {
-            if (*p)
-                profile_ = std::string(p);
-            else
-                addWarn(warnings, "QGA_PROFILE is empty → using 'dev'");
-        }
-
-        // Load JSON file for profile
-        std::filesystem::path profile_path = "config/config." + profile_ + ".json";
-        loadFromFile(profile_path, warnings);
-
-        // QGA_DATA_DIR
-        if (const char* v = std::getenv("QGA_DATA_DIR"))
-        {
-            if (*v)
-                data_dir_ = std::string(v);
-            else
-                addWarn(warnings, "QGA_DATA_DIR is empty");
-        }
-
-        // QGA_THREADS
-        if (const char* v = std::getenv("QGA_THREADS"))
-        {
-            try
-            {
-                threads_ = std::stoi(v);
-            }
-            catch (...)
-            {
-                addWarn(warnings, "QGA_THREADS: invalid integer");
-            }
-        }
-
-        // QGA_LOG_FILE
-        if (const char* v = std::getenv("QGA_LOG_FILE"))
-        {
-            if (*v)
-                log_file_ = std::string(v);
-            else
-                addWarn(warnings, "QGA_LOG_FILE is empty");
-        }
-
-        // QGA_LOG_LEVEL
-        if (const char* v = std::getenv("QGA_LOG_LEVEL"))
-        {
-            if (auto lvl = parseLogLevel(v))
-                log_level_ = *lvl;
-            else
-                addWarn(warnings, "QGA_LOG_LEVEL: unknown value");
-        }
-
-        // NEW: QGA_INPUT
-        if (const char* v = std::getenv("QGA_INPUT"))
-        {
-            if (*v)
-                input_path_ = std::string(v);
-            else
-                addWarn(warnings, "QGA_INPUT is empty");
-        }
-
-        // NEW: QGA_OUTPUT
-        if (const char* v = std::getenv("QGA_OUTPUT"))
-        {
-            if (*v)
-                output_path_ = std::string(v);
-            else
-                addWarn(warnings, "QGA_OUTPUT is empty");
-        }
-
-        validate(warnings);
-    }
-
-    // ============================================================
-    //  Logger initialization
-    // ============================================================
-
-    void Config::initLogger()
-    {
-        logger_ = utils::LoggerFactory::createLogger("App", log_file_.string(), log_level_);
-
-        if (logger_)
-        {
-            logger_->info("Logger initialized [profile=" + profile_ +
-                          ", level=" + toString(log_level_) + "]");
-        }
-    }
+    if (logger_)
+        logger_->info("Config loaded [profile={}, port={}, version={}]", profile_, api_port_, version_);
+}
 
 } // namespace qga::core

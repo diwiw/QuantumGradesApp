@@ -16,6 +16,7 @@ message(STATUS "🕓 Build date: ${QGA_BUILD_DATE}")
 option(ENABLE_TSAN "Enable ThreadSanitizer" OFF)
 option(BUILD_DOCS "Build documentation with doxygen" OFF)
 option(BUILD_LEGACY_DEMOS "Build legacy demo targets (grades_demo, logger_demo)" OFF)
+option(BUILD_API "Build REST API server" OFF)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -140,6 +141,14 @@ if(NOT CLI11_FOUND)
     FetchContent_MakeAvailable(CLI11)
 endif()
 
+# cpp-httplib (header-only)
+FetchContent_Declare(
+    httplib
+    GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
+    GIT_TAG v0.15.3
+)
+FetchContent_MakeAvailable(httplib)
+
 # ============================================================
 # 🧩 Subdirectories (modular build)
 # ============================================================
@@ -152,6 +161,15 @@ add_subdirectory(${SRC_DIR}/strategy)
 add_subdirectory(${SRC_DIR}/reporting)
 add_subdirectory(${SRC_DIR}/domain)
 add_subdirectory(${SRC_DIR}/cli)
+add_subdirectory(${SRC_DIR}/api)
+
+# ============================================================
+# 🧩 Optional REST API Server
+# ============================================================
+if (BUILD_API)
+    message(STATUS "🌐 Building REST API server")
+    add_subdirectory(${SRC_DIR}/apps/qga_api)
+endif()
 
 # ============================================================
 # 💡 Examples
