@@ -40,14 +40,13 @@ target_link_libraries(qga_tests PRIVATE
     qga_persistence
     qga_reporting
     qga_strategy
-    qga_cli_lib
     qga_api_lib
     fmt::fmt
     spdlog::spdlog
     nlohmann_json::nlohmann_json
     CURL::libcurl
     SQLite::SQLite3
-    CLI11::CLI11
+
 )
 # === TO DO in 1.1.5 =====
 # Unit tests (if any)

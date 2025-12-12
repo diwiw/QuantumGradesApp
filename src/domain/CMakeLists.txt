@@ -6,7 +6,7 @@ file(GLOB DOMAIN_SRC CONFIGURE_DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/backtest/*.cpp
 )
-
+message(STATUS "DOMAIN_SRC = ${DOMAIN_SRC}")
 add_library(qga_domain STATIC ${DOMAIN_SRC})
 
 target_include_directories(qga_domain

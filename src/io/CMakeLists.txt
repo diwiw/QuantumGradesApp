@@ -16,6 +16,7 @@ target_include_directories(qga_io
 target_link_libraries(qga_io
     PUBLIC
         qga_utils
+        qga_domain
         fmt::fmt
         spdlog::spdlog
         CURL::libcurl

@@ -8,7 +8,13 @@ add_executable(qga_tests_e2e
     ${CMAKE_CURRENT_SOURCE_DIR}/test_main_e2e.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_cli_e2e.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_data_ingest_http.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_cli_integration.cpp
 )
+
+# ============================================================
+# Ensure CLI binary is built before running E2E tests
+# ============================================================
+add_dependencies(qga_tests_e2e qga_cli)
 
 # ============================================================
 # Provide path to CLI binary for E2E tests

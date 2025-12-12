@@ -1,30 +1,28 @@
+#include <iostream>
+
+#include "Version.hpp"
 #include "api/ApiServer.hpp"
 #include "core/Config.hpp"
 #include "utils/LoggerFactory.hpp"
-#include "Version.hpp"
-
-#include <iostream>
 
 int main()
 {
-    try {
+    try
+    {
         auto& config = qga::core::Config::getInstance();
         config.loadFromFile("config/config.json");
 
         auto logger = qga::utils::LoggerFactory::createAsyncRotatingLogger(
-            "api",
-            config.logFile().string(),
-            config.logLevel(),
-            config.logMaxSizeBytes(),
-            config.logMaxFiles()
-        );
+            "api", config.logFile().string(), config.logLevel(), config.logMaxSizeBytes(),
+            config.logMaxFiles());
 
         logger->info("QuantumGradesApp API starting... version={}", APP_VERSION);
 
         qga::api::ApiServer server(logger, config);
         server.start();
-
-    } catch (const std::exception& e) {
+    }
+    catch (const std::exception& e)
+    {
         std::cerr << "[FATAL] API crashed: " << e.what() << std::endl;
         return 1;
     }
