@@ -1,11 +1,5 @@
 {
-    "logging": {
-        "level": "WARN"
-    },
-    "paths": {
-        "data_dir": "test_data"
-    },
-    "engine": {
-        "threads": 2
-    }
-}
+            "logging": { "level": "WARN" },
+            "paths":   { "data_dir": "test_data" },
+            "engine":  { "threads": 2 }
+        }

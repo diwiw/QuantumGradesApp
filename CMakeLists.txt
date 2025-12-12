@@ -98,56 +98,16 @@ else()
 endif()
 
 # ============================================================
-# 📦 Dependencies (FetchContent + vcpkg)
+# 📦 Dependencies (vcpkg)
 # ============================================================
-include(FetchContent)
 
-# fmt
-FetchContent_Declare(
-  fmt
-  URL https://github.com/fmtlib/fmt/archive/refs/tags/10.2.1.tar.gz
-)
-FetchContent_MakeAvailable(fmt)
-
-# spdlog
-set(SPDLOG_FMT_EXTERNAL ON CACHE BOOL "Use external fmt library" FORCE)
-FetchContent_Declare(
-  spdlog
-  GIT_REPOSITORY https://github.com/gabime/spdlog.git
-  GIT_TAG v1.14.1
-)
-FetchContent_MakeAvailable(spdlog)
-
-# nlohmann JSON
-FetchContent_Declare(
-  nlohmann_json
-  URL https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.tar.gz
-)
-FetchContent_MakeAvailable(nlohmann_json)
-
-# CURL + SQLite3 (z vcpkg)
+find_package(fmt CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 find_package(CURL REQUIRED)
 find_package(SQLite3 REQUIRED)
-
-# CLI11 (z vcpkg lub FetchContent)
-find_package(CLI11 CONFIG QUIET)
-if(NOT CLI11_FOUND)
-    message(WARNING "CLI11 not found in vcpkg — fetching manually")
-    FetchContent_Declare(
-        CLI11
-        GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
-        GIT_TAG v2.4.2
-    )
-    FetchContent_MakeAvailable(CLI11)
-endif()
-
-# cpp-httplib (header-only)
-FetchContent_Declare(
-    httplib
-    GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
-    GIT_TAG v0.15.3
-)
-FetchContent_MakeAvailable(httplib)
+find_package(CLI11 CONFIG REQUIRED)
+find_package(httplib CONFIG REQUIRED)
 
 # ============================================================
 # 🧩 Subdirectories (modular build)

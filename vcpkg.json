@@ -7,7 +7,8 @@
         "sqlite3",
         "fmt",
         "cli11",
-        "cpp-httplib"
+        "cpp-httplib",
+        "nlohmann-json"
     ],
     "builtin-baseline": "62324000504cdd27282f8275c99135cfb2bd1dc0"
 }
