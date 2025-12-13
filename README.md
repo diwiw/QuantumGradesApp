@@ -1,6 +1,6 @@
 # QuantumGradesApp
 
-> **Version:** `v0.9.0`
+> **Version:** `v0.9.2`
 > **Build System:** CMake + Ninja
 > **Standard:** C++23
 > **Documentation:** Doxygen + Mermaid + Graphviz
