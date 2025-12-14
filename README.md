@@ -424,4 +424,11 @@ Project created and maintained by https://github.com/diwiw.
 ---
 
 # License
-MIT License – see `LICENSE.txt`
+
+QuantumGradesApp is licensed under the **Business Source License (BSL) 1.1**.
+
+- ❌ Commercial use is NOT permitted without a separate license
+- ❌ SaaS / hosted offerings are NOT permitted
+- ✔️ Personal, educational, and research use is allowed
+
+See [LICENSE](./LICENSE) and [LEGAL_NOTICE.md](./LEGAL_NOTICE.md) for details.
