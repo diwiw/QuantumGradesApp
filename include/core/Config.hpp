@@ -97,7 +97,7 @@ namespace qga::core
         // Stored fields
         // ============================================================
 
-        std::string profile_ = "dev";
+        std::string profile_;
 
         // API server
         int api_port_ = 8080;
