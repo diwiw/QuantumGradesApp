@@ -24,7 +24,7 @@ namespace qga::core
      * @brief Locate the configuration file by traversing parent directories.
      *
      * Starting from the given directory, this function searches upwards
-     * for a valid QuantumGradesApp configuration file (e.g. config/config.json).
+     * for a valid QuantGradesApp configuration file (e.g. config/config.json).
      *
      * The search stops at the filesystem root.
      *

@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.27)
-project(QuantumGradesApp LANGUAGES CXX)
+project(QuantGradesApp LANGUAGES CXX)
 
 # ============================================================
 # 🧩 Load version info
 # ============================================================
 include(${CMAKE_SOURCE_DIR}/cmake/version.cmake)
 
-message(STATUS "🧩 QuantumGradesApp version: ${QGA_VERSION} (${QGA_GIT_VERSION})")
+message(STATUS "🧩 QuantGradesApp version: ${QGA_VERSION} (${QGA_GIT_VERSION})")
 message(STATUS "🕓 Build date: ${QGA_BUILD_DATE}")
 
 # ============================================================

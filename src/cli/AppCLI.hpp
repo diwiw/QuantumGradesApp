@@ -5,7 +5,7 @@ namespace qga::cli
 {
 
     /**
-     * @brief CLI implementation of the QuantumGradesApp application.
+     * @brief CLI implementation of the QuantGradesApp application.
      *
      * This class implements the IAppCLI interface using the CLI11 library.
      * It provides the command-line interface used to run backtests,

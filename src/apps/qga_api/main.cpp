@@ -16,7 +16,7 @@ int main()
             "api", config.logFile().string(), config.logLevel(), config.logMaxSizeBytes(),
             config.logMaxFiles());
 
-        logger->info("QuantumGradesApp API starting... version={}", APP_VERSION);
+        logger->info("QuantGradesApp API starting... version={}", APP_VERSION);
 
         qga::api::ApiServer server(logger, config);
         server.start();
