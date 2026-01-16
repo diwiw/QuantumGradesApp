@@ -1,5 +1,5 @@
 {
-    "name": "QuantGradesapp",
+    "name": "quantgradesapplication",
     "version-string": "0.8.0",
     "dependencies": [
         "curl",
